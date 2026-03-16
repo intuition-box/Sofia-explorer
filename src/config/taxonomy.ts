@@ -184,7 +184,7 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "product-design",
             label: "Product design",
             disambiguationSignal:
-              "Figma : wireframe vs illustrations vs prototypes",
+              "Figma: wireframe vs illustrations vs prototypes",
             disambiguationResult:
               "UX designer vs illustrator vs product",
           },
@@ -422,7 +422,7 @@ export const SOFIA_DOMAINS: Domain[] = [
         label: "Collecting",
         niches: [
           { id: "vinyl-collecting", label: "Vinyl records" },
-          { id: "cassette-collecting", label: "Cassettes & K7" },
+          { id: "cassette-collecting", label: "Cassettes & Tapes" },
           {
             id: "limited-editions",
             label: "Limited editions",
@@ -453,11 +453,11 @@ export const SOFIA_DOMAINS: Domain[] = [
   },
 
   // =========================================================================
-  // 4. GAMING & JEUX
+  // 4. GAMING
   // =========================================================================
   {
     id: "gaming",
-    label: "Gaming & Jeux",
+    label: "Gaming",
     icon: "gamepad",
     color: "#C678DD",
     primaryPlatforms: [
@@ -470,30 +470,30 @@ export const SOFIA_DOMAINS: Domain[] = [
     categories: [
       {
         id: "strategy-puzzle",
-        label: "Jeux de reflexion & Strategie",
+        label: "Puzzle & Strategy Games",
         niches: [
           {
             id: "chess",
-            label: "Echecs (classement Elo)",
+            label: "Chess (Elo rating)",
             disambiguationSignal:
-              "Chess.com Elo > 1500 + streak quotidien",
+              "Chess.com Elo > 1500 + daily streak",
             disambiguationResult:
-              "Intellectuel strategique ≠ gamer classique",
+              "Strategic intellectual ≠ classic gamer",
           },
           { id: "go-shogi", label: "Go / Shogi" },
-          { id: "board-games", label: "Jeux de plateau" },
-          { id: "puzzles", label: "Puzzles & Casse-tetes" },
+          { id: "board-games", label: "Board games" },
+          { id: "puzzles", label: "Puzzles & Brain teasers" },
         ],
       },
       {
         id: "fps-competitive",
-        label: "FPS / TPS Competitif",
+        label: "FPS / TPS Competitive",
         niches: [
           {
             id: "valorant-csgo",
             label: "Valorant / CSGO",
             disambiguationSignal:
-              "Steam : 80% heures sur 1 genre = specialiste",
+              "Steam: 80% hours on 1 genre = specialist",
             disambiguationResult:
               "Hardcore vs casual gamer",
           },
@@ -513,8 +513,8 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "action-rpg",
             label: "Action-RPG (Elden Ring, Zelda)",
             disambiguationSignal:
-              "Twitch streams : jeux par categorie dominante",
-            disambiguationResult: "Genre dominant exact",
+              "Twitch streams: games by dominant category",
+            disambiguationResult: "Exact dominant genre",
           },
           {
             id: "jrpg",
@@ -526,7 +526,7 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "strategy-4x",
-        label: "Strategie & 4X",
+        label: "Strategy & 4X",
         niches: [
           {
             id: "civilization",
@@ -534,7 +534,7 @@ export const SOFIA_DOMAINS: Domain[] = [
             disambiguationSignal:
               "Subreddit r/chess vs r/patientgamers vs r/VALORANT",
             disambiguationResult:
-              "Sous-culture gaming precise",
+              "Precise gaming subculture",
           },
           { id: "rts-starcraft", label: "StarCraft / RTS" },
           { id: "total-war", label: "Total War" },
@@ -546,7 +546,7 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "sports-games",
-        label: "Sports virtuels",
+        label: "Virtual Sports",
         niches: [
           { id: "fifa-fc", label: "Football (FIFA / FC)" },
           { id: "f1-racing", label: "F1 & Racing sims" },
@@ -558,11 +558,11 @@ export const SOFIA_DOMAINS: Domain[] = [
         id: "indie-art-games",
         label: "Indie & Art games",
         niches: [
-          { id: "auteur-games", label: "Jeux d'auteur" },
+          { id: "auteur-games", label: "Auteur games" },
           { id: "pixel-indie", label: "Pixel art indie" },
           {
             id: "narrative-experiences",
-            label: "Experiences narratives",
+            label: "Narrative experiences",
           },
           { id: "game-jams", label: "Game jams" },
         ],
@@ -575,9 +575,9 @@ export const SOFIA_DOMAINS: Domain[] = [
           { id: "ffxiv", label: "Final Fantasy XIV" },
           {
             id: "guild-community",
-            label: "Guild & communaute",
+            label: "Guild & Community",
           },
-          { id: "ingame-economy", label: "Economie in-game" },
+          { id: "ingame-economy", label: "In-game economy" },
         ],
       },
       {
@@ -588,9 +588,9 @@ export const SOFIA_DOMAINS: Domain[] = [
           { id: "speedrunning", label: "Speedrunning" },
           {
             id: "physical-collecting",
-            label: "Collections physiques",
+            label: "Physical collections",
           },
-          { id: "arcade", label: "Arcade & bornes" },
+          { id: "arcade", label: "Arcade & Cabinets" },
         ],
       },
     ],
@@ -620,7 +620,7 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "yield-farming",
             label: "Yield farming & liquidity",
             disambiguationSignal:
-              "On-chain : protocoles interagis (Aave vs OpenSea vs Uniswap)",
+              "On-chain: interacted protocols (Aave vs OpenSea vs Uniswap)",
             disambiguationResult:
               "DeFi vs NFT collector vs DEX trader",
           },
@@ -634,20 +634,20 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "nft-art",
-        label: "NFT & Art digital",
+        label: "NFT & Digital Art",
         niches: [
           {
             id: "nft-collecting",
             label: "Collecting",
             disambiguationSignal:
-              "Tokens detenus : ETH heavy vs BTC only vs altcoin diversifie",
+              "Held tokens: ETH heavy vs BTC only vs diversified altcoin",
             disambiguationResult:
-              "Profil ideologique exact",
+              "Exact ideological profile",
           },
           { id: "nft-creation", label: "Creation / minting" },
           {
             id: "generative-nft",
-            label: "Generatif (Art Blocks)",
+            label: "Generative (Art Blocks)",
           },
           { id: "pfp-communities", label: "PFP communities" },
         ],
@@ -660,7 +660,7 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "altcoins-gems",
             label: "Altcoins & gems",
             disambiguationSignal:
-              "Lens/Farcaster activite vs wallet DeFi seul",
+              "Lens/Farcaster activity vs DeFi wallet only",
             disambiguationResult:
               "Web3 social vs finance only",
           },
@@ -674,7 +674,7 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "btc-maximalism",
-        label: "Bitcoin maximalisme",
+        label: "Bitcoin Maximalism",
         niches: [
           {
             id: "lightning-network",
@@ -682,7 +682,7 @@ export const SOFIA_DOMAINS: Domain[] = [
             disambiguationSignal:
               "ENS + Lens + Farcaster vs wallet dormant",
             disambiguationResult:
-              "OG engage vs speculateur passif",
+              "Engaged OG vs passive speculator",
           },
           { id: "self-custody", label: "Self-custody" },
           {
@@ -710,9 +710,9 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "dao-governance",
-        label: "DAO & Gouvernance",
+        label: "DAO & Governance",
         niches: [
-          { id: "dao-voting", label: "Participation aux votes" },
+          { id: "dao-voting", label: "Voting participation" },
           { id: "contributor-dao", label: "Contributor DAO" },
           { id: "grants-funding", label: "Grants & funding" },
           { id: "token-politics", label: "Token politics" },
@@ -748,11 +748,11 @@ export const SOFIA_DOMAINS: Domain[] = [
   },
 
   // =========================================================================
-  // 6. SCIENCE & SAVOIR
+  // 6. SCIENCE & KNOWLEDGE
   // =========================================================================
   {
     id: "science",
-    label: "Science & Savoir",
+    label: "Science & Knowledge",
     icon: "microscope",
     color: "#98C379",
     primaryPlatforms: [
@@ -765,19 +765,19 @@ export const SOFIA_DOMAINS: Domain[] = [
     categories: [
       {
         id: "mathematics",
-        label: "Mathematiques & Logique",
+        label: "Mathematics & Logic",
         niches: [
           {
             id: "pure-math",
-            label: "Maths pures (topologie, algebre)",
+            label: "Pure math (topology, algebra)",
             disambiguationSignal:
-              "ORCID publications + domaine de recherche",
+              "ORCID publications + research field",
             disambiguationResult:
-              "Scientifique actif vs passionne amateur",
+              "Active scientist vs amateur enthusiast",
           },
           {
             id: "applied-math",
-            label: "Maths appliquees & stats",
+            label: "Applied math & Statistics",
           },
           {
             id: "math-olympiads",
@@ -785,63 +785,63 @@ export const SOFIA_DOMAINS: Domain[] = [
           },
           {
             id: "philosophy-of-math",
-            label: "Philosophie des maths",
+            label: "Philosophy of mathematics",
           },
         ],
       },
       {
         id: "physics-cosmology",
-        label: "Physique & Cosmologie",
+        label: "Physics & Cosmology",
         niches: [
           {
             id: "theoretical-physics",
-            label: "Physique theorique",
+            label: "Theoretical physics",
             disambiguationSignal:
-              "Duolingo + LeetCode + Kaggle combines",
+              "Duolingo + LeetCode + Kaggle combined",
             disambiguationResult:
-              "Langues vs logique vs data science",
+              "Languages vs logic vs data science",
           },
-          { id: "astrophysics", label: "Astrophysique" },
-          { id: "quantum-physics", label: "Physique quantique" },
+          { id: "astrophysics", label: "Astrophysics" },
+          { id: "quantum-physics", label: "Quantum physics" },
           {
             id: "pop-science-physics",
-            label: "Science popularisee",
+            label: "Popular science",
           },
         ],
       },
       {
         id: "biology-neuro",
-        label: "Biologie & Neurosciences",
+        label: "Biology & Neuroscience",
         niches: [
           {
             id: "molecular-biology",
-            label: "Biologie moleculaire",
+            label: "Molecular biology",
             disambiguationSignal:
-              "Subreddits : r/math vs r/physics vs r/askscience",
-            disambiguationResult: "Discipline exacte",
+              "Subreddits: r/math vs r/physics vs r/askscience",
+            disambiguationResult: "Exact discipline",
           },
           {
             id: "cognitive-neuro",
-            label: "Neurosciences cognitives",
+            label: "Cognitive neuroscience",
           },
-          { id: "genetics-crispr", label: "Genetique & CRISPR" },
+          { id: "genetics-crispr", label: "Genetics & CRISPR" },
           { id: "biohacking", label: "Biohacking" },
         ],
       },
       {
         id: "psychology",
-        label: "Psychologie & Comportement",
+        label: "Psychology & Behavior",
         niches: [
           {
             id: "cognitive-psych",
-            label: "Psychologie cognitive",
+            label: "Cognitive psychology",
             disambiguationSignal:
-              "YouTube : Kurzgesagt vs 3Blue1Brown vs SciShow",
+              "YouTube: Kurzgesagt vs 3Blue1Brown vs SciShow",
             disambiguationResult:
-              "Vulgarisation vs profondeur academique",
+              "Popular science vs academic depth",
           },
-          { id: "social-psych", label: "Psychologie sociale" },
-          { id: "therapy-cbt", label: "Therapies & TCC" },
+          { id: "social-psych", label: "Social psychology" },
+          { id: "therapy-cbt", label: "Therapy & CBT" },
           {
             id: "behavioral-economics",
             label: "Behaviour economics",
@@ -850,70 +850,70 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "history-archaeology",
-        label: "Histoire & Archeologie",
+        label: "History & Archaeology",
         niches: [
-          { id: "ancient-history", label: "Histoire ancienne" },
+          { id: "ancient-history", label: "Ancient history" },
           {
             id: "modern-history",
-            label: "Histoire contemporaine",
+            label: "Modern history",
           },
           {
             id: "archaeology",
-            label: "Archeologie & artefacts",
+            label: "Archaeology & Artifacts",
           },
-          { id: "counter-history", label: "Contre-histoire" },
+          { id: "counter-history", label: "Counter-history" },
         ],
       },
       {
         id: "philosophy",
-        label: "Philosophie",
+        label: "Philosophy",
         niches: [
           {
             id: "analytic-philosophy",
-            label: "Philosophie analytique",
+            label: "Analytic philosophy",
           },
           {
             id: "continental-philosophy",
-            label: "Philosophie continentale",
+            label: "Continental philosophy",
           },
           {
             id: "ethics-metaethics",
-            label: "Ethique & Meta-ethique",
+            label: "Ethics & Meta-ethics",
           },
           {
             id: "philosophy-of-mind",
-            label: "Philosophie de l'esprit",
+            label: "Philosophy of mind",
           },
         ],
       },
       {
         id: "linguistics",
-        label: "Linguistique & Langues",
+        label: "Linguistics & Languages",
         niches: [
           {
             id: "language-learning",
-            label: "Apprentissage de langues",
+            label: "Language learning",
           },
           {
             id: "structural-linguistics",
-            label: "Linguistique structurale",
+            label: "Structural linguistics",
           },
           {
             id: "constructed-languages",
-            label: "Langues construites",
+            label: "Constructed languages",
           },
-          { id: "etymology", label: "Etymologie" },
+          { id: "etymology", label: "Etymology" },
         ],
       },
     ],
   },
 
   // =========================================================================
-  // 7. SPORT & SANTE
+  // 7. SPORT & HEALTH
   // =========================================================================
   {
     id: "sport-health",
-    label: "Sport & Sante",
+    label: "Sport & Health",
     icon: "running",
     color: "#E5C07B",
     primaryPlatforms: [
@@ -926,14 +926,14 @@ export const SOFIA_DOMAINS: Domain[] = [
     categories: [
       {
         id: "team-sports",
-        label: "Sports collectifs",
+        label: "Team Sports",
         niches: [
           {
             id: "football-player",
-            label: "Football (joueur vs supporter)",
+            label: "Football (player vs supporter)",
             disambiguationSignal:
-              "Strava activite dominante (run vs velo vs swim)",
-            disambiguationResult: "Sport pratique precis",
+              "Strava dominant activity (run vs bike vs swim)",
+            disambiguationResult: "Precise practiced sport",
           },
           { id: "basketball", label: "Basketball" },
           { id: "rugby", label: "Rugby" },
@@ -945,7 +945,7 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "individual-sports",
-        label: "Sports individuels",
+        label: "Individual Sports",
         niches: [
           {
             id: "tennis-padel",
@@ -953,48 +953,48 @@ export const SOFIA_DOMAINS: Domain[] = [
             disambiguationSignal:
               "Garmin VO2max + HRV trends",
             disambiguationResult:
-              "Amateur vs semi-pro vs sante casual",
+              "Amateur vs semi-pro vs casual health",
           },
-          { id: "swimming", label: "Natation" },
+          { id: "swimming", label: "Swimming" },
           {
             id: "cycling-triathlon",
-            label: "Cyclisme & Triathlon",
+            label: "Cycling & Triathlon",
           },
-          { id: "athletics", label: "Athletisme" },
+          { id: "athletics", label: "Athletics" },
         ],
       },
       {
         id: "fitness",
-        label: "Fitness & Musculation",
+        label: "Fitness & Strength Training",
         niches: [
           {
             id: "powerlifting",
-            label: "Powerlifting & Force",
+            label: "Powerlifting & Strength",
             disambiguationSignal:
               "Subreddits r/running vs r/powerlifting vs r/MMA",
-            disambiguationResult: "Discipline exacte",
+            disambiguationResult: "Exact discipline",
           },
           {
             id: "bodybuilding",
-            label: "Bodybuilding & Esthetique",
+            label: "Bodybuilding & Aesthetics",
           },
           {
             id: "crossfit",
-            label: "CrossFit & Fonctionnel",
+            label: "CrossFit & Functional",
           },
           { id: "calisthenics", label: "Calisthenics" },
         ],
       },
       {
         id: "extreme-sports",
-        label: "Sports extremes",
+        label: "Extreme Sports",
         niches: [
           {
             id: "climbing-boulder",
-            label: "Escalade & Boulder",
+            label: "Climbing & Bouldering",
             disambiguationSignal:
-              "Twitch sport streams vs ESPN = joueur vs supporter",
-            disambiguationResult: "Acteur vs spectateur",
+              "Twitch sport streams vs ESPN = player vs supporter",
+            disambiguationResult: "Practitioner vs spectator",
           },
           { id: "surf-kite", label: "Surf & Kite" },
           {
@@ -1008,10 +1008,10 @@ export const SOFIA_DOMAINS: Domain[] = [
         id: "running-trail",
         label: "Running & Trail",
         niches: [
-          { id: "urban-running", label: "Running urbain" },
+          { id: "urban-running", label: "Urban running" },
           {
             id: "short-trail",
-            label: "Trail courte distance",
+            label: "Short-distance trail",
           },
           { id: "ultra-trail", label: "Ultra-trail" },
           {
@@ -1022,27 +1022,27 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "combat-sports",
-        label: "Sports de combat",
+        label: "Combat Sports",
         niches: [
           { id: "mma-grappling", label: "MMA & Grappling" },
           {
             id: "boxing-muay-thai",
-            label: "Boxe anglaise & Muay Thai",
+            label: "Boxing & Muay Thai",
           },
           { id: "judo-bjj", label: "Judo & Jiu-Jitsu" },
           {
             id: "martial-arts",
-            label: "Arts martiaux",
+            label: "Martial arts",
           },
         ],
       },
       {
         id: "health-wellness",
-        label: "Sante & Bien-etre",
+        label: "Health & Wellness",
         niches: [
           {
             id: "nutrition",
-            label: "Nutrition & Dietetique",
+            label: "Nutrition & Dietetics",
           },
           { id: "yoga-pilates", label: "Yoga & Pilates" },
           {
@@ -1051,7 +1051,7 @@ export const SOFIA_DOMAINS: Domain[] = [
           },
           {
             id: "biohacking-longevity",
-            label: "Biohacking & Longevite",
+            label: "Biohacking & Longevity",
           },
         ],
       },
@@ -1076,37 +1076,37 @@ export const SOFIA_DOMAINS: Domain[] = [
     categories: [
       {
         id: "cinephilia",
-        label: "Cinephilie",
+        label: "Cinephilia",
         niches: [
           {
             id: "arthouse",
-            label: "Cinema d'auteur & Arthouse",
+            label: "Auteur cinema & Arthouse",
             disambiguationSignal:
-              "Letterboxd genres dominants + frequence notation",
+              "Letterboxd dominant genres + rating frequency",
             disambiguationResult:
-              "Cinephile vs consommateur casual",
+              "Cinephile vs casual viewer",
           },
-          { id: "scifi-fantasy-film", label: "Science-fiction & Fantastique" },
+          { id: "scifi-fantasy-film", label: "Sci-fi & Fantasy" },
           {
             id: "horror-thriller",
-            label: "Horreur & Thriller",
+            label: "Horror & Thriller",
           },
-          { id: "documentary-film", label: "Documentaire" },
+          { id: "documentary-film", label: "Documentary" },
         ],
       },
       {
         id: "filmmaking",
-        label: "Realisation & Montage",
+        label: "Filmmaking & Editing",
         niches: [
           {
             id: "indie-cinema",
-            label: "Cinema independant",
+            label: "Independent cinema",
             disambiguationSignal:
-              "YouTube chaines abonnees : genre de contenu dominant",
+              "YouTube subscribed channels: dominant content genre",
             disambiguationResult:
-              "Creation vs consommation",
+              "Creation vs consumption",
           },
-          { id: "short-film", label: "Court-metrage" },
+          { id: "short-film", label: "Short film" },
           {
             id: "premiere-davinci",
             label: "Premiere / DaVinci Resolve",
@@ -1116,7 +1116,7 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "streaming-series",
-        label: "Streaming & Series",
+        label: "Streaming & TV Series",
         niches: [
           {
             id: "prestige-tv",
@@ -1141,13 +1141,13 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "vlogging",
             label: "Vlogging & Lifestyle",
             disambiguationSignal:
-              "Twitch heures vs contenu uploade",
+              "Twitch hours vs uploaded content",
             disambiguationResult:
-              "Createur vs spectateur passif",
+              "Creator vs passive viewer",
           },
           {
             id: "edu-vulgarisation",
-            label: "Educatif / Vulgarisation",
+            label: "Educational / Popular science",
           },
           {
             id: "lets-play",
@@ -1174,14 +1174,14 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "film-criticism",
-        label: "Critique & Analyse",
+        label: "Criticism & Analysis",
         niches: [
-          { id: "film-critic", label: "Critique de films" },
+          { id: "film-critic", label: "Film criticism" },
           { id: "video-essays", label: "Video essays" },
-          { id: "cinema-podcasts", label: "Podcasts cinema" },
+          { id: "cinema-podcasts", label: "Cinema podcasts" },
           {
             id: "cultural-journalism",
-            label: "Journalisme culturel",
+            label: "Cultural journalism",
           },
         ],
       },
@@ -1189,11 +1189,11 @@ export const SOFIA_DOMAINS: Domain[] = [
   },
 
   // =========================================================================
-  // 9. ENTREPRENEURIAT & BUSINESS
+  // 9. ENTREPRENEURSHIP & BUSINESS
   // =========================================================================
   {
     id: "entrepreneurship",
-    label: "Entrepreneuriat & Business",
+    label: "Entrepreneurship & Business",
     icon: "rocket",
     color: "#D19A66",
     primaryPlatforms: [
@@ -1211,9 +1211,9 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "indie-hacking",
             label: "Indie hacking & bootstrapping",
             disambiguationSignal:
-              "Product Hunt launches + upvotes recus",
+              "Product Hunt launches + received upvotes",
             disambiguationResult:
-              "Builder actif vs observateur",
+              "Active builder vs observer",
           },
           { id: "vc-startup", label: "VC-backed startup" },
           { id: "saas-b2b", label: "SaaS B2B" },
@@ -1228,9 +1228,9 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "dev-freelance",
             label: "Dev freelance",
             disambiguationSignal:
-              "GitHub repos avec landing pages = indie hacker",
+              "GitHub repos with landing pages = indie hacker",
             disambiguationResult:
-              "Maker concret vs theoricien business",
+              "Concrete maker vs business theorist",
           },
           {
             id: "design-freelance",
@@ -1238,9 +1238,9 @@ export const SOFIA_DOMAINS: Domain[] = [
           },
           {
             id: "strategy-consulting",
-            label: "Conseil strategique",
+            label: "Strategy consulting",
           },
-          { id: "portage", label: "Portage salarial" },
+          { id: "portage", label: "Umbrella company" },
         ],
       },
       {
@@ -1253,9 +1253,9 @@ export const SOFIA_DOMAINS: Domain[] = [
             disambiguationSignal:
               "LinkedIn role Founder vs Employee vs Freelance",
             disambiguationResult:
-              "Statut entrepreneurial exact",
+              "Exact entrepreneurial status",
           },
-          { id: "d2c-brand", label: "Marque propre & D2C" },
+          { id: "d2c-brand", label: "Own brand & D2C" },
           { id: "amazon-fba", label: "Amazon FBA" },
           {
             id: "marketplace-etsy",
@@ -1273,7 +1273,7 @@ export const SOFIA_DOMAINS: Domain[] = [
             disambiguationSignal:
               "r/entrepreneur vs r/wallstreetbets vs r/fire",
             disambiguationResult:
-              "Type d'ambition financiere",
+              "Type of financial ambition",
           },
           {
             id: "paid-ads",
@@ -1288,14 +1288,14 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "finance-investing",
-        label: "Finance & Investissement",
+        label: "Finance & Investing",
         niches: [
-          { id: "stock-etf", label: "Bourse & ETF" },
+          { id: "stock-etf", label: "Stock market & ETF" },
           { id: "angel-investing", label: "Angel investing" },
           { id: "vc-dealflow", label: "VC & Deal flow" },
           {
             id: "real-estate-investing",
-            label: "Immobilier",
+            label: "Real estate",
           },
         ],
       },
@@ -1317,9 +1317,9 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "productivity-systems",
-        label: "Productivite & Systemes",
+        label: "Productivity & Systems",
         niches: [
-          { id: "gtd-agile", label: "GTD & Methodes Agile" },
+          { id: "gtd-agile", label: "GTD & Agile Methods" },
           {
             id: "second-brain",
             label: "Second brain (Notion, Obsidian)",
@@ -1332,43 +1332,43 @@ export const SOFIA_DOMAINS: Domain[] = [
   },
 
   // =========================================================================
-  // 10. ARTS VIVANTS & SPECTACLE
+  // 10. PERFORMING ARTS
   // =========================================================================
   {
     id: "performing-arts",
-    label: "Arts Vivants & Spectacle",
+    label: "Performing Arts",
     icon: "theater",
     color: "#E06C75",
     primaryPlatforms: ["twitch", "youtube", "discord"],
     categories: [
       {
         id: "theater",
-        label: "Theatre",
+        label: "Theater",
         niches: [
           {
             id: "classical-theater",
-            label: "Theatre classique & contemporain",
+            label: "Classical & Contemporary theater",
             disambiguationSignal:
               "Twitch categorie 'Performing Arts'",
             disambiguationResult:
-              "Artiste live vs spectateur",
+              "Live artist vs spectator",
           },
           { id: "improv", label: "Improvisation" },
-          { id: "physical-theater", label: "Theatre physique" },
-          { id: "mise-en-scene", label: "Mise en scene" },
+          { id: "physical-theater", label: "Physical theater" },
+          { id: "mise-en-scene", label: "Directing" },
         ],
       },
       {
         id: "dance",
-        label: "Danse",
+        label: "Dance",
         niches: [
           {
             id: "classical-dance",
-            label: "Danse classique & contemporaine",
+            label: "Classical & Contemporary dance",
             disambiguationSignal:
-              "YouTube abonnements : chaines de danse vs culture",
+              "YouTube subscriptions: dance channels vs culture",
             disambiguationResult:
-              "Praticien vs amateur culturel",
+              "Practitioner vs cultural amateur",
           },
           {
             id: "hiphop-breakdance",
@@ -1376,24 +1376,24 @@ export const SOFIA_DOMAINS: Domain[] = [
           },
           {
             id: "latin-dance",
-            label: "Danses latines (salsa, tango)",
+            label: "Latin dances (salsa, tango)",
           },
           {
             id: "traditional-dance",
-            label: "Danse traditionnelle",
+            label: "Traditional dance",
           },
         ],
       },
       {
         id: "circus-performance",
-        label: "Cirque & Performance",
+        label: "Circus & Performance",
         niches: [
           {
             id: "circus-acrobatics",
-            label: "Arts du cirque (acrobatie)",
+            label: "Circus arts (acrobatics)",
             disambiguationSignal:
-              "Discord : serveurs d'impro / theatre / collectifs",
-            disambiguationResult: "Communaute specifique",
+              "Discord: improv / theater / collective servers",
+            disambiguationResult: "Specific community",
           },
           { id: "performance-art", label: "Performance art" },
           {
@@ -1405,40 +1405,40 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "comedy",
-        label: "Humour & Stand-up",
+        label: "Comedy & Stand-up",
         niches: [
           {
             id: "standup",
             label: "Stand-up comedy",
             disambiguationSignal:
-              "Billeterie frequente (si partenariat)",
+              "Frequent ticketing (if partnership)",
             disambiguationResult:
-              "Spectateur regulier vs artiste",
+              "Regular spectator vs artist",
           },
           {
             id: "sketch-improv-comedy",
-            label: "Sketch & Impro comique",
+            label: "Sketch & Comedy improv",
           },
           {
             id: "comedy-podcasts",
-            label: "Podcasts humour",
+            label: "Comedy podcasts",
           },
           {
             id: "comedy-writing",
-            label: "Ecriture comique",
+            label: "Comedy writing",
           },
         ],
       },
       {
         id: "magic",
-        label: "Magie & Prestidigitation",
+        label: "Magic & Conjuring",
         niches: [
           { id: "close-up-magic", label: "Close-up magic" },
-          { id: "stage-illusion", label: "Scene & Illusion" },
-          { id: "mentalism", label: "Mentalisme" },
+          { id: "stage-illusion", label: "Stage & Illusion" },
+          { id: "mentalism", label: "Mentalism" },
           {
             id: "card-manipulation",
-            label: "Manipulation cartes",
+            label: "Card manipulation",
           },
         ],
       },
@@ -1446,11 +1446,11 @@ export const SOFIA_DOMAINS: Domain[] = [
   },
 
   // =========================================================================
-  // 11. NATURE & ENVIRONNEMENT
+  // 11. NATURE & ENVIRONMENT
   // =========================================================================
   {
     id: "nature-environment",
-    label: "Nature & Environnement",
+    label: "Nature & Environment",
     icon: "leaf",
     color: "#98C379",
     primaryPlatforms: [
@@ -1463,69 +1463,69 @@ export const SOFIA_DOMAINS: Domain[] = [
     categories: [
       {
         id: "ecology-activism",
-        label: "Ecologie & Activisme",
+        label: "Ecology & Activism",
         niches: [
           {
             id: "climate-activism",
-            label: "Militantisme climatique",
+            label: "Climate activism",
             disambiguationSignal:
-              "Strava segments outdoor vs salle de sport",
+              "Strava outdoor segments vs gym",
             disambiguationResult:
-              "Nature practitioner vs urbain",
+              "Nature practitioner vs urban",
           },
           {
             id: "zero-waste",
-            label: "Zero waste & Minimalisme",
+            label: "Zero waste & Minimalism",
           },
           { id: "permaculture", label: "Permaculture" },
           {
             id: "environmental-politics",
-            label: "Politique environnementale",
+            label: "Environmental politics",
           },
         ],
       },
       {
         id: "outdoor-adventure",
-        label: "Plein air & Aventure",
+        label: "Outdoors & Adventure",
         niches: [
           {
             id: "hiking-trek",
-            label: "Randonnee & Trek",
+            label: "Hiking & Trekking",
             disambiguationSignal:
-              "iNaturalist / eBird activite active",
+              "iNaturalist / eBird active activity",
             disambiguationResult:
-              "Observateur scientifique vs randonneur loisir",
+              "Scientific observer vs leisure hiker",
           },
           {
             id: "camping-survival",
-            label: "Camping & Survivalisme",
+            label: "Camping & Survivalism",
           },
           {
             id: "outdoor-climbing",
-            label: "Escalade outdoor",
+            label: "Outdoor climbing",
           },
           { id: "kayak-canoe", label: "Kayak & Canoe" },
         ],
       },
       {
         id: "astronomy",
-        label: "Astronomie",
+        label: "Astronomy",
         niches: [
           {
             id: "amateur-astronomy",
-            label: "Observation amateur (telescope)",
+            label: "Amateur observation (telescope)",
             disambiguationSignal:
               "r/gardening vs r/preppers vs r/environment",
             disambiguationResult:
-              "Orientation exacte dans la nature",
+              "Exact nature orientation",
           },
           {
             id: "astrophotography",
-            label: "Astrophotographie",
+            label: "Astrophotography",
           },
           {
             id: "cosmology-vulg",
-            label: "Cosmologie & vulgarisation",
+            label: "Cosmology & Popular science",
           },
           {
             id: "space-exploration",
@@ -1535,33 +1535,33 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "gardening",
-        label: "Jardinage & Agriculture",
+        label: "Gardening & Agriculture",
         niches: [
-          { id: "vegetable-garden", label: "Jardinage potager" },
+          { id: "vegetable-garden", label: "Vegetable gardening" },
           {
             id: "indoor-plants",
-            label: "Plantes d'interieur",
+            label: "Indoor plants",
           },
-          { id: "urban-farming", label: "Agriculture urbaine" },
+          { id: "urban-farming", label: "Urban farming" },
           {
             id: "medicinal-garden",
-            label: "Jardinage medicinal",
+            label: "Medicinal gardening",
           },
         ],
       },
       {
         id: "zoology-fauna",
-        label: "Zoologie & Faune",
+        label: "Zoology & Wildlife",
         niches: [
           {
             id: "birdwatching",
-            label: "Ornithologie & Bird watching",
+            label: "Ornithology & Bird watching",
           },
-          { id: "aquarium", label: "Aquariophilie" },
-          { id: "animal-breeding", label: "Elevage & animaux" },
+          { id: "aquarium", label: "Aquarium keeping" },
+          { id: "animal-breeding", label: "Breeding & Animals" },
           {
             id: "wildlife-protection",
-            label: "Protection faune sauvage",
+            label: "Wildlife protection",
           },
         ],
       },
@@ -1569,11 +1569,11 @@ export const SOFIA_DOMAINS: Domain[] = [
   },
 
   // =========================================================================
-  // 12. FOOD, MODE & LIFESTYLE
+  // 12. FOOD, FASHION & LIFESTYLE
   // =========================================================================
   {
     id: "food-lifestyle",
-    label: "Food, Mode & Lifestyle",
+    label: "Food, Fashion & Lifestyle",
     icon: "utensils",
     color: "#E5C07B",
     primaryPlatforms: [
@@ -1585,30 +1585,30 @@ export const SOFIA_DOMAINS: Domain[] = [
     categories: [
       {
         id: "gastronomy",
-        label: "Gastronomie & Cuisine",
+        label: "Gastronomy & Cooking",
         niches: [
           {
             id: "world-cuisine",
-            label: "Cuisine du monde",
+            label: "World cuisine",
             disambiguationSignal:
-              "r/coffee vs r/tea vs r/cocktails = boisson dominante",
+              "r/coffee vs r/tea vs r/cocktails = dominant beverage",
             disambiguationResult:
-              "Niche exacte dans les boissons",
+              "Exact beverage niche",
           },
           {
             id: "pastry-baking",
-            label: "Patisserie & Boulangerie",
+            label: "Pastry & Baking",
           },
-          { id: "bbq-smoking", label: "BBQ & Fumage" },
+          { id: "bbq-smoking", label: "BBQ & Smoking" },
           {
             id: "molecular-cuisine",
-            label: "Cuisine moleculaire",
+            label: "Molecular cuisine",
           },
         ],
       },
       {
         id: "beverages",
-        label: "Cafe & Boissons",
+        label: "Coffee & Beverages",
         niches: [
           {
             id: "specialty-coffee",
@@ -1616,14 +1616,14 @@ export const SOFIA_DOMAINS: Domain[] = [
             disambiguationSignal:
               "StockX / GOAT activite = sneaker culture active",
             disambiguationResult:
-              "Collectionneur vs reseller vs casual",
+              "Collector vs reseller vs casual",
           },
-          { id: "tea-ceremony", label: "The & ceremonie" },
+          { id: "tea-ceremony", label: "Tea & Ceremony" },
           {
             id: "mixology-cocktails",
-            label: "Mixologie & cocktails",
+            label: "Mixology & Cocktails",
           },
-          { id: "craft-beer", label: "Bieres artisanales" },
+          { id: "craft-beer", label: "Craft beer" },
         ],
       },
       {
@@ -1634,16 +1634,16 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "high-fashion",
             label: "High fashion & Luxe",
             disambiguationSignal:
-              "Etsy vendeur vs acheteur",
+              "Etsy seller vs buyer",
             disambiguationResult:
-              "Maker actif vs lifestyle consumer",
+              "Active maker vs lifestyle consumer",
           },
           {
             id: "streetwear-hype",
             label: "Streetwear & Hype (Jordan, Supreme)",
           },
           { id: "vintage-thrift", label: "Vintage & Thrift" },
-          { id: "ethical-fashion", label: "Mode ethique" },
+          { id: "ethical-fashion", label: "Ethical fashion" },
         ],
       },
       {
@@ -1662,37 +1662,37 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "figurines-pop",
             label: "Figurines & Pop culture",
           },
-          { id: "watches", label: "Montres" },
+          { id: "watches", label: "Watches" },
         ],
       },
       {
         id: "diy-making",
         label: "DIY & Making",
         niches: [
-          { id: "woodworking", label: "Menuiserie & Bois" },
-          { id: "3d-printing-hobby", label: "Impression 3D" },
+          { id: "woodworking", label: "Woodworking" },
+          { id: "3d-printing-hobby", label: "3D Printing" },
           {
             id: "electronics-hobby",
-            label: "Electronique hobby",
+            label: "Electronics hobby",
           },
           {
             id: "sewing-knitting",
-            label: "Couture & Tricot",
+            label: "Sewing & Knitting",
           },
         ],
       },
       {
         id: "home-decor",
-        label: "Deco & Interieur",
+        label: "Decor & Interior",
         niches: [
-          { id: "interior-design", label: "Design interieur" },
+          { id: "interior-design", label: "Interior design" },
           {
             id: "minimalism-fengshui",
             label: "Minimalisme & Feng shui",
           },
           {
             id: "interior-architecture",
-            label: "Architecture interieure",
+            label: "Interior architecture",
           },
           {
             id: "biophilic-plants",
@@ -1704,11 +1704,11 @@ export const SOFIA_DOMAINS: Domain[] = [
   },
 
   // =========================================================================
-  // 13. LITTERATURE & ECRITURE
+  // 13. LITERATURE & WRITING
   // =========================================================================
   {
     id: "literature",
-    label: "Litterature & Ecriture",
+    label: "Literature & Writing",
     icon: "book",
     color: "#ABB2BF",
     primaryPlatforms: [
@@ -1724,11 +1724,11 @@ export const SOFIA_DOMAINS: Domain[] = [
         niches: [
           {
             id: "scifi-dystopia",
-            label: "Science-fiction & Dystopie",
+            label: "Science fiction & Dystopia",
             disambiguationSignal:
-              "Goodreads genres dominants + vitesse de lecture",
+              "Goodreads dominant genres + reading speed",
             disambiguationResult:
-              "Lecteur casual vs vorace vs critique",
+              "Casual reader vs avid reader vs critic",
           },
           {
             id: "fantasy-epic",
@@ -1736,26 +1736,26 @@ export const SOFIA_DOMAINS: Domain[] = [
           },
           {
             id: "thriller-detective",
-            label: "Thriller & Policier",
+            label: "Thriller & Detective",
           },
           { id: "manga-comics", label: "Manga & Comics" },
         ],
       },
       {
         id: "nonfiction",
-        label: "Non-fiction & Essais",
+        label: "Non-fiction & Essays",
         niches: [
           {
             id: "political-essays",
-            label: "Essais politiques & Philo",
+            label: "Political essays & Philosophy",
             disambiguationSignal:
-              "Propre newsletter Substack + abonnements actifs",
+              "Own Substack newsletter + active subscriptions",
             disambiguationResult:
-              "Ecrivain vs lecteur passionne",
+              "Writer vs passionate reader",
           },
           {
             id: "biographies",
-            label: "Biographies & Memoires",
+            label: "Biographies & Memoirs",
           },
           {
             id: "business-selfhelp",
@@ -1763,40 +1763,40 @@ export const SOFIA_DOMAINS: Domain[] = [
           },
           {
             id: "pop-science-books",
-            label: "Science popularisee",
+            label: "Popular science",
           },
         ],
       },
       {
         id: "creative-writing",
-        label: "Ecriture creative",
+        label: "Creative Writing",
         niches: [
           {
             id: "novel-short-story",
-            label: "Roman & Nouvelle",
+            label: "Novel & Short story",
             disambiguationSignal:
               "r/scifi vs r/fantasy vs r/books",
             disambiguationResult:
-              "Niche litteraire precise",
+              "Precise literary niche",
           },
-          { id: "screenplay", label: "Scenario & Script" },
-          { id: "poetry", label: "Poesie" },
+          { id: "screenplay", label: "Screenplay & Script" },
+          { id: "poetry", label: "Poetry" },
           { id: "worldbuilding", label: "World-building" },
         ],
       },
       {
         id: "journalism",
-        label: "Journalisme",
+        label: "Journalism",
         niches: [
           {
             id: "investigative",
-            label: "Journalisme d'investigation",
+            label: "Investigative journalism",
           },
-          { id: "field-reporting", label: "Reportage & Terrain" },
+          { id: "field-reporting", label: "Field reporting" },
           { id: "data-journalism", label: "Data journalism" },
           {
             id: "documentary-podcast",
-            label: "Podcast documentaire",
+            label: "Documentary podcast",
           },
         ],
       },
@@ -1808,24 +1808,24 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "substack-newsletter",
             label: "Newsletter (Substack)",
           },
-          { id: "thematic-blog", label: "Blog thematique" },
+          { id: "thematic-blog", label: "Thematic blog" },
           { id: "ghostwriting", label: "Ghostwriting" },
           { id: "copywriting", label: "Copywriting" },
         ],
       },
       {
         id: "literary-criticism",
-        label: "Critique litteraire",
+        label: "Literary Criticism",
         niches: [
           { id: "book-reviews", label: "Book clubs & Reviews" },
-          { id: "translation", label: "Traduction" },
+          { id: "translation", label: "Translation" },
           {
             id: "editing-curation",
-            label: "Edition & Curation",
+            label: "Editing & Curation",
           },
           {
             id: "comparative-lit",
-            label: "Litterature comparee",
+            label: "Comparative literature",
           },
         ],
       },
@@ -1833,36 +1833,36 @@ export const SOFIA_DOMAINS: Domain[] = [
   },
 
   // =========================================================================
-  // 14. DEVELOPPEMENT PERSONNEL
+  // 14. PERSONAL DEVELOPMENT
   // =========================================================================
   {
     id: "personal-dev",
-    label: "Developpement Personnel",
+    label: "Personal Development",
     icon: "lotus",
     color: "#C678DD",
     primaryPlatforms: ["duolingo", "todoist", "reddit"],
     categories: [
       {
         id: "mindfulness-spirituality",
-        label: "Mindfulness & Spiritualite",
+        label: "Mindfulness & Spirituality",
         niches: [
           {
             id: "meditation-vipassana",
             label: "Meditation (Vipassana, Zen)",
             disambiguationSignal:
-              "Headspace / Calm abonnement actif",
+              "Headspace / Calm active subscription",
             disambiguationResult:
-              "Praticien regulier vs curieux ponctuel",
+              "Regular practitioner vs occasional curious",
           },
           {
             id: "new-age-spirituality",
-            label: "Spiritualite nouvelle-age",
+            label: "New-age spirituality",
           },
           {
             id: "stoicism",
-            label: "Stoicisme & Philo pratique",
+            label: "Stoicism & Practical philosophy",
           },
-          { id: "shamanism", label: "Chamanisme" },
+          { id: "shamanism", label: "Shamanism" },
         ],
       },
       {
@@ -1873,16 +1873,16 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "executive-coaching",
             label: "Executive coaching",
             disambiguationSignal:
-              "Duolingo streak + GTD tools + Notion combines",
+              "Duolingo streak + GTD tools + Notion combined",
             disambiguationResult:
-              "Optimiseur obsede vs equilibre",
+              "Obsessed optimizer vs balanced",
           },
-          { id: "life-coaching", label: "Coaching de vie" },
+          { id: "life-coaching", label: "Life coaching" },
           {
             id: "leadership-management",
             label: "Leadership & Management",
           },
-          { id: "nvc", label: "Communication non-violente" },
+          { id: "nvc", label: "Non-violent communication" },
         ],
       },
       {
@@ -1891,55 +1891,55 @@ export const SOFIA_DOMAINS: Domain[] = [
         niches: [
           {
             id: "dating-relationships",
-            label: "Relations amoureuses & Dating",
+            label: "Romantic relationships & Dating",
             disambiguationSignal:
               "r/financepersonnelle vs r/fire vs r/selfimprovement",
             disambiguationResult:
-              "Axe dominant dans le dev perso",
+              "Dominant axis in personal dev",
           },
           {
             id: "interpersonal-comm",
-            label: "Communication interpersonnelle",
+            label: "Interpersonal communication",
           },
           {
             id: "conscious-parenting",
-            label: "Parentalite consciente",
+            label: "Conscious parenting",
           },
           {
             id: "community-building-perso",
-            label: "Communaute",
+            label: "Community",
           },
         ],
       },
       {
         id: "personal-finance",
-        label: "Finance personnelle",
+        label: "Personal Finance",
         niches: [
           { id: "fire", label: "FIRE (Financial Independence)" },
           {
             id: "passive-investing",
-            label: "Investissement passif (ETF)",
+            label: "Passive investing (ETF)",
           },
-          { id: "budgeting", label: "Budget & Frugalite" },
+          { id: "budgeting", label: "Budgeting & Frugality" },
           {
             id: "rental-real-estate",
-            label: "Immobilier locatif",
+            label: "Rental real estate",
           },
         ],
       },
       {
         id: "neurodiversity",
-        label: "Neurodiversite & Sante mentale",
+        label: "Neurodiversity & Mental Health",
         niches: [
-          { id: "adhd-autism", label: "TDAH & Autisme" },
+          { id: "adhd-autism", label: "ADHD & Autism" },
           {
             id: "anxiety-depression",
-            label: "Anxiete & Depression",
+            label: "Anxiety & Depression",
           },
-          { id: "therapy-cbt-emdr", label: "Therapies (TCC, EMDR)" },
+          { id: "therapy-cbt-emdr", label: "Therapies (CBT, EMDR)" },
           {
             id: "psychedelics-therapy",
-            label: "Psychedeliques & therapie",
+            label: "Psychedelics & Therapy",
           },
         ],
       },
@@ -1948,7 +1948,7 @@ export const SOFIA_DOMAINS: Domain[] = [
 ]
 
 // =============================================================================
-// HELPERS DERIVES
+// DERIVED HELPERS
 // =============================================================================
 
 export const DOMAIN_BY_ID = new Map(
