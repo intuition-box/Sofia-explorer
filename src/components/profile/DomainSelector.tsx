@@ -41,7 +41,7 @@ export default function DomainSelector({
         <Badge variant="secondary">{selectedDomains.length} selected</Badge>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
         {SOFIA_DOMAINS.map((domain) => {
           const isSelected = selectedDomains.includes(domain.id)
           const nicheCount = domain.categories.reduce((s, c) => s + c.niches.length, 0)

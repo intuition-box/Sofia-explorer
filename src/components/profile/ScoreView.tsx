@@ -37,7 +37,7 @@ export default function ScoreView({
       )}
 
       {scores && scores.domains.length > 0 && (
-        <div className="space-y-3">
+        <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
           {scores.domains.map((ds) => {
             const domain = DOMAIN_BY_ID.get(ds.domainId)
             return (

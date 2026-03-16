@@ -2,7 +2,7 @@ import { usePrivy, useLogin, useLogout } from '@privy-io/react-auth'
 import { Link, useLocation } from 'react-router-dom'
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import { Search, Bell, Home, Award, Wallet, LogOut, Sun, Moon } from "lucide-react";
+import { Search, Bell, Home, Wallet, LogOut, Sun, Moon } from "lucide-react";
 import { useTheme } from '../hooks/useTheme'
 import {
   DropdownMenu,
@@ -51,13 +51,6 @@ export function Header() {
             <Button variant={location.pathname === '/' ? 'secondary' : 'ghost'} size="icon" className="h-9 w-9">
               <Home className="h-5 w-5" />
               <span className="sr-only">Dashboard</span>
-            </Button>
-          </Link>
-
-          <Link to="/resonance">
-            <Button variant={location.pathname === '/resonance' ? 'secondary' : 'ghost'} size="icon" className="h-9 w-9">
-              <Award className="h-5 w-5" />
-              <span className="sr-only">Resonance</span>
             </Button>
           </Link>
 

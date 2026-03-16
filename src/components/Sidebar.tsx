@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { Home, TrendingUp, Trophy, User, Compass, BarChart3, Globe, Shield } from "lucide-react";
+import { Home, User, Trophy, Flame, Vote, BarChart3, Globe } from "lucide-react";
 import { useDomainSelection } from '../hooks/useDomainSelection'
 
 const DOMAIN_ICONS: Record<string, string> = {
@@ -18,14 +18,14 @@ export function Sidebar() {
   const navItems = [
     { to: '/', icon: Home, label: 'Home' },
     { to: '/profile', icon: User, label: 'My Profile' },
-    { to: '/resonance', icon: Compass, label: 'Resonance' },
   ]
 
   const quickLinks = [
     { to: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
+    { to: '/streaks', icon: Flame, label: 'Streaks' },
+    { to: '/vote', icon: Vote, label: 'Vote' },
     { to: '/profile?view=scores', icon: BarChart3, label: 'My Scores' },
     { to: '/profile?view=platforms', icon: Globe, label: 'Platforms' },
-    { to: '/resonance?tab=circle', icon: Shield, label: 'Trust Circle' },
   ]
 
   return (
@@ -33,8 +33,7 @@ export function Sidebar() {
       <div className="p-4 space-y-6">
         {/* Navigation */}
         <div>
-          <h3 className="mb-3 px-2 text-sm font-medium text-foreground flex items-center gap-2">
-            <Compass className="h-4 w-4" />
+          <h3 className="mb-3 px-2 text-sm font-medium text-foreground">
             Navigation
           </h3>
           <div className="space-y-1">
@@ -61,7 +60,7 @@ export function Sidebar() {
             {quickLinks.map((item) => (
               <Link key={item.to} to={item.to}>
                 <Button
-                  variant={location.pathname + location.search === item.to ? 'secondary' : 'ghost'}
+                  variant={location.pathname === item.to ? 'secondary' : 'ghost'}
                   className="w-full justify-start h-9 px-2 text-foreground hover:bg-muted hover:text-foreground"
                 >
                   <item.icon className="h-4 w-4 mr-3" />
@@ -72,7 +71,7 @@ export function Sidebar() {
           </div>
         </div>
 
-        {/* Quick Spaces — user's selected domains */}
+        {/* Quick Spaces */}
         {selectedDomains.length > 0 && (
           <div>
             <h3 className="mb-3 px-2 text-sm font-medium text-foreground">
@@ -80,7 +79,7 @@ export function Sidebar() {
             </h3>
             <div className="space-y-1">
               {selectedDomains.slice(0, 6).map((domainId) => (
-                <Link key={domainId} to={`/profile?view=interests`}>
+                <Link key={domainId} to="/profile?view=interests">
                   <Button
                     variant="ghost"
                     className="w-full justify-start h-9 px-2 text-foreground hover:bg-muted hover:text-foreground"

@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { usePrivy } from '@privy-io/react-auth'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { usePrivy, useLogin } from '@privy-io/react-auth'
 import { useDomainSelection } from '../hooks/useDomainSelection'
 import { usePlatformConnections } from '../hooks/usePlatformConnections'
 import { useReputationScores } from '../hooks/useReputationScores'
@@ -12,13 +12,25 @@ import NicheSelector from '../components/profile/NicheSelector'
 import PlatformGrid from '../components/profile/PlatformGrid'
 import ScoreView from '../components/profile/ScoreView'
 import ShareProfileModal from '../components/profile/ShareProfileModal'
+import { Card } from '../components/ui/card'
+import { Button } from '../components/ui/button'
+import { Wallet } from 'lucide-react'
 
 type View = 'overview' | 'interests' | 'niches' | 'platforms' | 'scores'
 
 export default function ProfilePage() {
   const { authenticated, user } = usePrivy()
-  const navigate = useNavigate()
+  const { login } = useLogin()
+  const [searchParams] = useSearchParams()
   const [view, setView] = useState<View>('overview')
+
+  // Read ?view= from URL (e.g. /profile?view=scores)
+  useEffect(() => {
+    const urlView = searchParams.get('view')
+    if (urlView && ['overview', 'interests', 'niches', 'platforms', 'scores'].includes(urlView)) {
+      setView(urlView as View)
+    }
+  }, [searchParams])
 
   const address = user?.wallet?.address ?? ''
 
@@ -60,9 +72,21 @@ export default function ProfilePage() {
     totalCertifications: 0,
   })
 
+  // Not authenticated — show connect prompt
   if (!authenticated) {
-    navigate('/')
-    return null
+    return (
+      <Card className="p-8 text-center">
+        <Wallet className="h-10 w-10 mx-auto text-muted-foreground/40" />
+        <h2 className="mt-4 text-lg font-bold">Connect your wallet</h2>
+        <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto">
+          Connect your wallet to access your profile, select domains, connect platforms, and view your reputation scores.
+        </p>
+        <Button className="mt-4" onClick={() => login()}>
+          <Wallet className="h-4 w-4 mr-2" />
+          Connect Wallet
+        </Button>
+      </Card>
+    )
   }
 
   const stats = [

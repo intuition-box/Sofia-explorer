@@ -107,7 +107,7 @@ export default function PersonalStats({
           {sharing ? 'Sharing...' : 'Share'}
         </Button>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))' }}>
         {cards.map((card) => (
           <div key={card.label} className="flex flex-col items-center rounded-lg border p-3 text-center">
             <span className={`text-lg font-bold ${card.variant === 'positive' ? 'text-green-600' : card.variant === 'negative' ? 'text-red-500' : ''}`}>

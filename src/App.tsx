@@ -5,7 +5,8 @@ import { RightSidebar } from './components/RightSidebar'
 import DashboardPage from './pages/DashboardPage'
 import LeaderboardPage from './pages/LeaderboardPage'
 import ProfilePage from './pages/ProfilePage'
-import ResonancePage from './pages/ResonancePage'
+import StreaksPage from './pages/StreaksPage'
+import VotePage from './pages/VotePage'
 import OAuthCallbackPage from './pages/OAuthCallbackPage'
 
 export default function App() {
@@ -22,13 +23,13 @@ export default function App() {
       <Sidebar />
       <RightSidebar />
 
-      {/* Main content centered between sidebars */}
       <main className="ml-64 mr-72 py-6 px-6">
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/resonance" element={<ResonancePage />} />
+          <Route path="/streaks" element={<StreaksPage />} />
+          <Route path="/vote" element={<VotePage />} />
           <Route path="/auth/callback" element={<OAuthCallbackPage />} />
         </Routes>
       </main>

@@ -75,7 +75,7 @@ export default function PlatformGrid({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))' }}>
         {sortedPlatforms.map((platform) => {
           const status = getStatus(platform.id)
           const isConnected = status === 'connected'
