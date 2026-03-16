@@ -8,11 +8,11 @@ import type { Domain } from "../types/reputation"
 
 export const SOFIA_DOMAINS: Domain[] = [
   // =========================================================================
-  // 1. TECHNOLOGIE & DEV
+  // 1. TECH & DEV
   // =========================================================================
   {
     id: "tech-dev",
-    label: "Technologie & Dev",
+    label: "Tech & Dev",
     icon: "keyboard",
     color: "#4472C4",
     primaryPlatforms: [
@@ -31,8 +31,8 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "frontend",
             label: "Frontend (React, Vue, Svelte)",
             disambiguationSignal:
-              "Commit pattern quotidien (GitHub streak)",
-            disambiguationResult: "Dev actif vs hobbyiste",
+              "Daily commit pattern (GitHub streak)",
+            disambiguationResult: "Active dev vs hobbyist",
           },
           {
             id: "backend",
@@ -69,9 +69,9 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "ai-research",
             label: "Research & Papers (LLMs)",
             disambiguationSignal:
-              "Hugging Face modeles publies",
+              "Hugging Face published models",
             disambiguationResult:
-              "AI/ML vs dev web classique",
+              "AI/ML vs classic web dev",
           },
           {
             id: "applied-ai",
@@ -89,9 +89,9 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "kubernetes-docker",
             label: "Kubernetes & Docker",
             disambiguationSignal:
-              "Stack Overflow tags dominants",
+              "Stack Overflow dominant tags",
             disambiguationResult:
-              "Langage / ecosysteme exact",
+              "Exact language / ecosystem",
           },
           { id: "cicd-gitops", label: "CI/CD & GitOps" },
           { id: "aws-gcp-azure", label: "AWS / GCP / Azure" },
@@ -100,14 +100,14 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "cybersecurity",
-        label: "Cybersecurite",
+        label: "Cybersecurity",
         niches: [
           {
             id: "ethical-hacking",
             label: "Ethical hacking & CTF",
           },
           { id: "privacy-opsec", label: "Privacy & OPSEC" },
-          { id: "cryptography", label: "Cryptographie" },
+          { id: "cryptography", label: "Cryptography" },
           { id: "bug-bounty", label: "Bug bounty" },
         ],
       },
@@ -117,13 +117,13 @@ export const SOFIA_DOMAINS: Domain[] = [
         niches: [
           {
             id: "oss-contributor",
-            label: "Contributeur actif",
+            label: "Active contributor",
             disambiguationSignal:
-              "Repos dominants : frontend vs backend vs infra",
+              "Dominant repos: frontend vs backend vs infra",
             disambiguationResult:
-              "Specialisation tech precise",
+              "Precise tech specialization",
           },
-          { id: "oss-maintainer", label: "Mainteneur de projet" },
+          { id: "oss-maintainer", label: "Project maintainer" },
           { id: "oss-docs", label: "Documentation" },
           {
             id: "oss-business",
@@ -140,8 +140,8 @@ export const SOFIA_DOMAINS: Domain[] = [
             label: "Arduino / Raspberry Pi",
           },
           { id: "embedded", label: "Embedded systems" },
-          { id: "domotique", label: "Domotique" },
-          { id: "robotique", label: "Robotique" },
+          { id: "domotique", label: "Home automation" },
+          { id: "robotique", label: "Robotics" },
         ],
       },
       {
@@ -161,11 +161,11 @@ export const SOFIA_DOMAINS: Domain[] = [
   },
 
   // =========================================================================
-  // 2. DESIGN & CREATIVITE VISUELLE
+  // 2. DESIGN & VISUAL ARTS
   // =========================================================================
   {
     id: "design-creative",
-    label: "Design & Creativite Visuelle",
+    label: "Design & Visual Arts",
     icon: "palette",
     color: "#E06C75",
     primaryPlatforms: [
@@ -186,27 +186,27 @@ export const SOFIA_DOMAINS: Domain[] = [
             disambiguationSignal:
               "Figma : wireframe vs illustrations vs prototypes",
             disambiguationResult:
-              "UX designer vs illustrateur vs product",
+              "UX designer vs illustrator vs product",
           },
           { id: "design-system", label: "Design system" },
-          { id: "prototyping", label: "Prototypage (Figma)" },
+          { id: "prototyping", label: "Prototyping (Figma)" },
           { id: "user-research", label: "User research" },
         ],
       },
       {
         id: "illustration",
-        label: "Illustration & Art numerique",
+        label: "Illustration & Digital Art",
         niches: [
           {
             id: "concept-art",
             label: "Concept art",
             disambiguationSignal:
-              "Behance : categories des projets publies",
-            disambiguationResult: "Specialisation exacte",
+              "Behance: published project categories",
+            disambiguationResult: "Exact specialization",
           },
           { id: "character-design", label: "Character design" },
           { id: "pixel-art", label: "Pixel art" },
-          { id: "generative-art", label: "Art generatif" },
+          { id: "generative-art", label: "Generative art" },
         ],
       },
       {
@@ -217,7 +217,7 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "after-effects",
             label: "After Effects",
             disambiguationSignal:
-              "Adobe CC : apps dominantes (Ps vs Ai vs Pr vs Ae)",
+              "Adobe CC: dominant apps (Ps vs Ai vs Pr vs Ae)",
             disambiguationResult:
               "Photo vs illustration vs video vs motion",
           },
@@ -235,20 +235,20 @@ export const SOFIA_DOMAINS: Domain[] = [
         niches: [
           {
             id: "branding",
-            label: "Branding & identite",
+            label: "Branding & Identity",
             disambiguationSignal:
-              "ArtStation + Steam actif simultanement",
+              "ArtStation + Steam active simultaneously",
             disambiguationResult:
-              "Tres probable concept artist gaming",
+              "Very likely gaming concept artist",
           },
           { id: "typography", label: "Typography" },
-          { id: "print-edition", label: "Print & edition" },
+          { id: "print-edition", label: "Print & Publishing" },
           { id: "packaging", label: "Packaging" },
         ],
       },
       {
         id: "3d-modeling",
-        label: "3D & Modelisation",
+        label: "3D & Modeling",
         niches: [
           { id: "blender", label: "Blender" },
           { id: "cinema4d-maya", label: "Cinema 4D / Maya" },
@@ -258,22 +258,22 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "photography",
-        label: "Photographie",
+        label: "Photography",
         niches: [
           { id: "portrait-photo", label: "Portrait" },
-          { id: "landscape-photo", label: "Paysage & nature" },
+          { id: "landscape-photo", label: "Landscape & Nature" },
           { id: "street-photo", label: "Street photography" },
-          { id: "studio-product", label: "Studio & produit" },
+          { id: "studio-product", label: "Studio & Product" },
         ],
       },
       {
         id: "fashion-textile",
-        label: "Mode & Textile",
+        label: "Fashion & Textile",
         niches: [
           { id: "fashion-design", label: "Fashion design" },
           {
             id: "embroidery-sewing",
-            label: "Broderie & couture",
+            label: "Embroidery & Sewing",
           },
           { id: "streetwear-design", label: "Streetwear" },
           {
@@ -286,11 +286,11 @@ export const SOFIA_DOMAINS: Domain[] = [
   },
 
   // =========================================================================
-  // 3. MUSIQUE & AUDIO
+  // 3. MUSIC & AUDIO
   // =========================================================================
   {
     id: "music-audio",
-    label: "Musique & Audio",
+    label: "Music & Audio",
     icon: "music",
     color: "#61AFEF",
     primaryPlatforms: [
@@ -303,15 +303,15 @@ export const SOFIA_DOMAINS: Domain[] = [
     categories: [
       {
         id: "music-production",
-        label: "Production musicale",
+        label: "Music Production",
         niches: [
           {
             id: "beatmaking",
             label: "Beatmaking (hip-hop, trap)",
             disambiguationSignal:
-              "SoundCloud tracks uploadees + genre des tags",
+              "SoundCloud uploaded tracks + genre tags",
             disambiguationResult:
-              "Genre de production exact",
+              "Exact production genre",
           },
           {
             id: "electronic-production",
@@ -323,7 +323,7 @@ export const SOFIA_DOMAINS: Domain[] = [
           },
           {
             id: "orchestral-composition",
-            label: "Composition orchestrale",
+            label: "Orchestral composition",
           },
         ],
       },
@@ -335,9 +335,9 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "psytrance-goa",
             label: "Psytrance / Goa",
             disambiguationSignal:
-              "Mixcloud sets uploades + duree moyenne (1h+)",
+              "Mixcloud uploaded sets + average duration (1h+)",
             disambiguationResult:
-              "DJ vs beatmaker vs auditeur passif",
+              "DJ vs beatmaker vs passive listener",
           },
           {
             id: "techno-industrial",
@@ -353,79 +353,79 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "instrumentist",
-        label: "Musicien instrumentiste",
+        label: "Instrumentalist",
         niches: [
           {
             id: "guitar",
-            label: "Guitare (rock, jazz, classique)",
+            label: "Guitar (rock, jazz, classical)",
             disambiguationSignal:
-              "Beatport achats par genre sur 6 mois glissants",
+              "Beatport purchases by genre over rolling 6 months",
             disambiguationResult:
-              "Specialisation DJ ultra-precise",
+              "Ultra-precise DJ specialization",
           },
-          { id: "piano-keys", label: "Piano & claviers" },
-          { id: "bass", label: "Basse" },
+          { id: "piano-keys", label: "Piano & Keyboards" },
+          { id: "bass", label: "Bass" },
           {
             id: "drums-percussion",
-            label: "Percussions & batterie",
+            label: "Percussion & Drums",
           },
         ],
       },
       {
         id: "vocals",
-        label: "Chant & Voix",
+        label: "Vocals & Voice",
         niches: [
           {
             id: "classical-vocal",
-            label: "Chant classique / lyrique",
+            label: "Classical / Lyrical singing",
             disambiguationSignal:
-              "Last.fm artistes top + tags = passion vs curiosite ponctuelle",
+              "Last.fm top artists + tags = passion vs occasional curiosity",
             disambiguationResult:
-              "Passion durable vs exploration",
+              "Lasting passion vs exploration",
           },
           { id: "pop-rnb-vocal", label: "Pop & R&B" },
           { id: "rap-spoken-word", label: "Rap & spoken word" },
-          { id: "acapella-chorale", label: "A cappella & chorale" },
+          { id: "acapella-chorale", label: "A cappella & Choir" },
         ],
       },
       {
         id: "sound-design",
         label: "Sound Design & Audio Eng.",
         niches: [
-          { id: "mixing-mastering", label: "Mixage & mastering" },
+          { id: "mixing-mastering", label: "Mixing & Mastering" },
           { id: "foley-sfx", label: "Foley & SFX" },
-          { id: "field-recording", label: "Prise de son" },
+          { id: "field-recording", label: "Field recording" },
           {
             id: "game-film-music",
-            label: "Musique pour jeux/films",
+            label: "Music for games/films",
           },
         ],
       },
       {
         id: "music-theory",
-        label: "Theorie musicale",
+        label: "Music Theory",
         niches: [
           {
             id: "harmony-counterpoint",
-            label: "Harmonie & contrepoint",
+            label: "Harmony & Counterpoint",
           },
           {
             id: "contemporary-composition",
-            label: "Composition contemporaine",
+            label: "Contemporary composition",
           },
           { id: "jazz-theory", label: "Jazz theory" },
-          { id: "microtonality", label: "Microtonalite" },
+          { id: "microtonality", label: "Microtonality" },
         ],
       },
       {
         id: "music-collecting",
         label: "Collecting",
         niches: [
-          { id: "vinyl-collecting", label: "Vinyles" },
+          { id: "vinyl-collecting", label: "Vinyl records" },
           { id: "cassette-collecting", label: "Cassettes & K7" },
           {
             id: "limited-editions",
-            label: "Editions limitees",
+            label: "Limited editions",
           },
           {
             id: "vintage-instruments",
@@ -435,11 +435,11 @@ export const SOFIA_DOMAINS: Domain[] = [
       },
       {
         id: "music-culture",
-        label: "Critique & Culture musicale",
+        label: "Music Criticism & Culture",
         niches: [
           {
             id: "music-journalism",
-            label: "Journalisme musical",
+            label: "Music journalism",
           },
           {
             id: "curation-playlisting",
