@@ -1,0 +1,15 @@
+query GetTrendingByPredicate($predicateId: String!, $limit: Int!) {
+  triples(
+    where: { predicate_id: { _eq: $predicateId } }
+    order_by: [{ positions_aggregate: { count: desc } }, { created_at: desc }]
+    limit: $limit
+  ) {
+    object {
+      label
+      value { thing { url } }
+    }
+    all_positions: positions(where: { shares: { _gt: "0" } }) {
+      account { id }
+    }
+  }
+}
