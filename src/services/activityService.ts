@@ -22,6 +22,8 @@ const LABEL_TO_INTENTION: Record<string, string> = {
   'visits for inspiration': 'Inspiration',
   'visits for buying': 'Buying',
   'visits for music': 'Music',
+  attending: 'Attending',
+  'has value': 'Valued',
 }
 
 /** Decode %20 and normalize tag labels */
@@ -97,8 +99,9 @@ export async function fetchAllActivity(
 
     const objectLabel = triple.object?.label || ''
     const thingUrl = triple.object?.value?.thing?.url
-    const url = thingUrl || (objectLabel.startsWith('http') ? objectLabel : `https://${objectLabel}`)
-    const domain = extractDomain(url)
+    const hasRealUrl = thingUrl || objectLabel.startsWith('http') || objectLabel.includes('.')
+    const url = thingUrl || (objectLabel.startsWith('http') ? objectLabel : hasRealUrl ? `https://${objectLabel}` : '')
+    const domain = url ? extractDomain(url) : ''
 
     const predicateId = triple.predicate?.term_id || ''
     const predicateLabel = triple.predicate?.label || ''
@@ -138,7 +141,8 @@ export async function fetchAllActivity(
       predicateLabel ||
       ''
 
-    const title = triple.object?.value?.thing?.name || objectLabel || domain
+    const rawTitle = triple.object?.value?.thing?.name || objectLabel || domain
+    const title = cleanTagLabel(rawTitle)
 
     const key = `${certifierAddress}-${objectLabel}`
     const existing = groupedMap.get(key)
@@ -153,7 +157,7 @@ export async function fetchAllActivity(
         title,
         url,
         domain,
-        favicon: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
+        favicon: domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=64` : '',
         certifier,
         certifierAddress,
         intentions: intention ? [intention] : [],

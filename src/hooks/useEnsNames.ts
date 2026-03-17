@@ -7,10 +7,10 @@ import { createAvatar } from '@dicebear/core'
 import { glass } from '@dicebear/collection'
 import { useGetAccountLabelsQuery } from '@0xsofia/dashboard-graphql'
 
-// ENS client — use default RPC (cloudflare-eth.com) like the extension does
+// ENS client — use Cloudflare's CORS-friendly RPC for browser ENS resolution
 const ensClient = createPublicClient({
   chain: mainnet,
-  transport: http(),
+  transport: http('https://cloudflare-eth.com'),
 })
 
 // Global caches persist across re-renders

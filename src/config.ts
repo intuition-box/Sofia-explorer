@@ -36,3 +36,8 @@ export const PREDICATE_IDS = {
   VISITS_FOR_FUN: '0xb8b8ab8d23678edad85cec5e580caeb564a88b532f8dfd884f93dcf2cab32459',
   VISITS_FOR_INSPIRATION: '0xd635b7467c9f89a9d243b82c5e4f6a97d238ad91a914b5de9949e107e5f59825',
 }
+
+// ── Subject IDs (mainnet) ──
+export const SUBJECT_IDS = {
+  I: '0x7ab197b346d386cd5926dbfeeb85dade42f113c7ed99ff2046a5123bb5cd016b',
+}

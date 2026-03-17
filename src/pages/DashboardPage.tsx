@@ -55,6 +55,22 @@ const INTENTION_COLORS: Record<string, string> = {
   Inspiration: '#8B5CF6',
   Buying: '#EC4899',
   Music: '#FF5722',
+  Attending: '#10B981',
+  Valued: '#F97316',
+}
+
+/** Verb phrase displayed before the colored intention word */
+const INTENTION_VERB: Record<string, string> = {
+  Trusted: '',
+  Distrusted: '',
+  Work: 'visits for',
+  Learning: 'visits for',
+  Fun: 'visits for',
+  Inspiration: 'visits for',
+  Buying: 'visits for',
+  Music: 'listens to',
+  Attending: 'is',
+  Valued: 'has',
 }
 
 const QUEST_CATEGORY_STYLES: Record<string, { color: string; icon: string }> = {
@@ -113,20 +129,26 @@ function CircleCard({ item, displayName, avatar }: { item: CircleItem; displayNa
         />
       </div>
 
-      {/* Phrase: user + colored intentions + title */}
+      {/* Phrase: user + verb + colored intentions + title */}
       <p className="text-sm leading-relaxed">
         <span className="font-semibold">{displayName}</span>
         {' '}
-        {item.intentions.map((intent, i) => (
-          <span key={intent}>
-            {i > 0 && <span className="text-muted-foreground">{i === item.intentions.length - 1 ? ' & ' : ', '}</span>}
-            <span style={{ color: INTENTION_COLORS[intent] ?? 'var(--foreground)', fontWeight: 600 }}>{intent.toLowerCase()}</span>
-          </span>
-        ))}
+        {item.intentions.map((intent, i) => {
+          const verb = INTENTION_VERB[intent] ?? ''
+          return (
+            <span key={intent}>
+              {i > 0 && <span className="text-muted-foreground">{i === item.intentions.length - 1 ? ' & ' : ', '}</span>}
+              {verb && <span className="text-muted-foreground">{verb} </span>}
+              <span style={{ color: INTENTION_COLORS[intent] ?? 'var(--foreground)', fontWeight: 600 }}>{intent.toLowerCase()}</span>
+            </span>
+          )
+        })}
         {' '}
         <span className="font-semibold">{item.title}</span>
       </p>
-      <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:underline truncate">{item.domain}</a>
+      {item.url && item.domain && (
+        <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:underline truncate">{item.domain}</a>
+      )}
 
       {/* Actions */}
       <div className="flex items-center gap-2">
@@ -163,12 +185,15 @@ export default function DashboardPage() {
     setSearchParams(searchParams)
   }
 
-  const { items: allItems, loading: allLoading, loadingMore, error: allError, hasMore, loadMore } = useAllActivity()
-  const { items: circleItems, loading: circleLoading, error: circleError } = useCircleFeed(
+  const { items: allItems, loading: allLoading, loadingMore: allLoadingMore, error: allError, hasMore: allHasMore, loadMore: allLoadMore } = useAllActivity()
+  const { items: circleItems, loading: circleLoading, loadingMore: circleLoadingMore, error: circleError, hasMore: circleHasMore, loadMore: circleLoadMore } = useCircleFeed(
     filter === 'circle' ? walletAddress : undefined,
   )
 
   const sourceItems = filter === 'all' ? allItems : circleItems
+  const loadingMore = filter === 'all' ? allLoadingMore : circleLoadingMore
+  const hasMore = filter === 'all' ? allHasMore : circleHasMore
+  const loadMore = filter === 'all' ? allLoadMore : circleLoadMore
 
   const allCertifiers = useMemo(() => {
     const addrs = new Set<Address>()
@@ -182,19 +207,6 @@ export default function DashboardPage() {
   const loading = filter === 'all' ? allLoading : circleLoading
   const feedError = filter === 'all' ? allError : circleError
 
-  // Infinite scroll observer
-  useEffect(() => {
-    const el = sentinelRef.current
-    if (!el || filter !== 'all') return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) loadMore() },
-      { rootMargin: '200px' },
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [filter, loadMore])
-
   // Apply space filter then intention filter
   const spaceFiltered = spacePlatformIds
     ? sourceItems.filter((item) => itemMatchesDomain(item, spacePlatformIds))
@@ -203,6 +215,19 @@ export default function DashboardPage() {
   const filteredItems = intentFilter === 'All'
     ? spaceFiltered
     : spaceFiltered.filter((item) => item.intentions.includes(intentFilter))
+
+  // Infinite scroll observer — large rootMargin triggers loading well before bottom
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) loadMore() },
+      { rootMargin: '1500px' },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [filter, loadMore, filteredItems.length])
 
   const spaceLabel = spaceParam
     ? spaceParam.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
@@ -318,7 +343,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Infinite scroll sentinel */}
-              {filter === 'all' && hasMore && (
+              {hasMore && (
                 <div ref={sentinelRef} className="flex justify-center py-6">
                   {loadingMore && <SofiaLoader size={40} />}
                 </div>
