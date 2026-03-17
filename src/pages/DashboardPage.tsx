@@ -1,14 +1,38 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { usePrivy } from '@privy-io/react-auth'
+import { useSearchParams } from 'react-router-dom'
 import { useCircleFeed } from '../hooks/useCircleFeed'
 import { useAllActivity } from '../hooks/useAllActivity'
 import type { CircleItem } from '../services/circleService'
+import { PLATFORM_CATALOG } from '../config/platformCatalog'
 import { Card } from '../components/ui/card'
 import { Badge } from '../components/ui/badge'
 import { ScrollArea } from '../components/ui/scroll-area'
 import { Button } from '../components/ui/button'
-import { ChevronUp, ChevronDown, Users, Globe } from 'lucide-react'
+import { ChevronUp, ChevronDown, Users, Globe, X } from 'lucide-react'
 import SofiaLoader from '../components/ui/SofiaLoader'
+import PageHeader from '../components/PageHeader'
+import { PAGE_COLORS } from '../config/pageColors'
+
+/** Build a Set of platform IDs that belong to a given Sofia domain */
+function getPlatformIdsForDomain(domainId: string): Set<string> {
+  const ids = new Set<string>()
+  for (const p of PLATFORM_CATALOG) {
+    if (p.targetDomains.includes(domainId)) {
+      ids.add(p.id)
+    }
+  }
+  return ids
+}
+
+/** Check if a feed item's hostname matches any platform in a set */
+function itemMatchesDomain(item: CircleItem, platformIds: Set<string>): boolean {
+  const host = item.domain.toLowerCase()
+  for (const pid of platformIds) {
+    if (host.includes(pid)) return true
+  }
+  return false
+}
 
 function timeAgo(timestamp: string): string {
   if (!timestamp) return ''
@@ -81,10 +105,23 @@ function CircleCard({ item }: { item: CircleItem }) {
 }
 
 export default function DashboardPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [filter, setFilter] = useState<'all' | 'circle'>('all')
   const [intentFilter, setIntentFilter] = useState('All')
   const { authenticated, user } = usePrivy()
   const walletAddress = user?.wallet?.address
+
+  const spaceParam = searchParams.get('space') || ''
+
+  const spacePlatformIds = useMemo(
+    () => (spaceParam ? getPlatformIdsForDomain(spaceParam) : null),
+    [spaceParam],
+  )
+
+  const clearSpace = () => {
+    searchParams.delete('space')
+    setSearchParams(searchParams)
+  }
 
   const { items: allItems, loading: allLoading } = useAllActivity()
   const { items: circleItems, loading: circleLoading } = useCircleFeed(
@@ -94,12 +131,25 @@ export default function DashboardPage() {
   const sourceItems = filter === 'all' ? allItems : circleItems
   const loading = filter === 'all' ? allLoading : circleLoading
 
+  // Apply space filter then intention filter
+  const spaceFiltered = spacePlatformIds
+    ? sourceItems.filter((item) => itemMatchesDomain(item, spacePlatformIds))
+    : sourceItems
+
   const filteredItems = intentFilter === 'All'
-    ? sourceItems
-    : sourceItems.filter((item) => item.intentions.includes(intentFilter))
+    ? spaceFiltered
+    : spaceFiltered.filter((item) => item.intentions.includes(intentFilter))
+
+  const spaceLabel = spaceParam
+    ? spaceParam.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+    : ''
+
+  const pc = PAGE_COLORS['/']
 
   return (
-    <div className="space-y-4">
+    <div>
+      <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
+      <div className="space-y-4" style={{ padding: '16px 8px' }}>
       {/* Feed mode toggle */}
       <div className="flex items-center gap-3 mb-2">
         <Button
@@ -120,6 +170,18 @@ export default function DashboardPage() {
           My Circle
         </Button>
       </div>
+
+      {/* Space filter badge */}
+      {spaceParam && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Badge variant="secondary" style={{ fontSize: 13, padding: '4px 12px', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            {spaceLabel}
+            <button onClick={clearSpace} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
+              <X style={{ width: 14, height: 14, color: 'var(--muted-foreground)' }} />
+            </button>
+          </Badge>
+        </div>
+      )}
 
       {/* Intention filters */}
       <ScrollArea className="w-full mb-2">
@@ -179,6 +241,7 @@ export default function DashboardPage() {
           )}
         </>
       )}
+    </div>
     </div>
   )
 }

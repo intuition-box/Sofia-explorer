@@ -15,6 +15,8 @@ import ShareProfileModal from '../components/profile/ShareProfileModal'
 import { Card } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Wallet } from 'lucide-react'
+import PageHeader from '../components/PageHeader'
+import { PAGE_COLORS } from '../config/pageColors'
 
 type View = 'overview' | 'interests' | 'niches' | 'platforms' | 'scores'
 
@@ -103,8 +105,13 @@ export default function ProfilePage() {
     else setView('overview')
   }
 
+  const pcKey = view === 'scores' ? '/profile/scores' : view === 'platforms' ? '/profile/platforms' : '/profile'
+  const pc = PAGE_COLORS[pcKey]
+
   return (
-    <div className="space-y-6">
+    <div>
+      <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
+      <div className="space-y-6" style={{ padding: '16px 8px' }}>
       <ProfileHeader
         walletAddress={address}
         stats={stats}
@@ -175,6 +182,7 @@ export default function ProfilePage() {
         onShareOnX={handleShareOnX}
         copied={copied}
       />
+      </div>
     </div>
   )
 }

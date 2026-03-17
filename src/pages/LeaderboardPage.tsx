@@ -8,8 +8,9 @@ import Hero from '../components/Hero'
 import StatsRibbon from '../components/StatsRibbon'
 import PersonalStats from '../components/PersonalStats'
 import Leaderboard from '../components/Leaderboard'
-import HowRewards from '../components/HowRewards'
 import FooterCTA from '../components/FooterCTA'
+import PageHeader from '../components/PageHeader'
+import { PAGE_COLORS } from '../config/pageColors'
 
 export default function LeaderboardPage() {
   const { authenticated, user } = usePrivy()
@@ -35,8 +36,12 @@ export default function LeaderboardPage() {
     },
   ]
 
+  const pc = PAGE_COLORS['/leaderboard']
+
   return (
-    <div className="space-y-6">
+    <div>
+      <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
+      <div className="space-y-6" style={{ padding: '16px 8px' }}>
       <Hero />
       <StatsRibbon stats={alphaLoading ? [] : stats} />
 
@@ -60,8 +65,8 @@ export default function LeaderboardPage() {
         connectedAddress={walletAddress ?? null}
       />
 
-      <HowRewards />
       <FooterCTA />
+      </div>
     </div>
   )
 }

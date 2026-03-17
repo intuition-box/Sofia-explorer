@@ -8,6 +8,8 @@ import { Button } from '../components/ui/button'
 import { Skeleton } from '../components/ui/skeleton'
 import { Avatar, AvatarFallback } from '../components/ui/avatar'
 import { Flame } from 'lucide-react'
+import PageHeader from '../components/PageHeader'
+import { PAGE_COLORS } from '../config/pageColors'
 
 function randomColor(seed: string) {
   let hash = 0
@@ -41,14 +43,12 @@ export default function StreaksPage() {
   const top3 = activeStreakers.slice(0, 3)
   const rest = activeStreakers.slice(3)
 
+  const pc = PAGE_COLORS['/streaks']
+
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <p className="text-base text-muted-foreground">
-          Top users ranked by their daily streak participation.
-        </p>
-      </div>
+    <div>
+      <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
+      <div className="space-y-8" style={{ padding: '16px 8px' }}>
 
       {/* Tabs */}
       <div className="flex gap-1 bg-muted rounded-lg p-1">
@@ -177,6 +177,7 @@ export default function StreaksPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 }

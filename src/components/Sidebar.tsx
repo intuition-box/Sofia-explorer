@@ -29,7 +29,7 @@ export function Sidebar() {
   ]
 
   return (
-    <aside className="fixed left-0 top-[85px] h-[calc(100vh-85px)] w-64 bg-background border-r border-border overflow-y-auto z-40" style={{ zoom: 1.50 }}>
+    <aside className="fixed left-0 top-[85px] h-[calc(100vh-85px)] w-64 overflow-y-auto z-40" style={{ zoom: 1.50, background: 'var(--sidebar)', borderRight: '1px solid var(--border)' }}>
       <div className="p-4 space-y-6">
         {/* Navigation */}
         <div>
@@ -79,7 +79,7 @@ export function Sidebar() {
             </h3>
             <div className="space-y-1">
               {selectedDomains.slice(0, 6).map((domainId) => (
-                <Link key={domainId} to="/profile?view=interests">
+                <Link key={domainId} to={`/?space=${domainId}`}>
                   <Button
                     variant="ghost"
                     className="w-full justify-start h-9 px-2 text-foreground hover:bg-muted hover:text-foreground"

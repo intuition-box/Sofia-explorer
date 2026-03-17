@@ -4,18 +4,8 @@ import type { Address } from 'viem'
 import { useEnsNames } from '../hooks/useEnsNames'
 import { EXPLORER_URL } from '../config'
 import type { LeaderboardProps, AlphaTester, PoolPosition } from '../types'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Card } from './ui/card'
 import { Button } from './ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
-import { Skeleton } from './ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from './ui/table'
 
 type AlphaSortOption = 'TX' | 'Intentions' | 'Pioneer' | 'Trust Volume'
 type PoolSortOption = 'Shares' | 'Current Value' | 'P&L' | 'P&L %'
@@ -64,6 +54,34 @@ const POOL_COLUMNS: { label: string; key: PoolSortOption }[] = [
   { label: 'P&L %', key: 'P&L %' },
 ]
 
+const cellBase: React.CSSProperties = {
+  padding: '12px 16px',
+  fontSize: 14,
+  verticalAlign: 'middle',
+}
+
+const cellNum: React.CSSProperties = {
+  ...cellBase,
+  textAlign: 'right',
+  fontVariantNumeric: 'tabular-nums',
+}
+
+const cellHead: React.CSSProperties = {
+  ...cellBase,
+  fontSize: 12,
+  fontWeight: 600,
+  color: 'var(--muted-foreground)',
+  textTransform: 'uppercase' as const,
+  letterSpacing: '0.5px',
+}
+
+const cellHeadNum: React.CSSProperties = {
+  ...cellHead,
+  textAlign: 'right',
+  cursor: 'pointer',
+  userSelect: 'none' as const,
+}
+
 export default function Leaderboard({
   alphaData = [],
   alphaLoading,
@@ -91,12 +109,14 @@ export default function Leaderboard({
   const isAlpha = activeTab === 'alpha'
   const loading = isAlpha ? alphaLoading : poolLoading
   const error = isAlpha ? alphaError : poolError
+  const columns = isAlpha ? ALPHA_COLUMNS : POOL_COLUMNS
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-base">Leaderboard</CardTitle>
-        <div className="flex gap-1">
+    <Card style={{ overflow: 'hidden' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px' }}>
+        <span style={{ fontSize: 16, fontWeight: 600 }}>Leaderboard</span>
+        <div style={{ display: 'flex', gap: 4 }}>
           <Button
             size="sm"
             variant={activeTab === 'alpha' ? 'default' : 'ghost'}
@@ -112,17 +132,19 @@ export default function Leaderboard({
             Season Pool
           </Button>
         </div>
-      </CardHeader>
-      <CardContent className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">#</TableHead>
-              <TableHead>User</TableHead>
-              {(isAlpha ? ALPHA_COLUMNS : POOL_COLUMNS).map((col) => (
-                <TableHead
+      </div>
+
+      {/* Table */}
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', whiteSpace: 'nowrap' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid var(--border)' }}>
+              <th style={{ ...cellHead, width: 50, textAlign: 'center' }}>#</th>
+              <th style={{ ...cellHead, textAlign: 'left' }}>User</th>
+              {columns.map((col) => (
+                <th
                   key={col.key}
-                  className="cursor-pointer text-right select-none"
+                  style={cellHeadNum}
                   onClick={() =>
                     isAlpha
                       ? setAlphaSortBy(col.key as AlphaSortOption)
@@ -131,55 +153,61 @@ export default function Leaderboard({
                 >
                   {col.label}
                   {(isAlpha ? alphaSortBy : poolSortBy) === col.key && ' ▼'}
-                </TableHead>
+                </th>
               ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+            </tr>
+          </thead>
+          <tbody>
             {loading &&
               Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell colSpan={isAlpha ? 6 : 5}>
-                    <Skeleton className="h-8 w-full" />
-                  </TableCell>
-                </TableRow>
+                <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
+                  <td colSpan={2 + columns.length} style={cellBase}>
+                    <div className="bg-muted animate-pulse" style={{ height: 20, borderRadius: 4 }} />
+                  </td>
+                </tr>
               ))}
 
             {error && (
-              <TableRow>
-                <TableCell colSpan={isAlpha ? 6 : 5} className="text-center text-destructive">
+              <tr>
+                <td colSpan={2 + columns.length} style={{ ...cellBase, textAlign: 'center', color: 'var(--destructive-foreground)' }}>
                   {error}
-                </TableCell>
-              </TableRow>
+                </td>
+              </tr>
             )}
 
             {!loading && !error && isAlpha &&
               sortedAlpha.map((user, i) => {
                 const isSelf = connectedAddress && user.address.toLowerCase() === connectedAddress.toLowerCase()
                 return (
-                  <TableRow key={user.address} className={`${i < 3 ? 'bg-accent/30' : ''} ${isSelf ? 'ring-2 ring-primary' : ''}`}>
-                    <TableCell className="font-medium">{i + 1}</TableCell>
-                    <TableCell>
+                  <tr
+                    key={user.address}
+                    style={{
+                      borderBottom: '1px solid var(--border)',
+                      borderLeft: isSelf ? '3px solid var(--primary)' : undefined,
+                      background: isSelf ? 'rgba(255,198,176,0.08)' : undefined,
+                    }}
+                  >
+                    <td style={{ ...cellBase, width: 50, textAlign: 'center', color: 'var(--muted-foreground)', fontWeight: 500 }}>{i + 1}</td>
+                    <td style={cellBase}>
                       <a
                         href={`${EXPLORER_URL}/address/${user.address}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 hover:underline"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'inherit', textDecoration: 'none', fontWeight: 500 }}
                       >
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={getAvatar(user.address)} />
-                          <AvatarFallback className="text-[10px]">
-                            {getDisplay(user.address).slice(0, 2)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm truncate max-w-[120px]">{getDisplay(user.address)}</span>
+                        <img
+                          src={getAvatar(user.address)}
+                          alt=""
+                          style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover' }}
+                        />
+                        <span style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis' }}>{getDisplay(user.address)}</span>
                       </a>
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">{user.intentions.toLocaleString()}</TableCell>
-                    <TableCell className="text-right tabular-nums">{user.pioneer}</TableCell>
-                    <TableCell className="text-right tabular-nums">{formatTrust(user.trustVolume)}</TableCell>
-                    <TableCell className="text-right tabular-nums">{user.tx.toLocaleString()}</TableCell>
-                  </TableRow>
+                    </td>
+                    <td style={cellNum}>{user.intentions.toLocaleString()}</td>
+                    <td style={cellNum}>{user.pioneer}</td>
+                    <td style={cellNum}>{formatTrust(user.trustVolume)}</td>
+                    <td style={cellNum}>{user.tx.toLocaleString()}</td>
+                  </tr>
                 )
               })}
 
@@ -187,37 +215,43 @@ export default function Leaderboard({
               sortedPool.map((pos, i) => {
                 const isSelf = connectedAddress && pos.address.toLowerCase() === connectedAddress.toLowerCase()
                 return (
-                  <TableRow key={pos.address} className={`${i < 3 ? 'bg-accent/30' : ''} ${isSelf ? 'ring-2 ring-primary' : ''}`}>
-                    <TableCell className="font-medium">{i + 1}</TableCell>
-                    <TableCell>
+                  <tr
+                    key={pos.address}
+                    style={{
+                      borderBottom: '1px solid var(--border)',
+                      borderLeft: isSelf ? '3px solid var(--primary)' : undefined,
+                      background: isSelf ? 'rgba(255,198,176,0.08)' : undefined,
+                    }}
+                  >
+                    <td style={{ ...cellBase, width: 50, textAlign: 'center', color: 'var(--muted-foreground)', fontWeight: 500 }}>{i + 1}</td>
+                    <td style={cellBase}>
                       <a
                         href={`${EXPLORER_URL}/address/${pos.address}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 hover:underline"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'inherit', textDecoration: 'none', fontWeight: 500 }}
                       >
-                        <Avatar className="h-6 w-6">
-                          <AvatarImage src={getAvatar(pos.address)} />
-                          <AvatarFallback className="text-[10px]">
-                            {getDisplay(pos.address).slice(0, 2)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm truncate max-w-[120px]">{getDisplay(pos.address)}</span>
+                        <img
+                          src={getAvatar(pos.address)}
+                          alt=""
+                          style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover' }}
+                        />
+                        <span style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis' }}>{getDisplay(pos.address)}</span>
                       </a>
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">{formatTrust(pos.currentValue)}</TableCell>
-                    <TableCell className={`text-right tabular-nums ${pos.pnl >= 0n ? 'text-green-600' : 'text-red-500'}`}>
+                    </td>
+                    <td style={cellNum}>{formatTrust(pos.currentValue)}</td>
+                    <td style={{ ...cellNum, color: pos.pnl >= 0n ? '#22c55e' : '#ef4444' }}>
                       {pos.pnl >= 0n ? '+' : ''}{formatTrust(pos.pnl)}
-                    </TableCell>
-                    <TableCell className={`text-right tabular-nums ${pos.pnlPercent >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                    </td>
+                    <td style={{ ...cellNum, color: pos.pnlPercent >= 0 ? '#22c55e' : '#ef4444' }}>
                       {pos.pnlPercent >= 0 ? '+' : ''}{pos.pnlPercent.toFixed(1)}%
-                    </TableCell>
-                  </TableRow>
+                    </td>
+                  </tr>
                 )
               })}
-          </TableBody>
-        </Table>
-      </CardContent>
+          </tbody>
+        </table>
+      </div>
     </Card>
   )
 }

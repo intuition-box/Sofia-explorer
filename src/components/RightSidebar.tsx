@@ -19,7 +19,7 @@ export function RightSidebar() {
   ]
 
   return (
-    <aside className="fixed right-0 top-[85px] h-[calc(100vh-85px)] w-72 bg-background border-l border-border overflow-y-auto z-40 p-4 space-y-6" style={{ zoom: 1.50 }}>
+    <aside className="fixed right-0 top-[85px] h-[calc(100vh-85px)] w-72 overflow-y-auto z-40 p-4 space-y-6" style={{ zoom: 1.50, background: 'var(--sidebar)', borderLeft: '1px solid var(--border)' }}>
       {/* Suggested Accounts */}
       <Card>
         <CardHeader className="pb-3">

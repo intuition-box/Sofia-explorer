@@ -3,9 +3,11 @@ import { formatEther } from 'viem'
 import { Card } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
-import { ThumbsUp, ThumbsDown, ChevronRight, ChevronLeft, Vote } from 'lucide-react'
+import { ThumbsUp, ThumbsDown, ChevronRight, ChevronLeft } from 'lucide-react'
 import SofiaLoader from '../components/ui/SofiaLoader'
 import { useDebateClaims } from '../hooks/useDebateClaims'
+import PageHeader from '../components/PageHeader'
+import { PAGE_COLORS } from '../config/pageColors'
 
 function formatMarketCap(value: bigint): string {
   const num = parseFloat(formatEther(value))
@@ -19,24 +21,25 @@ export default function VotePage() {
   const { claims, loading, error } = useDebateClaims()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [votes, setVotes] = useState<Record<string, 'support' | 'oppose'>>({})
+  const pc = PAGE_COLORS['/vote']
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center" style={{ minHeight: 300 }}>
-        <SofiaLoader size={96} />
+      <div>
+        <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
+        <div className="flex items-center justify-center" style={{ minHeight: 300 }}>
+          <SofiaLoader size={96} />
+        </div>
       </div>
     )
   }
 
   if (error || claims.length === 0) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            <Vote className="h-5 w-5" />
-            Vote
-          </h1>
-          <p className="text-sm text-muted-foreground mt-2">
+      <div>
+        <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
+        <div style={{ padding: '16px 8px' }}>
+          <p className="text-sm text-muted-foreground">
             {error || 'No claims available.'}
           </p>
         </div>
@@ -62,16 +65,9 @@ export default function VotePage() {
   const prev = () => setCurrentIndex((i) => Math.max(i - 1, 0))
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold flex items-center gap-2">
-          <Vote className="h-5 w-5" />
-          Vote
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Support or oppose claims. Your vote is weighted by your reputation.
-        </p>
-      </div>
+    <div>
+      <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
+      <div className="space-y-6" style={{ padding: '16px 8px' }}>
 
       {/* Card navigation */}
       <div className="flex items-center justify-between">
@@ -177,6 +173,7 @@ export default function VotePage() {
             </Card>
           )
         })}
+      </div>
       </div>
     </div>
   )
