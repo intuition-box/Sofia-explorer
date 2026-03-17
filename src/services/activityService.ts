@@ -106,6 +106,7 @@ export async function fetchAllActivity(
     const predicateId = triple.predicate?.term_id || ''
     const predicateLabel = triple.predicate?.label || ''
     const isTag = predicateLabel.toLowerCase() === 'has tag'
+    const termId = triple.term_id || ''
 
     const receiver = evt.deposit?.receiver
     const certifierAddress = receiver?.id || ''
@@ -130,6 +131,7 @@ export async function fetchAllActivity(
           certifierAddress,
           intentions: [`quest:${category}`],
           timestamp: evt.created_at || '',
+          termId,
         })
       }
       continue
@@ -162,6 +164,7 @@ export async function fetchAllActivity(
         certifierAddress,
         intentions: intention ? [intention] : [],
         timestamp: evt.created_at || '',
+        termId,
       })
     }
   }

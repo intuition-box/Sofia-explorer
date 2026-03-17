@@ -17,6 +17,7 @@ query GetAllActivity($proxy: String!, $limit: Int!, $offset: Int!) {
       receiver { id label image }
     }
     triple {
+      term_id
       predicate { label term_id }
       object {
         label

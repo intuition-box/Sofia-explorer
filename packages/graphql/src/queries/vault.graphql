@@ -1,0 +1,28 @@
+query GetTripleVaultStats($termId: String!, $address: String) {
+  triples(where: { term_id: { _eq: $termId } }) {
+    term {
+      vaults {
+        market_cap
+        total_shares
+        position_count
+        current_share_price
+        positions(where: { account_id: { _ilike: $address } }) {
+          shares
+          total_deposit_assets_after_total_fees
+        }
+      }
+    }
+    counter_term {
+      vaults {
+        market_cap
+        total_shares
+        position_count
+        current_share_price
+        positions(where: { account_id: { _ilike: $address } }) {
+          shares
+          total_deposit_assets_after_total_fees
+        }
+      }
+    }
+  }
+}

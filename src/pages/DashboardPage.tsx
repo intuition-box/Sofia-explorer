@@ -85,9 +85,10 @@ const QUEST_CATEGORY_STYLES: Record<string, { color: string; icon: string }> = {
 
 const INTENT_FILTERS = ['All', 'Trusted', 'Distrusted', 'Work', 'Learning', 'Fun', 'Inspiration']
 
-function QuestCard({ item, displayName, avatar }: { item: CircleItem; displayName: string; avatar: string }) {
+function QuestCard({ item, displayName, avatar, isPrivate }: { item: CircleItem; displayName: string; avatar: string; isPrivate?: boolean }) {
   const category = item.intentions[0]?.replace('quest:', '') ?? 'milestone'
   const style = QUEST_CATEGORY_STYLES[category] ?? QUEST_CATEGORY_STYLES.milestone
+  const shownName = isPrivate ? 'A user' : displayName
 
   return (
     <Card
@@ -96,9 +97,9 @@ function QuestCard({ item, displayName, avatar }: { item: CircleItem; displayNam
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <img src={avatar} alt="" className="h-6 w-6 rounded-full shrink-0" referrerPolicy="no-referrer" />
+          {!isPrivate && <img src={avatar} alt="" className="h-6 w-6 rounded-full shrink-0" referrerPolicy="no-referrer" />}
           <span style={{ fontSize: 18 }}>{style.icon}</span>
-          <span className="text-sm font-bold">{displayName}</span>
+          <span className="text-sm font-bold">{shownName}</span>
         </div>
         <span className="text-xs text-muted-foreground">{timeAgo(item.timestamp)}</span>
       </div>
@@ -111,14 +112,16 @@ function QuestCard({ item, displayName, avatar }: { item: CircleItem; displayNam
   )
 }
 
-function CircleCard({ item, displayName, avatar }: { item: CircleItem; displayName: string; avatar: string }) {
+function CircleCard({ item, displayName, avatar, isPrivate }: { item: CircleItem; displayName: string; avatar: string; isPrivate?: boolean }) {
+  const shownName = isPrivate ? 'Someone' : displayName
+
   return (
     <Card className="p-4 flex flex-col gap-4 hover:shadow-md transition-shadow">
       {/* Header: avatar + name + time + favicon */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2 min-w-0">
-          <img src={avatar} alt="" className="h-6 w-6 rounded-full shrink-0" referrerPolicy="no-referrer" />
-          <span className="text-sm font-bold truncate">{displayName}</span>
+          {!isPrivate && <img src={avatar} alt="" className="h-6 w-6 rounded-full shrink-0" referrerPolicy="no-referrer" />}
+          <span className="text-sm font-bold truncate">{shownName}</span>
           <span className="text-xs text-muted-foreground shrink-0">{timeAgo(item.timestamp)}</span>
         </div>
         <img
@@ -131,7 +134,7 @@ function CircleCard({ item, displayName, avatar }: { item: CircleItem; displayNa
 
       {/* Phrase: user + verb + colored intentions + title */}
       <p className="text-sm leading-relaxed">
-        <span className="font-semibold">{displayName}</span>
+        <span className="font-semibold">{shownName}</span>
         {' '}
         {item.intentions.map((intent, i) => {
           const verb = INTENTION_VERB[intent] ?? ''
@@ -336,9 +339,10 @@ export default function DashboardPage() {
                   const name = addr ? getDisplay(addr) : item.certifier
                   const av = addr ? getAvatar(addr) : ''
                   const isQuest = item.intentions[0]?.startsWith('quest:')
+                  const priv = filter === 'all'
                   return isQuest
-                    ? <QuestCard key={item.id} item={item} displayName={name} avatar={av} />
-                    : <CircleCard key={item.id} item={item} displayName={name} avatar={av} />
+                    ? <QuestCard key={item.id} item={item} displayName={name} avatar={av} isPrivate={priv} />
+                    : <CircleCard key={item.id} item={item} displayName={name} avatar={av} isPrivate={priv} />
                 })}
               </div>
 

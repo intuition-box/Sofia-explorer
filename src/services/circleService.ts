@@ -16,6 +16,7 @@ export interface CircleItem {
   certifierAddress: string
   intentions: string[]
   timestamp: string
+  termId?: string
 }
 
 const PREDICATE_TO_INTENTION: Record<string, string> = {
@@ -159,6 +160,8 @@ export async function fetchCircleFeed(
     const certifierAddress = evt.deposit?.receiver?.id || evt.redemption?.sender?.id || ''
     const certifier = evt.deposit?.receiver?.label || evt.redemption?.sender?.label || certifierAddress
 
+    const termId = triple.term_id || ''
+
     // Handle "has tag" events as quest badges
     if (isTag) {
       const tagName = cleanLabel(objectLabel).toLowerCase()
@@ -178,6 +181,7 @@ export async function fetchCircleFeed(
           certifierAddress,
           intentions: [`quest:${category}`],
           timestamp: evt.created_at || '',
+          termId,
         })
       }
       continue
@@ -210,6 +214,7 @@ export async function fetchCircleFeed(
         certifierAddress,
         intentions: intention ? [intention] : [],
         timestamp: evt.created_at || '',
+        termId,
       })
     }
   }
