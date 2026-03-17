@@ -83,7 +83,9 @@ export default function PersonalStats({
     )
   }
 
-  const cards: { label: string; value: string; sub?: string; variant?: 'positive' | 'negative' }[] = [
+  type StatCard = { label: string; value: string; sub?: string; variant?: 'positive' | 'negative' }
+
+  const alphaCards: StatCard[] = [
     { label: 'Alpha Rank', value: `#${alphaRank}` },
     { label: 'Transactions', value: alphaData!.tx.toLocaleString() },
     { label: 'Intentions', value: alphaData!.intentions.toLocaleString() },
@@ -91,13 +93,32 @@ export default function PersonalStats({
     { label: 'Trust Volume', value: formatTrust(alphaData!.trustVolume) },
   ]
 
+  const poolCards: StatCard[] = []
   if (poolData && poolRank) {
-    cards.push(
+    poolCards.push(
       { label: 'Pool Rank', value: `#${poolRank}` },
       { label: 'Pool P&L', value: `${poolData.pnl >= 0n ? '+' : ''}${formatTrust(poolData.pnl)}`, variant: poolData.pnl >= 0n ? 'positive' : 'negative' },
       { label: 'Pool P&L %', value: `${poolData.pnlPercent >= 0 ? '+' : ''}${poolData.pnlPercent.toFixed(1)}%`, variant: poolData.pnlPercent >= 0 ? 'positive' : 'negative' },
     )
   }
+
+  function renderCard(card: StatCard) {
+    return (
+      <div key={card.label} className="flex flex-col items-center justify-center rounded-lg border p-4 text-center">
+        <span className={`text-lg font-bold ${card.variant === 'positive' ? 'text-green-600' : card.variant === 'negative' ? 'text-red-500' : ''}`}>
+          {card.value}
+        </span>
+        <span className="text-xs text-muted-foreground mt-1">{card.label}</span>
+        {card.sub && (
+          <Badge variant="secondary" className="mt-1 text-[10px]">
+            {card.sub}
+          </Badge>
+        )}
+      </div>
+    )
+  }
+
+  const cols = alphaCards.length
 
   return (
     <Card className="p-6">
@@ -107,20 +128,21 @@ export default function PersonalStats({
           {sharing ? 'Sharing...' : 'Share'}
         </Button>
       </div>
-      <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
-        {cards.map((card) => (
-          <div key={card.label} className="flex flex-col items-center justify-center rounded-lg border p-5 text-center">
-            <span className={`text-xl font-bold ${card.variant === 'positive' ? 'text-green-600' : card.variant === 'negative' ? 'text-red-500' : ''}`}>
-              {card.value}
-            </span>
-            <span className="text-sm text-muted-foreground mt-1">{card.label}</span>
-            {card.sub && (
-              <Badge variant="secondary" className="mt-1 text-[10px]">
-                {card.sub}
-              </Badge>
-            )}
+      <div className="space-y-5">
+        <div>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Alpha Tester</p>
+          <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+            {alphaCards.map(renderCard)}
           </div>
-        ))}
+        </div>
+        {poolCards.length > 0 && (
+          <div>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Season Pool</p>
+            <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+              {poolCards.map(renderCard)}
+            </div>
+          </div>
+        )}
       </div>
     </Card>
   )

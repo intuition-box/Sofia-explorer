@@ -4,7 +4,6 @@ import type { Address } from 'viem'
 import { useAlphaTesters } from '../hooks/useAlphaTesters'
 import { useSeasonPool } from '../hooks/useSeasonPool'
 import { useUserStats } from '../hooks/useUserStats'
-import Hero from '../components/Hero'
 import StatsRibbon from '../components/StatsRibbon'
 import PersonalStats from '../components/PersonalStats'
 import Leaderboard from '../components/Leaderboard'
@@ -42,7 +41,6 @@ export default function LeaderboardPage() {
     <div>
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
       <div className="space-y-6" style={{ padding: '16px 8px' }}>
-      <Hero />
       <StatsRibbon stats={alphaLoading ? [] : stats} />
 
       {authenticated && walletAddress && userStats && (

@@ -1,8 +1,20 @@
+import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
 import { Home, User, Trophy, Flame, Vote, BarChart3, Globe } from "lucide-react";
 import { useDomainSelection } from '../hooks/useDomainSelection'
+import { SEASON_END } from '../config'
+
+function getTimeLeft() {
+  const diff = SEASON_END.getTime() - Date.now()
+  if (diff <= 0) return { days: 0, hours: 0, minutes: 0 }
+  return {
+    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((diff / (1000 * 60)) % 60),
+  }
+}
+const pad = (n: number) => String(n).padStart(2, '0')
 
 const DOMAIN_ICONS: Record<string, string> = {
   'tech-dev': '💻', 'design-creative': '🎨', 'music-audio': '🎵', gaming: '🎮',
@@ -13,7 +25,13 @@ const DOMAIN_ICONS: Record<string, string> = {
 
 export function Sidebar() {
   const location = useLocation()
-  const { selectedDomains, selectedNiches } = useDomainSelection()
+  const { selectedDomains } = useDomainSelection()
+  const [timeLeft, setTimeLeft] = useState(getTimeLeft)
+
+  useEffect(() => {
+    const timer = setInterval(() => setTimeLeft(getTimeLeft()), 60_000)
+    return () => clearInterval(timer)
+  }, [])
 
   const navItems = [
     { to: '/', icon: Home, label: 'Home' },
@@ -29,8 +47,8 @@ export function Sidebar() {
   ]
 
   return (
-    <aside className="fixed left-0 top-[85px] h-[calc(100vh-85px)] w-64 overflow-y-auto z-40" style={{ zoom: 1.50, background: 'var(--sidebar)', borderRight: '1px solid var(--border)' }}>
-      <div className="p-4 space-y-6">
+    <aside className="fixed left-0 top-0 h-screen overflow-y-auto z-40" style={{ width: 384, background: 'var(--sidebar)', borderRight: '1px solid var(--border)', paddingTop: 85 }}>
+      <div className="p-4 space-y-6" style={{ zoom: 1.50, minHeight: 'calc(100vh - 85px)' }}>
         {/* Navigation */}
         <div>
           <h3 className="mb-3 px-2 text-sm font-medium text-foreground">
@@ -93,18 +111,18 @@ export function Sidebar() {
           </div>
         )}
 
-        {/* Season Info */}
-        <div className="rounded-lg border p-3">
-          <p className="text-sm font-medium">Beta Season</p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Connect platforms, build your reputation, earn rewards.
+        {/* Season Countdown */}
+        <div className="rounded-lg border" style={{ padding: 12 }}>
+          <p style={{ fontSize: 11, color: 'var(--muted-foreground)' }}>Beta Season ends in</p>
+          <p style={{ fontSize: 20, fontWeight: 700, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>
+            {timeLeft.days}d : {pad(timeLeft.hours)}h : {pad(timeLeft.minutes)}m
           </p>
-          {selectedDomains.length > 0 && (
-            <div className="mt-2 flex gap-2">
-              <Badge variant="secondary" className="text-[10px]">{selectedDomains.length} domains</Badge>
-              <Badge variant="secondary" className="text-[10px]">{selectedNiches.length} niches</Badge>
-            </div>
-          )}
+          <p style={{ fontSize: 11, color: 'var(--muted-foreground)', marginTop: 4 }}>
+            The top spots are being claimed right now.
+          </p>
+          <Button size="sm" style={{ marginTop: 8, width: '100%', fontSize: 12 }}>
+            Install Sofia
+          </Button>
         </div>
       </div>
     </aside>

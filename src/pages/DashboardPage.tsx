@@ -123,13 +123,14 @@ export default function DashboardPage() {
     setSearchParams(searchParams)
   }
 
-  const { items: allItems, loading: allLoading } = useAllActivity()
-  const { items: circleItems, loading: circleLoading } = useCircleFeed(
+  const { items: allItems, loading: allLoading, error: allError } = useAllActivity()
+  const { items: circleItems, loading: circleLoading, error: circleError } = useCircleFeed(
     filter === 'circle' ? walletAddress : undefined,
   )
 
   const sourceItems = filter === 'all' ? allItems : circleItems
   const loading = filter === 'all' ? allLoading : circleLoading
+  const feedError = filter === 'all' ? allError : circleError
 
   // Apply space filter then intention filter
   const spaceFiltered = spacePlatformIds
@@ -205,6 +206,13 @@ export default function DashboardPage() {
         <div className="flex items-start justify-center" style={{ minHeight: 'calc(100vh - 200px)', paddingTop: '20vh' }}>
           <SofiaLoader size={96} />
         </div>
+      )}
+
+      {/* Error */}
+      {!loading && feedError && (
+        <Card className="p-6 text-center">
+          <p className="text-sm text-destructive-foreground">{feedError}</p>
+        </Card>
       )}
 
       {/* Feed */}
