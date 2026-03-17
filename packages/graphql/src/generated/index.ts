@@ -18816,6 +18816,20 @@ export type PositionFieldsFragment = { __typename?: 'positions', shares: any, ac
 
 export type PositionWithVaultDetailsFragment = { __typename?: 'positions', shares: any, term_id: string, curve_id: any, vault?: { __typename?: 'vaults', term_id: string, total_shares: any, current_share_price: any, term?: { __typename?: 'terms', atom?: { __typename?: 'atoms', label?: string | null, term_id: string, type: any, value?: { __typename?: 'atom_values', thing?: { __typename?: 'things', url?: string | null, name?: string | null } | null, account?: { __typename?: 'accounts', id: string, label: string } | null } | null } | null, triple?: { __typename?: 'triples', term_id: string, subject?: { __typename?: 'atoms', label?: string | null, term_id: string } | null, predicate?: { __typename?: 'atoms', label?: string | null, term_id: string } | null, object?: { __typename?: 'atoms', label?: string | null, term_id: string, value?: { __typename?: 'atom_values', thing?: { __typename?: 'things', url?: string | null, name?: string | null } | null } | null } | null } | null } | null } | null };
 
+export type GetCircleFeedQueryVariables = Exact<{
+  address: Scalars['String']['input'];
+}>;
+
+
+export type GetCircleFeedQuery = { __typename?: 'query_root', positions_from_following: Array<{ __typename?: 'positions', id: string, created_at: any, account?: { __typename?: 'accounts', id: string, label: string } | null, vault?: { __typename?: 'vaults', term?: { __typename?: 'terms', triple?: { __typename?: 'triples', term_id: string, object?: { __typename?: 'atoms', label?: string | null, value?: { __typename?: 'atom_values', thing?: { __typename?: 'things', url?: string | null, name?: string | null, image?: string | null } | null } | null } | null, predicate?: { __typename?: 'atoms', term_id: string, label?: string | null } | null, subject?: { __typename?: 'atoms', label?: string | null, term_id: string } | null } | null } | null } | null }> };
+
+export type GetFollowingCountQueryVariables = Exact<{
+  address: Scalars['String']['input'];
+}>;
+
+
+export type GetFollowingCountQuery = { __typename?: 'query_root', following_aggregate: { __typename?: 'accounts_aggregate', aggregate?: { __typename?: 'accounts_aggregate_fields', count: number } | null } };
+
 export type GetSeasonPoolPositionsQueryVariables = Exact<{
   termId: Scalars['String']['input'];
   curveId: Scalars['numeric']['input'];
@@ -18852,6 +18866,23 @@ export type GetUserCertificationsQueryVariables = Exact<{
 
 
 export type GetUserCertificationsQuery = { __typename?: 'query_root', positions: Array<{ __typename?: 'positions', shares: any, term_id: string, curve_id: any, vault?: { __typename?: 'vaults', term_id: string, total_shares: any, current_share_price: any, term?: { __typename?: 'terms', atom?: { __typename?: 'atoms', label?: string | null, term_id: string, type: any, value?: { __typename?: 'atom_values', thing?: { __typename?: 'things', url?: string | null, name?: string | null } | null, account?: { __typename?: 'accounts', id: string, label: string } | null } | null } | null, triple?: { __typename?: 'triples', term_id: string, subject?: { __typename?: 'atoms', label?: string | null, term_id: string } | null, predicate?: { __typename?: 'atoms', label?: string | null, term_id: string } | null, object?: { __typename?: 'atoms', label?: string | null, term_id: string, value?: { __typename?: 'atom_values', thing?: { __typename?: 'things', url?: string | null, name?: string | null } | null } | null } | null } | null } | null } | null }> };
+
+export type GetProxyDepositDaysQueryVariables = Exact<{
+  senderId: Scalars['String']['input'];
+  termId: Scalars['String']['input'];
+}>;
+
+
+export type GetProxyDepositDaysQuery = { __typename?: 'query_root', deposits: Array<{ __typename?: 'deposits', receiver_id: string, created_at: any }> };
+
+export type GetStreakVaultPositionsQueryVariables = Exact<{
+  termId: Scalars['String']['input'];
+  curveId: Scalars['numeric']['input'];
+  limit: Scalars['Int']['input'];
+}>;
+
+
+export type GetStreakVaultPositionsQuery = { __typename?: 'query_root', positions: Array<{ __typename?: 'positions', shares: any, account?: { __typename?: 'accounts', id: string, label: string } | null }> };
 
 export type GetTrendingByPredicateQueryVariables = Exact<{
   predicateId: Scalars['String']['input'];
@@ -18926,6 +18957,147 @@ export const PositionWithVaultDetailsFragmentDoc = `
   }
 }
     `;
+export const GetCircleFeedDocument = `
+    query GetCircleFeed($address: String!) {
+  positions_from_following(
+    args: {address: $address}
+    order_by: {created_at: desc}
+    limit: 50
+    where: {vault: {term: {triple: {predicate_id: {_is_null: false}}}}}
+  ) {
+    id
+    created_at
+    account {
+      id
+      label
+    }
+    vault {
+      term {
+        triple {
+          term_id
+          object {
+            label
+            value {
+              thing {
+                url
+                name
+                image
+              }
+            }
+          }
+          predicate {
+            term_id
+            label
+          }
+          subject {
+            label
+            term_id
+          }
+        }
+      }
+    }
+  }
+}
+    `;
+
+export const useGetCircleFeedQuery = <
+      TData = GetCircleFeedQuery,
+      TError = unknown
+    >(
+      variables: GetCircleFeedQueryVariables,
+      options?: Omit<UseQueryOptions<GetCircleFeedQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<GetCircleFeedQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<GetCircleFeedQuery, TError, TData>(
+      {
+    queryKey: ['GetCircleFeed', variables],
+    queryFn: fetcher<GetCircleFeedQuery, GetCircleFeedQueryVariables>(GetCircleFeedDocument, variables),
+    ...options
+  }
+    )};
+
+useGetCircleFeedQuery.document = GetCircleFeedDocument;
+
+useGetCircleFeedQuery.getKey = (variables: GetCircleFeedQueryVariables) => ['GetCircleFeed', variables];
+
+export const useInfiniteGetCircleFeedQuery = <
+      TData = InfiniteData<GetCircleFeedQuery>,
+      TError = unknown
+    >(
+      variables: GetCircleFeedQueryVariables,
+      options: Omit<UseInfiniteQueryOptions<GetCircleFeedQuery, TError, TData>, 'queryKey'> & { queryKey?: UseInfiniteQueryOptions<GetCircleFeedQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useInfiniteQuery<GetCircleFeedQuery, TError, TData>(
+      (() => {
+    const { queryKey: optionsQueryKey, ...restOptions } = options;
+    return {
+      queryKey: optionsQueryKey ?? ['GetCircleFeed.infinite', variables],
+      queryFn: (metaData) => fetcher<GetCircleFeedQuery, GetCircleFeedQueryVariables>(GetCircleFeedDocument, {...variables, ...(metaData.pageParam ?? {})})(),
+      ...restOptions
+    }
+  })()
+    )};
+
+useInfiniteGetCircleFeedQuery.getKey = (variables: GetCircleFeedQueryVariables) => ['GetCircleFeed.infinite', variables];
+
+
+useGetCircleFeedQuery.fetcher = (variables: GetCircleFeedQueryVariables, options?: RequestInit['headers']) => fetcher<GetCircleFeedQuery, GetCircleFeedQueryVariables>(GetCircleFeedDocument, variables, options);
+
+export const GetFollowingCountDocument = `
+    query GetFollowingCount($address: String!) {
+  following_aggregate(args: {address: $address}) {
+    aggregate {
+      count
+    }
+  }
+}
+    `;
+
+export const useGetFollowingCountQuery = <
+      TData = GetFollowingCountQuery,
+      TError = unknown
+    >(
+      variables: GetFollowingCountQueryVariables,
+      options?: Omit<UseQueryOptions<GetFollowingCountQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<GetFollowingCountQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<GetFollowingCountQuery, TError, TData>(
+      {
+    queryKey: ['GetFollowingCount', variables],
+    queryFn: fetcher<GetFollowingCountQuery, GetFollowingCountQueryVariables>(GetFollowingCountDocument, variables),
+    ...options
+  }
+    )};
+
+useGetFollowingCountQuery.document = GetFollowingCountDocument;
+
+useGetFollowingCountQuery.getKey = (variables: GetFollowingCountQueryVariables) => ['GetFollowingCount', variables];
+
+export const useInfiniteGetFollowingCountQuery = <
+      TData = InfiniteData<GetFollowingCountQuery>,
+      TError = unknown
+    >(
+      variables: GetFollowingCountQueryVariables,
+      options: Omit<UseInfiniteQueryOptions<GetFollowingCountQuery, TError, TData>, 'queryKey'> & { queryKey?: UseInfiniteQueryOptions<GetFollowingCountQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useInfiniteQuery<GetFollowingCountQuery, TError, TData>(
+      (() => {
+    const { queryKey: optionsQueryKey, ...restOptions } = options;
+    return {
+      queryKey: optionsQueryKey ?? ['GetFollowingCount.infinite', variables],
+      queryFn: (metaData) => fetcher<GetFollowingCountQuery, GetFollowingCountQueryVariables>(GetFollowingCountDocument, {...variables, ...(metaData.pageParam ?? {})})(),
+      ...restOptions
+    }
+  })()
+    )};
+
+useInfiniteGetFollowingCountQuery.getKey = (variables: GetFollowingCountQueryVariables) => ['GetFollowingCount.infinite', variables];
+
+
+useGetFollowingCountQuery.fetcher = (variables: GetFollowingCountQueryVariables, options?: RequestInit['headers']) => fetcher<GetFollowingCountQuery, GetFollowingCountQueryVariables>(GetFollowingCountDocument, variables, options);
+
 export const GetSeasonPoolPositionsDocument = `
     query GetSeasonPoolPositions($termId: String!, $curveId: numeric!) {
   vaults(where: {term_id: {_eq: $termId}, curve_id: {_eq: $curveId}}) {
@@ -19216,6 +19388,122 @@ useInfiniteGetUserCertificationsQuery.getKey = (variables: GetUserCertifications
 
 useGetUserCertificationsQuery.fetcher = (variables: GetUserCertificationsQueryVariables, options?: RequestInit['headers']) => fetcher<GetUserCertificationsQuery, GetUserCertificationsQueryVariables>(GetUserCertificationsDocument, variables, options);
 
+export const GetProxyDepositDaysDocument = `
+    query GetProxyDepositDays($senderId: String!, $termId: String!) {
+  deposits(
+    where: {sender_id: {_eq: $senderId}, term_id: {_eq: $termId}, assets_after_fees: {_neq: "0"}}
+    order_by: {created_at: desc}
+  ) {
+    receiver_id
+    created_at
+  }
+}
+    `;
+
+export const useGetProxyDepositDaysQuery = <
+      TData = GetProxyDepositDaysQuery,
+      TError = unknown
+    >(
+      variables: GetProxyDepositDaysQueryVariables,
+      options?: Omit<UseQueryOptions<GetProxyDepositDaysQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<GetProxyDepositDaysQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<GetProxyDepositDaysQuery, TError, TData>(
+      {
+    queryKey: ['GetProxyDepositDays', variables],
+    queryFn: fetcher<GetProxyDepositDaysQuery, GetProxyDepositDaysQueryVariables>(GetProxyDepositDaysDocument, variables),
+    ...options
+  }
+    )};
+
+useGetProxyDepositDaysQuery.document = GetProxyDepositDaysDocument;
+
+useGetProxyDepositDaysQuery.getKey = (variables: GetProxyDepositDaysQueryVariables) => ['GetProxyDepositDays', variables];
+
+export const useInfiniteGetProxyDepositDaysQuery = <
+      TData = InfiniteData<GetProxyDepositDaysQuery>,
+      TError = unknown
+    >(
+      variables: GetProxyDepositDaysQueryVariables,
+      options: Omit<UseInfiniteQueryOptions<GetProxyDepositDaysQuery, TError, TData>, 'queryKey'> & { queryKey?: UseInfiniteQueryOptions<GetProxyDepositDaysQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useInfiniteQuery<GetProxyDepositDaysQuery, TError, TData>(
+      (() => {
+    const { queryKey: optionsQueryKey, ...restOptions } = options;
+    return {
+      queryKey: optionsQueryKey ?? ['GetProxyDepositDays.infinite', variables],
+      queryFn: (metaData) => fetcher<GetProxyDepositDaysQuery, GetProxyDepositDaysQueryVariables>(GetProxyDepositDaysDocument, {...variables, ...(metaData.pageParam ?? {})})(),
+      ...restOptions
+    }
+  })()
+    )};
+
+useInfiniteGetProxyDepositDaysQuery.getKey = (variables: GetProxyDepositDaysQueryVariables) => ['GetProxyDepositDays.infinite', variables];
+
+
+useGetProxyDepositDaysQuery.fetcher = (variables: GetProxyDepositDaysQueryVariables, options?: RequestInit['headers']) => fetcher<GetProxyDepositDaysQuery, GetProxyDepositDaysQueryVariables>(GetProxyDepositDaysDocument, variables, options);
+
+export const GetStreakVaultPositionsDocument = `
+    query GetStreakVaultPositions($termId: String!, $curveId: numeric!, $limit: Int!) {
+  positions(
+    where: {vault: {term_id: {_eq: $termId}, curve_id: {_eq: $curveId}}, shares: {_gt: "0"}}
+    order_by: {shares: desc}
+    limit: $limit
+  ) {
+    account {
+      id
+      label
+    }
+    shares
+  }
+}
+    `;
+
+export const useGetStreakVaultPositionsQuery = <
+      TData = GetStreakVaultPositionsQuery,
+      TError = unknown
+    >(
+      variables: GetStreakVaultPositionsQueryVariables,
+      options?: Omit<UseQueryOptions<GetStreakVaultPositionsQuery, TError, TData>, 'queryKey'> & { queryKey?: UseQueryOptions<GetStreakVaultPositionsQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useQuery<GetStreakVaultPositionsQuery, TError, TData>(
+      {
+    queryKey: ['GetStreakVaultPositions', variables],
+    queryFn: fetcher<GetStreakVaultPositionsQuery, GetStreakVaultPositionsQueryVariables>(GetStreakVaultPositionsDocument, variables),
+    ...options
+  }
+    )};
+
+useGetStreakVaultPositionsQuery.document = GetStreakVaultPositionsDocument;
+
+useGetStreakVaultPositionsQuery.getKey = (variables: GetStreakVaultPositionsQueryVariables) => ['GetStreakVaultPositions', variables];
+
+export const useInfiniteGetStreakVaultPositionsQuery = <
+      TData = InfiniteData<GetStreakVaultPositionsQuery>,
+      TError = unknown
+    >(
+      variables: GetStreakVaultPositionsQueryVariables,
+      options: Omit<UseInfiniteQueryOptions<GetStreakVaultPositionsQuery, TError, TData>, 'queryKey'> & { queryKey?: UseInfiniteQueryOptions<GetStreakVaultPositionsQuery, TError, TData>['queryKey'] }
+    ) => {
+    
+    return useInfiniteQuery<GetStreakVaultPositionsQuery, TError, TData>(
+      (() => {
+    const { queryKey: optionsQueryKey, ...restOptions } = options;
+    return {
+      queryKey: optionsQueryKey ?? ['GetStreakVaultPositions.infinite', variables],
+      queryFn: (metaData) => fetcher<GetStreakVaultPositionsQuery, GetStreakVaultPositionsQueryVariables>(GetStreakVaultPositionsDocument, {...variables, ...(metaData.pageParam ?? {})})(),
+      ...restOptions
+    }
+  })()
+    )};
+
+useInfiniteGetStreakVaultPositionsQuery.getKey = (variables: GetStreakVaultPositionsQueryVariables) => ['GetStreakVaultPositions.infinite', variables];
+
+
+useGetStreakVaultPositionsQuery.fetcher = (variables: GetStreakVaultPositionsQueryVariables, options?: RequestInit['headers']) => fetcher<GetStreakVaultPositionsQuery, GetStreakVaultPositionsQueryVariables>(GetStreakVaultPositionsDocument, variables, options);
+
 export const GetTrendingByPredicateDocument = `
     query GetTrendingByPredicate($predicateId: String!, $limit: Int!) {
   triples(
@@ -19286,9 +19574,13 @@ useGetTrendingByPredicateQuery.fetcher = (variables: GetTrendingByPredicateQuery
 
 export const PositionFields = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PositionFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"positions"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"account"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"label"}}]}},{"kind":"Field","name":{"kind":"Name","value":"shares"}},{"kind":"Field","name":{"kind":"Name","value":"vault"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"total_shares"}},{"kind":"Field","name":{"kind":"Name","value":"current_share_price"}}]}}]}}]} as unknown as DocumentNode;
 export const PositionWithVaultDetails = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PositionWithVaultDetails"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"positions"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"shares"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"curve_id"}},{"kind":"Field","name":{"kind":"Name","value":"vault"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"total_shares"}},{"kind":"Field","name":{"kind":"Name","value":"current_share_price"}},{"kind":"Field","name":{"kind":"Name","value":"term"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"atom"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"value"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"thing"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"account"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"label"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"triple"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"subject"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"predicate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"object"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"value"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"thing"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode;
+export const GetCircleFeed = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetCircleFeed"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"address"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"positions_from_following"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"args"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"address"},"value":{"kind":"Variable","name":{"kind":"Name","value":"address"}}}]}},{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"created_at"},"value":{"kind":"EnumValue","value":"desc"}}]}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"50"}},{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"vault"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"term"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"triple"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"predicate_id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_is_null"},"value":{"kind":"BooleanValue","value":false}}]}}]}}]}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"created_at"}},{"kind":"Field","name":{"kind":"Name","value":"account"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"label"}}]}},{"kind":"Field","name":{"kind":"Name","value":"vault"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"term"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"triple"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"object"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"value"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"thing"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"image"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"predicate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"label"}}]}},{"kind":"Field","name":{"kind":"Name","value":"subject"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode;
+export const GetFollowingCount = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetFollowingCount"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"address"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"following_aggregate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"args"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"address"},"value":{"kind":"Variable","name":{"kind":"Name","value":"address"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}}]}}]} as unknown as DocumentNode;
 export const GetSeasonPoolPositions = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetSeasonPoolPositions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"termId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"curveId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"numeric"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"vaults"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"term_id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"termId"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"curve_id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"curveId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"current_share_price"}},{"kind":"Field","name":{"kind":"Name","value":"total_shares"}},{"kind":"Field","name":{"kind":"Name","value":"total_assets"}},{"kind":"Field","name":{"kind":"Name","value":"position_count"}},{"kind":"Field","name":{"kind":"Name","value":"positions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"shares"},"value":{"kind":"EnumValue","value":"desc"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"account_id"}},{"kind":"Field","name":{"kind":"Name","value":"shares"}},{"kind":"Field","name":{"kind":"Name","value":"total_deposit_assets_after_total_fees"}},{"kind":"Field","name":{"kind":"Name","value":"total_redeem_assets_for_receiver"}}]}}]}}]}}]} as unknown as DocumentNode;
 export const GetAccountLabels = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetAccountLabels"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"ids"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"accounts"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"ids"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"image"}},{"kind":"Field","name":{"kind":"Name","value":"atom"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"image"}}]}}]}}]}}]} as unknown as DocumentNode;
 export const GetUserPositions = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserPositions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"accountId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","alias":{"kind":"Name","value":"total"},"name":{"kind":"Name","value":"positions_aggregate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"account_id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_ilike"},"value":{"kind":"Variable","name":{"kind":"Name","value":"accountId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"positions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"account_id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_ilike"},"value":{"kind":"Variable","name":{"kind":"Name","value":"accountId"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"shares"},"value":{"kind":"EnumValue","value":"desc"}}]}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"200"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PositionWithVaultDetails"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PositionWithVaultDetails"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"positions"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"shares"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"curve_id"}},{"kind":"Field","name":{"kind":"Name","value":"vault"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"total_shares"}},{"kind":"Field","name":{"kind":"Name","value":"current_share_price"}},{"kind":"Field","name":{"kind":"Name","value":"term"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"atom"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"value"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"thing"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"account"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"label"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"triple"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"subject"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"predicate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"object"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"value"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"thing"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode;
 export const GetUserPositionsCount = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserPositionsCount"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"accountId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"positions_aggregate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"account_id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_ilike"},"value":{"kind":"Variable","name":{"kind":"Name","value":"accountId"}}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"aggregate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}}]}}]}}]}}]} as unknown as DocumentNode;
 export const GetUserCertifications = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUserCertifications"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"accountId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"predicateIds"}},"type":{"kind":"NonNullType","type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"positions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"account_id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_ilike"},"value":{"kind":"Variable","name":{"kind":"Name","value":"accountId"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"vault"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"term"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"triple"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"predicate"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"term_id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_in"},"value":{"kind":"Variable","name":{"kind":"Name","value":"predicateIds"}}}]}}]}}]}}]}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"shares"},"value":{"kind":"EnumValue","value":"desc"}}]}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"IntValue","value":"100"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"PositionWithVaultDetails"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"PositionWithVaultDetails"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"positions"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"shares"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"curve_id"}},{"kind":"Field","name":{"kind":"Name","value":"vault"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"total_shares"}},{"kind":"Field","name":{"kind":"Name","value":"current_share_price"}},{"kind":"Field","name":{"kind":"Name","value":"term"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"atom"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"value"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"thing"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"account"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"label"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"triple"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"subject"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"predicate"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"object"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"term_id"}},{"kind":"Field","name":{"kind":"Name","value":"value"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"thing"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}}]}}]}}]}}]} as unknown as DocumentNode;
+export const GetProxyDepositDays = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetProxyDepositDays"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"senderId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"termId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deposits"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"sender_id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"senderId"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"term_id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"termId"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"assets_after_fees"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_neq"},"value":{"kind":"StringValue","value":"0","block":false}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"created_at"},"value":{"kind":"EnumValue","value":"desc"}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"receiver_id"}},{"kind":"Field","name":{"kind":"Name","value":"created_at"}}]}}]}}]} as unknown as DocumentNode;
+export const GetStreakVaultPositions = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetStreakVaultPositions"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"termId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"curveId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"numeric"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"positions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"vault"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"term_id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"termId"}}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"curve_id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"curveId"}}}]}}]}},{"kind":"ObjectField","name":{"kind":"Name","value":"shares"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_gt"},"value":{"kind":"StringValue","value":"0","block":false}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"shares"},"value":{"kind":"EnumValue","value":"desc"}}]}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"account"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"label"}}]}},{"kind":"Field","name":{"kind":"Name","value":"shares"}}]}}]}}]} as unknown as DocumentNode;
 export const GetTrendingByPredicate = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetTrendingByPredicate"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"predicateId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"limit"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"triples"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"predicate_id"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_eq"},"value":{"kind":"Variable","name":{"kind":"Name","value":"predicateId"}}}]}}]}},{"kind":"Argument","name":{"kind":"Name","value":"order_by"},"value":{"kind":"ListValue","values":[{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"positions_aggregate"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"count"},"value":{"kind":"EnumValue","value":"desc"}}]}}]},{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"created_at"},"value":{"kind":"EnumValue","value":"desc"}}]}]}},{"kind":"Argument","name":{"kind":"Name","value":"limit"},"value":{"kind":"Variable","name":{"kind":"Name","value":"limit"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"object"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"label"}},{"kind":"Field","name":{"kind":"Name","value":"value"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"thing"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"url"}}]}}]}}]}},{"kind":"Field","alias":{"kind":"Name","value":"all_positions"},"name":{"kind":"Name","value":"positions"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"where"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"shares"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"_gt"},"value":{"kind":"StringValue","value":"0","block":false}}]}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"account"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]}}]}}]} as unknown as DocumentNode;

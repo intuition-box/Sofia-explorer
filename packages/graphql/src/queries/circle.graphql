@@ -1,0 +1,50 @@
+query GetCircleFeed($address: String!) {
+  positions_from_following(
+    args: { address: $address }
+    order_by: { created_at: desc }
+    limit: 50
+    where: {
+      vault: { term: { triple: { predicate_id: { _is_null: false } } } }
+    }
+  ) {
+    id
+    created_at
+    account {
+      id
+      label
+    }
+    vault {
+      term {
+        triple {
+          term_id
+          object {
+            label
+            value {
+              thing {
+                url
+                name
+                image
+              }
+            }
+          }
+          predicate {
+            term_id
+            label
+          }
+          subject {
+            label
+            term_id
+          }
+        }
+      }
+    }
+  }
+}
+
+query GetFollowingCount($address: String!) {
+  following_aggregate(args: { address: $address }) {
+    aggregate {
+      count
+    }
+  }
+}
