@@ -1,15 +1,9 @@
 import { SOFIA_DOMAINS } from '../../config/taxonomy'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
+import { Card } from '../ui/card'
 import { ScrollArea } from '../ui/scroll-area'
 import { ArrowLeft } from 'lucide-react'
-
-const DOMAIN_ICONS: Record<string, string> = {
-  'tech-dev': '💻', 'design-creative': '🎨', 'music-audio': '🎵', gaming: '🎮',
-  'web3-crypto': '⛓️', science: '🔬', 'sport-health': '🏋️', 'video-cinema': '📹',
-  entrepreneurship: '🚀', 'performing-arts': '🎭', 'nature-environment': '🌿',
-  'food-lifestyle': '🍽️', literature: '📚', 'personal-dev': '🧠',
-}
 
 interface NicheSelectorProps {
   selectedDomains: string[]
@@ -43,21 +37,21 @@ export default function NicheSelector({
               .filter((n) => selectedNiches.includes(n.id)).length
 
             return (
-              <div key={domain.id}>
-                <div className="flex items-center gap-2 mb-3">
-                  <span>{DOMAIN_ICONS[domain.id] || '📌'}</span>
-                  <span className="font-medium">{domain.label}</span>
+              <Card key={domain.id} style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <h3 className="font-semibold" style={{ fontSize: 17 }}>{domain.label}</h3>
                   {domainNicheCount > 0 && (
                     <Badge variant="default" className="text-xs">{domainNicheCount}</Badge>
                   )}
                 </div>
 
-                {domain.categories.map((category) => (
-                  <div key={category.id} className="mb-3">
-                    <p className="text-xs font-medium text-muted-foreground mb-1.5">
+                {domain.categories.map((category, catIdx) => (
+                  <div key={category.id}>
+                    {catIdx > 0 && <div style={{ borderTop: '1px solid var(--border)', marginBottom: 12 }} />}
+                    <p className="text-xs font-medium text-muted-foreground" style={{ marginBottom: 8 }}>
                       {category.label}
                     </p>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap" style={{ gap: 6 }}>
                       {category.niches.map((niche) => (
                         <Badge
                           key={niche.id}
@@ -71,7 +65,7 @@ export default function NicheSelector({
                     </div>
                   </div>
                 ))}
-              </div>
+              </Card>
             )
           })}
         </div>

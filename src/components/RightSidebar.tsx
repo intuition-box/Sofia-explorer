@@ -1,10 +1,7 @@
-import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
-import { Badge } from "./ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { TrendingUp, Star, Activity } from "lucide-react";
-import { SOFIA_DOMAINS } from '../config/taxonomy'
-import { useDomainSelection } from '../hooks/useDomainSelection'
+import { Star, Activity } from "lucide-react";
+import TrendingPages from './TrendingPages';
 
 const DOMAIN_ICONS: Record<string, string> = {
   'tech-dev': '💻', 'design-creative': '🎨', 'music-audio': '🎵', gaming: '🎮',
@@ -14,13 +11,6 @@ const DOMAIN_ICONS: Record<string, string> = {
 }
 
 export function RightSidebar() {
-  const { selectedDomains } = useDomainSelection()
-
-  // Show trending domains — prioritize user's selected ones
-  const trendingDomains = selectedDomains.length > 0
-    ? SOFIA_DOMAINS.filter((d) => selectedDomains.includes(d.id)).slice(0, 5)
-    : SOFIA_DOMAINS.slice(0, 5)
-
   // Placeholder suggested accounts with good scores in user's domains
   const suggestedAccounts = [
     { address: '0x1a2b...3c4d', score: 87, domain: 'tech-dev' },
@@ -29,36 +19,7 @@ export function RightSidebar() {
   ]
 
   return (
-    <aside className="fixed right-0 top-[57px] h-[calc(100vh-57px)] w-72 bg-background border-l border-border overflow-y-auto z-40 p-4 space-y-6">
-      {/* Trending Categories */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <TrendingUp className="h-4 w-4" />
-            Trending Categories
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          {trendingDomains.map((domain) => {
-            const nicheCount = domain.categories.reduce((s, c) => s + c.niches.length, 0)
-            return (
-              <div key={domain.id} className="flex items-center justify-between hover:bg-muted/50 rounded p-2 cursor-pointer transition-colors">
-                <div className="flex items-center gap-2">
-                  <span>{DOMAIN_ICONS[domain.id] || '📌'}</span>
-                  <div>
-                    <p className="font-medium text-sm">{domain.label}</p>
-                    <p className="text-xs text-muted-foreground">{nicheCount} niches</p>
-                  </div>
-                </div>
-                <Badge variant="secondary" className="text-xs">
-                  Trending
-                </Badge>
-              </div>
-            )
-          })}
-        </CardContent>
-      </Card>
-
+    <aside className="fixed right-0 top-[85px] h-[calc(100vh-85px)] w-72 bg-background border-l border-border overflow-y-auto z-40 p-4 space-y-6" style={{ zoom: 1.50 }}>
       {/* Suggested Accounts */}
       <Card>
         <CardHeader className="pb-3">
@@ -88,6 +49,9 @@ export function RightSidebar() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Trending Pages */}
+      <TrendingPages />
 
       {/* Live Activity */}
       <Card>

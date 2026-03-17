@@ -99,9 +99,9 @@ export default function DashboardPage() {
     : sourceItems.filter((item) => item.intentions.includes(intentFilter))
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Feed mode toggle */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 mb-2">
         <Button
           variant={filter === 'all' ? 'default' : 'outline'}
           size="sm"
@@ -122,8 +122,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Intention filters */}
-      <ScrollArea className="w-full">
-        <div className="flex gap-1 pb-1">
+      <ScrollArea className="w-full mb-2">
+        <div className="flex gap-2 pb-2">
           {INTENT_FILTERS.map((intent) => (
             <Button
               key={intent}
@@ -140,8 +140,8 @@ export default function DashboardPage() {
 
       {/* Loading */}
       {loading && (
-        <div className="flex justify-center py-12">
-          <SofiaLoader size={48} />
+        <div className="flex items-start justify-center" style={{ minHeight: 'calc(100vh - 200px)', paddingTop: '20vh' }}>
+          <SofiaLoader size={96} />
         </div>
       )}
 
@@ -149,11 +149,11 @@ export default function DashboardPage() {
       {!loading && (
         <>
           {filteredItems.length === 0 ? (
-            <Card className="p-8 text-center">
+            <Card className="p-10 text-center">
               {filter === 'circle' ? (
                 <>
                   <Users className="h-10 w-10 mx-auto text-muted-foreground/40" />
-                  <h3 className="mt-3 font-medium">Your Circle</h3>
+                  <h3 className="mt-4 font-medium">Your Circle</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {circleItems.length === 0
                       ? 'Certify pages and trust users to build your circle.'
@@ -163,8 +163,8 @@ export default function DashboardPage() {
               ) : (
                 <>
                   <Globe className="h-10 w-10 mx-auto text-muted-foreground/40" />
-                  <h3 className="mt-3 font-medium">No activity yet</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <h3 className="mt-4 font-medium">No activity yet</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
                     Recent certifications will appear here.
                   </p>
                 </>

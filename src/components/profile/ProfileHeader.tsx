@@ -24,8 +24,8 @@ export default function ProfileHeader({
   const initials = (ensName || walletAddress).slice(0, 2).toUpperCase()
 
   return (
-    <Card className="p-8">
-      <div className="flex items-center gap-5">
+    <Card className="p-6">
+      <div className="flex items-center gap-4">
         <Avatar className="h-20 w-20">
           {avatar && <AvatarImage src={avatar} alt={displayName} />}
           <AvatarFallback className="text-xl">{initials}</AvatarFallback>
@@ -45,11 +45,11 @@ export default function ProfileHeader({
           </Button>
         )}
       </div>
-      <div className="mt-5 flex gap-8">
+      <div className="mt-4 flex gap-10">
         {stats.map((stat) => (
-          <div key={stat.label} className="text-center">
+          <div key={stat.label} className="text-center min-w-[60px]">
             <div className="text-xl font-bold">{stat.value}</div>
-            <div className="text-sm text-muted-foreground">{stat.label}</div>
+            <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
           </div>
         ))}
       </div>

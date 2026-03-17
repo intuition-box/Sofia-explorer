@@ -3,6 +3,7 @@ import type { IntentCategory } from '../types'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Badge } from './ui/badge'
 import { Skeleton } from './ui/skeleton'
+import { TrendingUp } from 'lucide-react'
 
 const CATEGORY_LABELS: Record<IntentCategory, string> = {
   trusted: 'Trusted',
@@ -13,32 +14,26 @@ const CATEGORY_LABELS: Record<IntentCategory, string> = {
   inspiration: 'Inspiration',
 }
 
-const INTENT_COLORS: Record<IntentCategory, string> = {
-  trusted: 'bg-green-100 text-green-800',
-  distrusted: 'bg-red-100 text-red-800',
-  work: 'bg-blue-100 text-blue-800',
-  learning: 'bg-emerald-100 text-emerald-800',
-  fun: 'bg-amber-100 text-amber-800',
-  inspiration: 'bg-purple-100 text-purple-800',
-}
-
 export default function TrendingPages() {
   const { items, loading, error } = useTrending()
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Trending Pages</CardTitle>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <TrendingUp className="h-4 w-4" />
+          Trending Pages
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {loading &&
-            Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="rounded-lg border p-3">
-                <Skeleton className="h-6 w-6 rounded-full mb-2" />
-                <Skeleton className="h-4 w-20" />
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px' }}>
+                <Skeleton className="h-5 w-5 rounded-full" />
+                <Skeleton className="h-4 w-24" />
               </div>
             ))}
 
@@ -49,16 +44,19 @@ export default function TrendingPages() {
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col gap-2 rounded-lg border p-3 transition-colors hover:bg-muted/50"
+                className="hover:bg-muted/50 rounded transition-colors"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', textDecoration: 'none' }}
               >
-                <div className="flex items-center justify-between">
-                  <img src={item.favicon} alt="" className="h-5 w-5 rounded" />
-                  <Badge variant="secondary" className={`text-[10px] ${INTENT_COLORS[item.category]}`}>
-                    {CATEGORY_LABELS[item.category]}
-                  </Badge>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, flex: 1 }}>
+                  <img src={item.favicon} alt="" style={{ width: 20, height: 20, borderRadius: 4, flexShrink: 0 }} />
+                  <div style={{ minWidth: 0 }}>
+                    <p className="text-sm font-medium" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.domain}</p>
+                    <p className="text-xs text-muted-foreground">{item.certifiers} certifiers</p>
+                  </div>
                 </div>
-                <span className="text-sm font-medium truncate">{item.domain}</span>
-                <span className="text-xs text-muted-foreground">{item.certifiers} certifiers</span>
+                <Badge variant="secondary" className="text-xs" style={{ flexShrink: 0, marginLeft: 8 }}>
+                  {CATEGORY_LABELS[item.category]}
+                </Badge>
               </a>
             ))}
         </div>

@@ -35,13 +35,13 @@ export default function DomainSelector({
   onBack,
 }: DomainSelectorProps) {
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Select your domains</h2>
         <Badge variant="secondary" className="text-sm px-3 py-1">{selectedDomains.length} selected</Badge>
       </div>
 
-      <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))' }}>
+      <div className="grid gap-4 mt-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', marginBottom: 40 }}>
         {SOFIA_DOMAINS.map((domain) => {
           const isSelected = selectedDomains.includes(domain.id)
           const nicheCount = domain.categories.reduce((s, c) => s + c.niches.length, 0)
@@ -49,7 +49,7 @@ export default function DomainSelector({
           return (
             <Card
               key={domain.id}
-              className={`p-5 cursor-pointer transition-all hover:shadow-md ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}
+              className={`p-6 cursor-pointer transition-all hover:shadow-md ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}
               onClick={() => onToggle(domain.id)}
             >
               <div className="flex items-start justify-between">
@@ -71,7 +71,7 @@ export default function DomainSelector({
         })}
       </div>
 
-      <div className="flex gap-2 pt-2">
+      <div className="flex gap-2 pb-6" style={{ paddingTop: 32 }}>
         {onBack && (
           <Button variant="outline" onClick={onBack}>
             <ArrowLeft className="h-4 w-4 mr-1" />

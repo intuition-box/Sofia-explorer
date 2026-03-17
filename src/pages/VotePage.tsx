@@ -1,82 +1,64 @@
 import { useState } from 'react'
+import { formatEther } from 'viem'
 import { Card } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
 import { ThumbsUp, ThumbsDown, ChevronRight, ChevronLeft, Vote } from 'lucide-react'
+import SofiaLoader from '../components/ui/SofiaLoader'
+import { useDebateClaims } from '../hooks/useDebateClaims'
 
-interface Claim {
-  id: string
-  title: string
-  description: string
-  category: string
-  supportCount: number
-  opposeCount: number
-}
-
-// Placeholder claims — in production these come from Intuition protocol
-const CLAIMS: Claim[] = [
-  {
-    id: '1',
-    title: 'Fiverr is better than Upwork',
-    description: 'Both are freelancer marketplaces, but Fiverr offers more accessible pricing for buyers.',
-    category: 'work',
-    supportCount: 142,
-    opposeCount: 89,
-  },
-  {
-    id: '2',
-    title: 'Cursor is the best AI code editor',
-    description: 'Cursor has redefined AI-assisted development with its inline copilot features.',
-    category: 'tech',
-    supportCount: 231,
-    opposeCount: 67,
-  },
-  {
-    id: '3',
-    title: 'Bitcoin will reach $200k in 2026',
-    description: 'With institutional adoption growing, Bitcoin could hit $200k this cycle.',
-    category: 'crypto',
-    supportCount: 312,
-    opposeCount: 198,
-  },
-  {
-    id: '4',
-    title: 'Remote work is more productive',
-    description: 'Studies show remote workers are on average more productive than office workers.',
-    category: 'work',
-    supportCount: 567,
-    opposeCount: 234,
-  },
-  {
-    id: '5',
-    title: 'React is better than Vue for large apps',
-    description: 'React ecosystem maturity makes it more suitable for enterprise applications.',
-    category: 'tech',
-    supportCount: 189,
-    opposeCount: 156,
-  },
-]
-
-const CATEGORY_COLORS: Record<string, string> = {
-  work: 'bg-blue-500/10 text-blue-500',
-  tech: 'bg-purple-500/10 text-purple-500',
-  crypto: 'bg-amber-500/10 text-amber-500',
+function formatMarketCap(value: bigint): string {
+  const num = parseFloat(formatEther(value))
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'k ETH'
+  if (num >= 1) return num.toFixed(2) + ' ETH'
+  if (num >= 0.001) return num.toFixed(4) + ' ETH'
+  return '0 ETH'
 }
 
 export default function VotePage() {
+  const { claims, loading, error } = useDebateClaims()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [votes, setVotes] = useState<Record<string, 'support' | 'oppose'>>({})
 
-  const claim = CLAIMS[currentIndex]
-  const totalVotes = claim.supportCount + claim.opposeCount
-  const supportPercent = Math.round((claim.supportCount / totalVotes) * 100)
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center" style={{ minHeight: 300 }}>
+        <SofiaLoader size={96} />
+      </div>
+    )
+  }
+
+  if (error || claims.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            <Vote className="h-5 w-5" />
+            Vote
+          </h1>
+          <p className="text-sm text-muted-foreground mt-2">
+            {error || 'No claims available.'}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  const claim = claims[currentIndex]
+  const totalPositions = claim.supportCount + claim.opposeCount
+  const totalMarketCap = claim.supportMarketCap + claim.opposeMarketCap
+  const supportPercent =
+    totalMarketCap > 0n
+      ? Math.round(Number((claim.supportMarketCap * 100n) / totalMarketCap))
+      : 50
   const userVote = votes[claim.id]
+  const title = `${claim.subject} ${claim.predicate} ${claim.object}`
 
   const handleVote = (type: 'support' | 'oppose') => {
     setVotes((prev) => ({ ...prev, [claim.id]: type }))
   }
 
-  const next = () => setCurrentIndex((i) => Math.min(i + 1, CLAIMS.length - 1))
+  const next = () => setCurrentIndex((i) => Math.min(i + 1, claims.length - 1))
   const prev = () => setCurrentIndex((i) => Math.max(i - 1, 0))
 
   return (
@@ -97,24 +79,21 @@ export default function VotePage() {
           <ChevronLeft className="h-5 w-5" />
         </Button>
         <span className="text-sm text-muted-foreground">
-          {currentIndex + 1} / {CLAIMS.length}
+          {currentIndex + 1} / {claims.length}
         </span>
-        <Button variant="ghost" size="icon" onClick={next} disabled={currentIndex === CLAIMS.length - 1}>
+        <Button variant="ghost" size="icon" onClick={next} disabled={currentIndex === claims.length - 1}>
           <ChevronRight className="h-5 w-5" />
         </Button>
       </div>
 
       {/* Claim card */}
-      <Card className="p-6 space-y-4">
+      <Card className="p-6" style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div className="flex items-center justify-between">
-          <Badge className={CATEGORY_COLORS[claim.category] ?? 'bg-muted'}>
-            {claim.category}
-          </Badge>
-          <span className="text-xs text-muted-foreground">{totalVotes} votes</span>
+          <Badge variant="secondary">{totalPositions} positions</Badge>
+          <span className="text-xs text-muted-foreground">{formatMarketCap(totalMarketCap)}</span>
         </div>
 
-        <h2 className="text-lg font-bold">{claim.title}</h2>
-        <p className="text-sm text-muted-foreground">{claim.description}</p>
+        <h2 className="text-lg font-bold">{title}</h2>
 
         {/* Vote bar */}
         <div className="space-y-2">
@@ -125,6 +104,10 @@ export default function VotePage() {
           <div className="h-2 rounded-full bg-muted overflow-hidden flex">
             <div className="bg-green-500 transition-all" style={{ width: `${supportPercent}%` }} />
             <div className="bg-red-500 flex-1" />
+          </div>
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>{formatMarketCap(claim.supportMarketCap)} · {claim.supportCount}</span>
+            <span>{claim.opposeCount} · {formatMarketCap(claim.opposeMarketCap)}</span>
           </div>
         </div>
 
@@ -155,25 +138,31 @@ export default function VotePage() {
         )}
       </Card>
 
-      {/* Recent claims list */}
-      <div className="space-y-2">
-        <h3 className="text-sm font-medium">All Claims</h3>
-        {CLAIMS.map((c, i) => {
-          const total = c.supportCount + c.opposeCount
-          const pct = Math.round((c.supportCount / total) * 100)
+      {/* All claims list */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-medium">All Claims ({claims.length})</h3>
+        {claims.map((c, i) => {
+          const cTotal = c.supportMarketCap + c.opposeMarketCap
+          const pct = cTotal > 0n
+            ? Math.round(Number((c.supportMarketCap * 100n) / cTotal))
+            : 50
           const voted = votes[c.id]
           return (
             <Card
               key={c.id}
-              className={`p-3 cursor-pointer hover:shadow-sm transition-shadow ${i === currentIndex ? 'ring-1 ring-primary' : ''}`}
+              className={`p-4 cursor-pointer hover:shadow-sm transition-shadow ${i === currentIndex ? 'ring-1 ring-primary' : ''}`}
+              style={{ padding: 16 }}
               onClick={() => setCurrentIndex(i)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{c.title}</p>
+                  <p className="text-sm font-medium truncate">
+                    {c.subject} {c.predicate} {c.object}
+                  </p>
                   <div className="flex items-center gap-2 mt-1">
-                    <Badge variant="secondary" className="text-[10px]">{c.category}</Badge>
-                    <span className="text-xs text-muted-foreground">{total} votes</span>
+                    <span className="text-xs text-muted-foreground">
+                      {c.supportCount + c.opposeCount} positions · {formatMarketCap(cTotal)}
+                    </span>
                     {voted && (
                       <Badge variant="outline" className="text-[10px]">
                         {voted === 'support' ? '👍' : '👎'} Voted

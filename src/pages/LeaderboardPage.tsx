@@ -8,7 +8,6 @@ import Hero from '../components/Hero'
 import StatsRibbon from '../components/StatsRibbon'
 import PersonalStats from '../components/PersonalStats'
 import Leaderboard from '../components/Leaderboard'
-import TrendingPages from '../components/TrendingPages'
 import HowRewards from '../components/HowRewards'
 import FooterCTA from '../components/FooterCTA'
 
@@ -61,7 +60,6 @@ export default function LeaderboardPage() {
         connectedAddress={walletAddress ?? null}
       />
 
-      <TrendingPages />
       <HowRewards />
       <FooterCTA />
     </div>

@@ -18,12 +18,12 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-background" style={{ zoom: 1.50 }}>
+    <div className="min-h-screen bg-background">
       <Header />
       <Sidebar />
       <RightSidebar />
 
-      <main className="ml-64 mr-72 py-6 px-6">
+      <main style={{ marginLeft: 384, marginRight: 432, paddingTop: 56, paddingBottom: 48, paddingLeft: 8, paddingRight: 8, zoom: 1.50 }}>
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />

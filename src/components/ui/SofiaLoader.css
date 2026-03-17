@@ -11,7 +11,7 @@
 
 .sofia-loader-container .outline-path {
   fill: none;
-  stroke: #FFF8EE;
+  stroke: currentColor;
   stroke-width: 4;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -59,14 +59,10 @@
 
 @keyframes sofia-glow-intense {
   0%, 100% {
-    filter: drop-shadow(0 0 12px rgba(255, 248, 238, 1))
-            drop-shadow(0 0 25px rgba(255, 248, 238, 0.8))
-            drop-shadow(0 0 40px rgba(255, 248, 238, 0.5))
-            drop-shadow(0 0 60px rgba(255, 248, 238, 0.3));
+    filter: drop-shadow(0 0 12px currentColor)
+            drop-shadow(0 0 25px currentColor);
   }
   50% {
-    filter: drop-shadow(0 0 6px rgba(255, 248, 238, 0.7))
-            drop-shadow(0 0 12px rgba(255, 248, 238, 0.4))
-            drop-shadow(0 0 20px rgba(255, 248, 238, 0.2));
+    filter: drop-shadow(0 0 6px currentColor);
   }
 }

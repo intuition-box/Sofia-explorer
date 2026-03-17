@@ -22,8 +22,8 @@ export default function ScoreView({
   const scores = useReputationScores(getStatus, selectedDomains, selectedNiches)
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
@@ -42,7 +42,7 @@ export default function ScoreView({
             const domain = DOMAIN_BY_ID.get(ds.domainId)
             return (
               <Card key={ds.domainId} className="p-4">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-3">
                   <span className="font-medium text-sm">{domain?.label ?? ds.domainId}</span>
                   <span className="text-lg font-bold">{ds.score}</span>
                 </div>
