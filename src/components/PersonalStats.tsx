@@ -100,20 +100,20 @@ export default function PersonalStats({
   }
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-medium">Your Stats</h3>
+    <Card className="p-8">
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="font-medium text-base">Your Stats</h3>
         <Button size="sm" variant="outline" onClick={handleShare} disabled={sharing}>
           {sharing ? 'Sharing...' : 'Share'}
         </Button>
       </div>
-      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))' }}>
+      <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
         {cards.map((card) => (
-          <div key={card.label} className="flex flex-col items-center rounded-lg border p-3 text-center">
-            <span className={`text-lg font-bold ${card.variant === 'positive' ? 'text-green-600' : card.variant === 'negative' ? 'text-red-500' : ''}`}>
+          <div key={card.label} className="flex flex-col items-center rounded-lg border p-4 text-center">
+            <span className={`text-xl font-bold ${card.variant === 'positive' ? 'text-green-600' : card.variant === 'negative' ? 'text-red-500' : ''}`}>
               {card.value}
             </span>
-            <span className="text-xs text-muted-foreground">{card.label}</span>
+            <span className="text-sm text-muted-foreground">{card.label}</span>
             {card.sub && (
               <Badge variant="secondary" className="mt-1 text-[10px]">
                 {card.sub}

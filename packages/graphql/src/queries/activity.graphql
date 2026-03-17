@@ -1,0 +1,27 @@
+query GetAllActivity($proxy: String!, $limit: Int!, $offset: Int!) {
+  events(
+    limit: $limit
+    offset: $offset
+    order_by: { created_at: desc }
+    where: {
+      type: { _eq: "Deposited" }
+      deposit: {
+        sender_id: { _eq: $proxy }
+        assets_after_fees: { _neq: "0" }
+      }
+    }
+  ) {
+    id
+    created_at
+    deposit {
+      receiver { id label image }
+    }
+    triple {
+      predicate { label term_id }
+      object {
+        label
+        value { thing { url name } }
+      }
+    }
+  }
+}

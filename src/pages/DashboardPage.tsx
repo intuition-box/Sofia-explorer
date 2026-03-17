@@ -1,28 +1,14 @@
-import { useState, useEffect } from 'react'
-import { formatEther } from 'viem'
-import type { Address } from 'viem'
+import { useState } from 'react'
 import { usePrivy } from '@privy-io/react-auth'
-import { EventFetcher } from '../services/eventFetcher'
 import { useCircleFeed } from '../hooks/useCircleFeed'
-import type { TransactionForwardedEvent } from '../types'
+import { useAllActivity } from '../hooks/useAllActivity'
 import type { CircleItem } from '../services/circleService'
 import { Card } from '../components/ui/card'
 import { Badge } from '../components/ui/badge'
-import { Skeleton } from '../components/ui/skeleton'
 import { ScrollArea } from '../components/ui/scroll-area'
 import { Button } from '../components/ui/button'
-import { Avatar, AvatarFallback } from '../components/ui/avatar'
-import { ArrowUpRight, ArrowDownRight, ChevronUp, ChevronDown, Users, Globe, ExternalLink } from 'lucide-react'
-
-function truncateAddress(addr: string) {
-  return addr.slice(0, 6) + '...' + addr.slice(-4)
-}
-
-function randomColor(seed: string) {
-  let hash = 0
-  for (let i = 0; i < seed.length; i++) hash = ((hash << 5) - hash + seed.charCodeAt(i)) | 0
-  return `hsl(${Math.abs(hash) % 360}, 60%, 60%)`
-}
+import { ChevronUp, ChevronDown, Users, Globe } from 'lucide-react'
+import SofiaLoader from '../components/ui/SofiaLoader'
 
 function timeAgo(timestamp: string): string {
   if (!timestamp) return ''
@@ -41,18 +27,12 @@ const INTENTION_COLORS: Record<string, string> = {
   Learning: 'bg-emerald-500 text-white',
   Fun: 'bg-amber-500 text-white',
   Inspiration: 'bg-purple-500 text-white',
+  Buying: 'bg-pink-500 text-white',
+  Music: 'bg-indigo-500 text-white',
 }
 
 const INTENT_FILTERS = ['All', 'Trusted', 'Distrusted', 'Work', 'Learning', 'Fun', 'Inspiration']
 
-const OP_LABELS: Record<string, { label: string; color: string; icon: 'up' | 'down' }> = {
-  depositTriple: { label: 'Deposit', color: 'text-green-500', icon: 'up' },
-  redeemTriple: { label: 'Redeem', color: 'text-red-500', icon: 'down' },
-  depositAtom: { label: 'Signal', color: 'text-blue-500', icon: 'up' },
-  redeemAtom: { label: 'Unsignal', color: 'text-orange-500', icon: 'down' },
-}
-
-// ── Circle Feed Card ──
 function CircleCard({ item }: { item: CircleItem }) {
   return (
     <Card className="p-4 flex flex-col gap-3 hover:shadow-md transition-shadow">
@@ -100,83 +80,32 @@ function CircleCard({ item }: { item: CircleItem }) {
   )
 }
 
-// ── Activity Feed Card ──
-function ActivityCard({ evt, i }: { evt: TransactionForwardedEvent; i: number }) {
-  const op = OP_LABELS[evt.operation] ?? { label: evt.operation, color: 'text-foreground', icon: 'up' as const }
-  const value = formatEther(evt.totalReceived)
-  const Icon = op.icon === 'up' ? ArrowUpRight : ArrowDownRight
-
-  return (
-    <Card key={`${evt.txHash}-${i}`} className="p-3 flex items-center gap-3">
-      <Avatar className="h-8 w-8">
-        <AvatarFallback
-          className="text-[10px] text-white"
-          style={{ background: randomColor(evt.user) }}
-        >
-          {evt.user.slice(2, 4).toUpperCase()}
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">{truncateAddress(evt.user)}</span>
-          <Badge variant="outline" className="text-[10px]">
-            <Icon className={`h-3 w-3 mr-0.5 ${op.color}`} />
-            {op.label}
-          </Badge>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Block {evt.blockNumber.toString()}
-        </p>
-      </div>
-      <span className="text-sm font-medium tabular-nums">
-        {parseFloat(value).toFixed(4)} ETH
-      </span>
-    </Card>
-  )
-}
-
 export default function DashboardPage() {
   const [filter, setFilter] = useState<'all' | 'circle'>('all')
   const [intentFilter, setIntentFilter] = useState('All')
-  const [events, setEvents] = useState<TransactionForwardedEvent[]>([])
-  const [eventsLoading, setEventsLoading] = useState(true)
   const { authenticated, user } = usePrivy()
   const walletAddress = user?.wallet?.address
 
+  const { items: allItems, loading: allLoading } = useAllActivity()
   const { items: circleItems, loading: circleLoading } = useCircleFeed(
     filter === 'circle' ? walletAddress : undefined,
   )
 
-  useEffect(() => {
-    async function fetchEvents() {
-      try {
-        const fetcher = new EventFetcher()
-        const data = await fetcher.fetch()
-        setEvents(data.slice(-100).reverse())
-      } catch {
-        // Silent fail
-      } finally {
-        setEventsLoading(false)
-      }
-    }
-    fetchEvents()
-  }, [])
+  const sourceItems = filter === 'all' ? allItems : circleItems
+  const loading = filter === 'all' ? allLoading : circleLoading
 
-  // Filter circle items by intention
-  const filteredCircle = intentFilter === 'All'
-    ? circleItems
-    : circleItems.filter((item) => item.intentions.includes(intentFilter))
-
-  const loading = filter === 'circle' ? circleLoading : eventsLoading
+  const filteredItems = intentFilter === 'All'
+    ? sourceItems
+    : sourceItems.filter((item) => item.intentions.includes(intentFilter))
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Feed mode toggle */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <Button
           variant={filter === 'all' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilter('all')}
+          onClick={() => { setFilter('all'); setIntentFilter('All') }}
         >
           <Globe className="h-3 w-3 mr-1" />
           All Activity
@@ -184,7 +113,7 @@ export default function DashboardPage() {
         <Button
           variant={filter === 'circle' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilter('circle')}
+          onClick={() => { setFilter('circle'); setIntentFilter('All') }}
           disabled={!authenticated}
         >
           <Users className="h-3 w-3 mr-1" />
@@ -192,76 +121,61 @@ export default function DashboardPage() {
         </Button>
       </div>
 
-      {/* Intention filter (circle mode only) */}
-      {filter === 'circle' && (
-        <ScrollArea className="w-full">
-          <div className="flex gap-1 pb-1">
-            {INTENT_FILTERS.map((intent) => (
-              <Button
-                key={intent}
-                variant={intentFilter === intent ? 'default' : 'outline'}
-                size="sm"
-                className="flex-shrink-0 text-xs h-7"
-                onClick={() => setIntentFilter(intent)}
-              >
-                {intent}
-              </Button>
-            ))}
-          </div>
-        </ScrollArea>
-      )}
+      {/* Intention filters */}
+      <ScrollArea className="w-full">
+        <div className="flex gap-1 pb-1">
+          {INTENT_FILTERS.map((intent) => (
+            <Button
+              key={intent}
+              variant={intentFilter === intent ? 'default' : 'outline'}
+              size="sm"
+              className="flex-shrink-0 text-xs h-7"
+              onClick={() => setIntentFilter(intent)}
+            >
+              {intent}
+            </Button>
+          ))}
+        </div>
+      </ScrollArea>
 
       {/* Loading */}
       {loading && (
-        <div className="grid grid-cols-2 gap-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="h-32 rounded-lg" />
-          ))}
+        <div className="flex justify-center py-12">
+          <SofiaLoader size={48} />
         </div>
       )}
 
-      {/* Circle Feed — 2 column grid like extension */}
-      {!loading && filter === 'circle' && (
+      {/* Feed */}
+      {!loading && (
         <>
-          {filteredCircle.length === 0 ? (
+          {filteredItems.length === 0 ? (
             <Card className="p-8 text-center">
-              <Users className="h-10 w-10 mx-auto text-muted-foreground/40" />
-              <h3 className="mt-3 font-medium">Your Circle</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {circleItems.length === 0
-                  ? 'Certify pages and trust users to build your circle.'
-                  : `No ${intentFilter.toLowerCase()} items in your circle.`}
-              </p>
+              {filter === 'circle' ? (
+                <>
+                  <Users className="h-10 w-10 mx-auto text-muted-foreground/40" />
+                  <h3 className="mt-3 font-medium">Your Circle</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {circleItems.length === 0
+                      ? 'Certify pages and trust users to build your circle.'
+                      : `No ${intentFilter.toLowerCase()} items in your circle.`}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Globe className="h-10 w-10 mx-auto text-muted-foreground/40" />
+                  <h3 className="mt-3 font-medium">No activity yet</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Recent certifications will appear here.
+                  </p>
+                </>
+              )}
             </Card>
           ) : (
             <div className="grid grid-cols-2 gap-3">
-              {filteredCircle.map((item) => (
+              {filteredItems.map((item) => (
                 <CircleCard key={item.id} item={item} />
               ))}
             </div>
-          )}
-        </>
-      )}
-
-      {/* All Activity Feed — list */}
-      {!loading && filter === 'all' && (
-        <>
-          {events.length === 0 ? (
-            <Card className="p-8 text-center">
-              <Globe className="h-10 w-10 mx-auto text-muted-foreground/40" />
-              <h3 className="mt-3 font-medium">No activity yet</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Recent on-chain activity will appear here.
-              </p>
-            </Card>
-          ) : (
-            <ScrollArea className="h-[calc(100vh-200px)]">
-              <div className="space-y-2 pr-4">
-                {events.map((evt, i) => (
-                  <ActivityCard key={`${evt.txHash}-${i}`} evt={evt} i={i} />
-                ))}
-              </div>
-            </ScrollArea>
           )}
         </>
       )}

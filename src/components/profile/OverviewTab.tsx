@@ -55,9 +55,9 @@ export default function OverviewTab({
     <div className="space-y-6">
       {/* CTA if nothing configured */}
       {!hasSetup && (
-        <Card className="p-6 text-center">
-          <h2 className="text-lg font-bold">Enrich your profile</h2>
-          <p className="text-sm text-muted-foreground mt-2">
+        <Card className="p-8 text-center">
+          <h2 className="text-xl font-bold">Enrich your profile</h2>
+          <p className="text-base text-muted-foreground mt-2">
             Select your domains of interest, connect your favorite platforms,
             and build your behavioral reputation across 103 platforms.
           </p>
@@ -72,7 +72,7 @@ export default function OverviewTab({
           {/* Domains */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium">Domains ({selectedDomains.length})</h3>
+              <h3 className="font-medium text-base">Domains ({selectedDomains.length})</h3>
               <Button variant="ghost" size="sm" onClick={() => onNavigate('domains')}>
                 Edit
               </Button>
@@ -83,10 +83,10 @@ export default function OverviewTab({
                 return (
                   <Card key={domain.id} className="overflow-hidden" style={{ borderLeftColor: domain.color, borderLeftWidth: 3 }}>
                     <button
-                      className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors"
+                      className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
                       onClick={() => setExpandedDomain(isExpanded ? null : domain.id)}
                     >
-                      <span className="font-medium text-sm">{domain.label}</span>
+                      <span className="font-medium text-base">{domain.label}</span>
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary" className="text-xs">{activeNiches.length} niches</Badge>
                         <ChevronRight className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
@@ -131,7 +131,7 @@ export default function OverviewTab({
           {/* Connected Platforms */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium">Platforms ({connectedPlatforms.length})</h3>
+              <h3 className="font-medium text-base">Platforms ({connectedPlatforms.length})</h3>
               <Button variant="ghost" size="sm" onClick={() => onNavigate('platforms')}>
                 Manage
               </Button>

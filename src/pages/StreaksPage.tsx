@@ -42,10 +42,10 @@ export default function StreaksPage() {
   const rest = activeStreakers.slice(3)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="text-center">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-base text-muted-foreground">
           Top users ranked by their daily streak participation.
         </p>
       </div>

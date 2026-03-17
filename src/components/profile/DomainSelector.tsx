@@ -37,11 +37,11 @@ export default function DomainSelector({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold">Select your domains</h2>
-        <Badge variant="secondary">{selectedDomains.length} selected</Badge>
+        <h2 className="text-xl font-bold">Select your domains</h2>
+        <Badge variant="secondary" className="text-sm px-3 py-1">{selectedDomains.length} selected</Badge>
       </div>
 
-      <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
+      <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))' }}>
         {SOFIA_DOMAINS.map((domain) => {
           const isSelected = selectedDomains.includes(domain.id)
           const nicheCount = domain.categories.reduce((s, c) => s + c.niches.length, 0)
@@ -49,20 +49,20 @@ export default function DomainSelector({
           return (
             <Card
               key={domain.id}
-              className={`p-4 cursor-pointer transition-all hover:shadow-md ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}
+              className={`p-5 cursor-pointer transition-all hover:shadow-md ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}
               onClick={() => onToggle(domain.id)}
             >
               <div className="flex items-start justify-between">
-                <span className="text-2xl">{DOMAIN_ICONS[domain.id] || '📌'}</span>
+                <span className="text-3xl">{DOMAIN_ICONS[domain.id] || '📌'}</span>
                 {isSelected && (
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                    <Check className="h-3 w-3" />
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    <Check className="h-3.5 w-3.5" />
                   </div>
                 )}
               </div>
-              <div className="mt-2">
-                <p className="font-medium text-sm">{domain.label}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
+              <div className="mt-3">
+                <p className="font-medium text-base">{domain.label}</p>
+                <p className="text-sm text-muted-foreground mt-1">
                   {domain.categories.length} categories · {nicheCount} niches
                 </p>
               </div>
