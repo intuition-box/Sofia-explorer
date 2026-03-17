@@ -1,9 +1,10 @@
 import { usePrivy, useLogin, useLogout } from '@privy-io/react-auth'
 import { Link, useLocation } from 'react-router-dom'
 import { Button } from "./ui/button";
-import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Search, Bell, Home, Wallet, LogOut, Sun, Moon } from "lucide-react";
 import { useTheme } from '../hooks/useTheme'
+import { useEnsNames } from '../hooks/useEnsNames'
+import type { Address } from 'viem'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +20,10 @@ export function Header() {
   const { theme, toggleTheme } = useTheme()
 
   const walletAddress = user?.wallet?.address
+  const addresses = walletAddress ? [walletAddress as Address] : []
+  const { getDisplay, getAvatar } = useEnsNames(addresses)
+  const ensName = walletAddress ? getDisplay(walletAddress as Address) : ''
+  const ensAvatar = walletAddress ? getAvatar(walletAddress as Address) : ''
   const displayAddress = walletAddress
     ? walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4)
     : ''
@@ -75,20 +80,24 @@ export function Header() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="p-1 h-9 w-9">
-                  <Avatar className="h-7 w-7">
-                    <AvatarFallback className="text-xs">{displayAddress.slice(0, 2)}</AvatarFallback>
-                  </Avatar>
+                  <img src={ensAvatar} alt={ensName} className="h-7 w-7 rounded-full" referrerPolicy="no-referrer" />
                   <span className="sr-only">Profile</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem className="text-xs text-muted-foreground" disabled>
-                  {displayAddress}
-                </DropdownMenuItem>
+              <DropdownMenuContent align="end" style={{ minWidth: 220, background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 12, padding: 8 }}>
+                {/* User info header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 8px 12px' }}>
+                  <img src={ensAvatar} alt={ensName} className="h-10 w-10 rounded-full" referrerPolicy="no-referrer" />
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ensName}</div>
+                    <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>{displayAddress}</div>
+                  </div>
+                </div>
+                <div style={{ height: 1, background: 'var(--border)', margin: '0 4px 4px' }} />
                 <Link to="/profile">
-                  <DropdownMenuItem>My Profile</DropdownMenuItem>
+                  <DropdownMenuItem style={{ borderRadius: 8, padding: '10px 12px', fontSize: 14 }}>My Profile</DropdownMenuItem>
                 </Link>
-                <DropdownMenuItem onClick={() => logout()}>
+                <DropdownMenuItem onClick={() => logout()} style={{ borderRadius: 8, padding: '10px 12px', fontSize: 14 }}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Disconnect
                 </DropdownMenuItem>

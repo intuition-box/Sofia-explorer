@@ -11,6 +11,7 @@ export interface CircleItem {
   domain: string
   favicon: string
   certifier: string
+  certifierAddress: string
   intentions: string[]
   timestamp: string
 }
@@ -52,10 +53,11 @@ export async function fetchCircleFeed(walletAddress: string): Promise<CircleItem
     const domain = extractDomain(url)
     const predicateId = triple.predicate?.term_id || ''
     const intention = PREDICATE_TO_INTENTION[predicateId] || triple.predicate?.label || ''
-    const certifier = pos.account?.label || pos.account?.id || ''
+    const certifierAddress = pos.account?.id || ''
+    const certifier = pos.account?.label || certifierAddress
     const title = triple.object?.value?.thing?.name || objectLabel || domain
 
-    const key = `${certifier}-${objectLabel}`
+    const key = `${certifierAddress}-${objectLabel}`
     const existing = groupedMap.get(key)
 
     if (existing) {
@@ -70,6 +72,7 @@ export async function fetchCircleFeed(walletAddress: string): Promise<CircleItem
         domain,
         favicon: `https://www.google.com/s2/favicons?domain=${domain}&sz=64`,
         certifier,
+        certifierAddress,
         intentions: intention ? [intention] : [],
         timestamp: pos.created_at || '',
       })

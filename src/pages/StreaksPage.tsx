@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { formatEther } from 'viem'
 import type { Address } from 'viem'
 import { useStreakLeaderboard } from '../hooks/useStreakLeaderboard'
+import { DAILY_CERTIFICATION_ATOM_ID, DAILY_VOTE_ATOM_ID } from '../services/streakService'
 import { useEnsNames } from '../hooks/useEnsNames'
 import { Card } from '../components/ui/card'
 import { Button } from '../components/ui/button'
@@ -29,7 +30,10 @@ type Tab = 'signals' | 'vote'
 
 export default function StreaksPage() {
   const [tab, setTab] = useState<Tab>('signals')
-  const { entries, loading, error } = useStreakLeaderboard()
+  const signals = useStreakLeaderboard(DAILY_CERTIFICATION_ATOM_ID)
+  const vote = useStreakLeaderboard(DAILY_VOTE_ATOM_ID)
+  const active = tab === 'signals' ? signals : vote
+  const { entries, loading, error } = active
   const addresses = entries.map((e) => e.address as Address)
   const { getDisplay, getAvatar } = useEnsNames(addresses)
 
@@ -39,9 +43,9 @@ export default function StreaksPage() {
     avatar: getAvatar(entry.address as Address),
   }))
 
-  const activeStreakers = streakData.filter((e) => e.streakDays > 0)
-  const top3 = activeStreakers.slice(0, 3)
-  const rest = activeStreakers.slice(3)
+  // Show all entries (like the extension), not just active ones
+  const top3 = streakData.slice(0, 3)
+  const rest = streakData.slice(3)
 
   const pc = PAGE_COLORS['/streaks']
 
@@ -74,8 +78,8 @@ export default function StreaksPage() {
       {!loading && (
         <div className="flex items-center gap-2">
           <Flame className="h-4 w-4 text-orange-500" />
-          <span className="font-semibold">Signals</span>
-          <span className="text-sm text-muted-foreground">{activeStreakers.length} streakers</span>
+          <span className="font-semibold">{tab === 'signals' ? 'Signals' : 'Vote'}</span>
+          <span className="text-sm text-muted-foreground">{streakData.length} streakers</span>
         </div>
       )}
 

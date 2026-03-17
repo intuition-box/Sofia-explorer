@@ -23,7 +23,7 @@ export default function App() {
       <Sidebar />
       <RightSidebar />
 
-      <main style={{ marginLeft: 256, marginRight: 288, paddingTop: 56, paddingBottom: 48, paddingLeft: 0, paddingRight: 0, zoom: 1.50 }}>
+      <main style={{ marginLeft: 262, marginRight: 262, paddingTop: 56, paddingBottom: 48, paddingLeft: 12, paddingRight: 12, zoom: 1.50 }}>
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />

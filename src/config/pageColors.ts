@@ -14,8 +14,8 @@ export const PAGE_COLORS: Record<string, PageColorConfig> = {
   },
   '/leaderboard': {
     color: '#FCD34D',
-    title: 'Leaderboard',
-    subtitle: 'Season 1 — Alpha testers',
+    title: 'Leaderboard ',
+    subtitle: 'The top spots are being claimed right now.',
     glow: 'rgba(252,211,77,0.4)',
   },
   '/streaks': {

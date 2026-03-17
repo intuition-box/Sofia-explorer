@@ -6,10 +6,25 @@ import { Button } from '../ui/button'
 import { Progress } from '../ui/progress'
 import { ArrowLeft } from 'lucide-react'
 
+interface BadgeCounts {
+  pioneer: number
+  explorer: number
+  contributor: number
+  trusted: number
+}
+
+const BADGE_CONFIG = [
+  { key: 'pioneer' as const, label: 'Pioneer', icon: '/badges/pioneer.png' },
+  { key: 'explorer' as const, label: 'Explorer', icon: '/badges/explorer.png' },
+  { key: 'contributor' as const, label: 'Contributor', icon: '/badges/contributor.png' },
+  { key: 'trusted' as const, label: 'Trusted', icon: '/badges/trust.png' },
+]
+
 interface ScoreViewProps {
   selectedDomains: string[]
   selectedNiches: string[]
   getStatus: (platformId: string) => ConnectionStatus
+  badges?: BadgeCounts
   onBack: () => void
 }
 
@@ -17,6 +32,7 @@ export default function ScoreView({
   selectedDomains,
   selectedNiches,
   getStatus,
+  badges,
   onBack,
 }: ScoreViewProps) {
   const scores = useReputationScores(getStatus, selectedDomains, selectedNiches)
@@ -29,6 +45,21 @@ export default function ScoreView({
         </Button>
         <h2 className="text-lg font-bold">Reputation Scores</h2>
       </div>
+
+      {badges && (
+        <Card className="p-6">
+          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-4">Discovery Badges</h3>
+          <div className="flex items-center justify-center gap-12">
+            {BADGE_CONFIG.map(({ key, label, icon }) => (
+              <div key={key} className="flex flex-col items-center gap-2">
+                <img src={icon} alt={label} className="h-14 w-14" />
+                <span className="text-xs text-muted-foreground">{label}</span>
+                <span className="text-2xl font-bold">{badges[key]}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {(!scores || scores.domains.length === 0) && (
         <Card className="p-6 text-center text-sm text-muted-foreground">

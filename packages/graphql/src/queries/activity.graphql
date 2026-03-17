@@ -6,7 +6,7 @@ query GetAllActivity($proxy: String!, $limit: Int!, $offset: Int!) {
     where: {
       type: { _eq: "Deposited" }
       deposit: {
-        sender_id: { _eq: $proxy }
+        sender_id: { _ilike: $proxy }
         assets_after_fees: { _neq: "0" }
       }
     }

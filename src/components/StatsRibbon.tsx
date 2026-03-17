@@ -66,9 +66,9 @@ export default function StatsRibbon({ stats = [] }: StatsRibbonProps) {
   if (stats.length === 0) return null
 
   return (
-    <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
+    <div className="flex flex-wrap justify-center gap-4">
       {stats.map((stat, i) => (
-        <Card key={i} className="flex flex-col items-center justify-center p-6 text-center">
+        <Card key={i} className="flex flex-col items-center justify-center p-6 text-center min-w-[160px] flex-1">
           <AnimatedValue value={stat.value} />
           <span className="text-sm text-muted-foreground mt-2">{stat.label}</span>
         </Card>

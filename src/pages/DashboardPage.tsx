@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { usePrivy } from '@privy-io/react-auth'
 import { useSearchParams } from 'react-router-dom'
 import { useCircleFeed } from '../hooks/useCircleFeed'
@@ -11,6 +11,8 @@ import { ScrollArea } from '../components/ui/scroll-area'
 import { Button } from '../components/ui/button'
 import { ChevronUp, ChevronDown, Users, Globe, X } from 'lucide-react'
 import SofiaLoader from '../components/ui/SofiaLoader'
+import { useEnsNames } from '../hooks/useEnsNames'
+import type { Address } from 'viem'
 import PageHeader from '../components/PageHeader'
 import { PAGE_COLORS } from '../config/pageColors'
 
@@ -45,60 +47,97 @@ function timeAgo(timestamp: string): string {
 }
 
 const INTENTION_COLORS: Record<string, string> = {
-  Trusted: 'bg-green-500 text-white',
-  Distrusted: 'bg-red-500 text-white',
-  Work: 'bg-blue-500 text-white',
-  Learning: 'bg-emerald-500 text-white',
-  Fun: 'bg-amber-500 text-white',
-  Inspiration: 'bg-purple-500 text-white',
-  Buying: 'bg-pink-500 text-white',
-  Music: 'bg-indigo-500 text-white',
+  Trusted: '#22C55E',
+  Distrusted: '#EF4444',
+  Work: '#3B82F6',
+  Learning: '#06B6D4',
+  Fun: '#F59E0B',
+  Inspiration: '#8B5CF6',
+  Buying: '#EC4899',
+  Music: '#FF5722',
+}
+
+const QUEST_CATEGORY_STYLES: Record<string, { color: string; icon: string }> = {
+  daily:     { color: '#FFD700', icon: '☀️' },
+  streak:    { color: '#FF6B35', icon: '🔥' },
+  milestone: { color: '#8B5CF6', icon: '⭐' },
+  discovery: { color: '#06B6D4', icon: '🧭' },
+  gold:      { color: '#D4A017', icon: '🪙' },
+  vote:      { color: '#3B82F6', icon: '🗳️' },
+  social:    { color: '#EC4899', icon: '🤝' },
 }
 
 const INTENT_FILTERS = ['All', 'Trusted', 'Distrusted', 'Work', 'Learning', 'Fun', 'Inspiration']
 
-function CircleCard({ item }: { item: CircleItem }) {
+function QuestCard({ item, displayName, avatar }: { item: CircleItem; displayName: string; avatar: string }) {
+  const category = item.intentions[0]?.replace('quest:', '') ?? 'milestone'
+  const style = QUEST_CATEGORY_STYLES[category] ?? QUEST_CATEGORY_STYLES.milestone
+
   return (
-    <Card className="p-4 flex flex-col gap-3 hover:shadow-md transition-shadow">
+    <Card
+      className="p-4 flex flex-col gap-2 hover:shadow-md transition-shadow"
+      style={{ borderLeft: `3px solid ${style.color}` }}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <img src={avatar} alt="" className="h-6 w-6 rounded-full shrink-0" referrerPolicy="no-referrer" />
+          <span style={{ fontSize: 18 }}>{style.icon}</span>
+          <span className="text-sm font-bold">{displayName}</span>
+        </div>
+        <span className="text-xs text-muted-foreground">{timeAgo(item.timestamp)}</span>
+      </div>
+      <p className="text-sm">
+        <span className="text-muted-foreground">earned</span>
+        {' '}
+        <span style={{ color: style.color, fontWeight: 700 }}>{item.title}</span>
+      </p>
+    </Card>
+  )
+}
+
+function CircleCard({ item, displayName, avatar }: { item: CircleItem; displayName: string; avatar: string }) {
+  return (
+    <Card className="p-4 flex flex-col gap-4 hover:shadow-md transition-shadow">
+      {/* Header: avatar + name + time + favicon */}
       <div className="flex items-start justify-between">
+        <div className="flex items-center gap-2 min-w-0">
+          <img src={avatar} alt="" className="h-6 w-6 rounded-full shrink-0" referrerPolicy="no-referrer" />
+          <span className="text-sm font-bold truncate">{displayName}</span>
+          <span className="text-xs text-muted-foreground shrink-0">{timeAgo(item.timestamp)}</span>
+        </div>
         <img
           src={item.favicon}
           alt=""
-          className="h-10 w-10 rounded-lg bg-muted"
-          onError={(e) => { (e.target as HTMLImageElement).src = '' }}
+          className="h-8 w-8 rounded-lg bg-muted shrink-0"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
         />
-        <div className="flex flex-wrap gap-1 justify-end">
-          {item.intentions.map((intent) => (
-            <Badge
-              key={intent}
-              className={`text-[10px] px-1.5 py-0 ${INTENTION_COLORS[intent] ?? 'bg-muted text-foreground'}`}
-            >
-              {intent}
-            </Badge>
-          ))}
-        </div>
       </div>
 
-      <a
-        href={item.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-sm font-medium leading-tight line-clamp-2 hover:underline"
-      >
-        {item.title}
-      </a>
+      {/* Phrase: user + colored intentions + title */}
+      <p className="text-sm leading-relaxed">
+        <span className="font-semibold">{displayName}</span>
+        {' '}
+        {item.intentions.map((intent, i) => (
+          <span key={intent}>
+            {i > 0 && <span className="text-muted-foreground">{i === item.intentions.length - 1 ? ' & ' : ', '}</span>}
+            <span style={{ color: INTENTION_COLORS[intent] ?? 'var(--foreground)', fontWeight: 600 }}>{intent.toLowerCase()}</span>
+          </span>
+        ))}
+        {' '}
+        <span className="font-semibold">{item.title}</span>
+      </p>
+      <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:underline truncate">{item.domain}</a>
 
-      <div className="flex items-center justify-between mt-auto">
-        <span className="text-xs text-muted-foreground">{item.certifier}</span>
-        <div className="flex items-center gap-2">
-          <button className="text-muted-foreground hover:text-foreground transition-colors">
-            <ChevronUp className="h-4 w-4" />
-          </button>
-          <button className="text-muted-foreground hover:text-foreground transition-colors">
-            <ChevronDown className="h-4 w-4" />
-          </button>
-          <span className="text-xs text-muted-foreground">{timeAgo(item.timestamp)}</span>
-        </div>
+      {/* Actions */}
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" className="text-xs h-7 gap-1">
+          <ChevronUp className="h-3.5 w-3.5" />
+          Support
+        </Button>
+        <Button variant="outline" size="sm" className="text-xs h-7 gap-1">
+          <ChevronDown className="h-3.5 w-3.5" />
+          Oppose
+        </Button>
       </div>
     </Card>
   )
@@ -110,6 +149,7 @@ export default function DashboardPage() {
   const [intentFilter, setIntentFilter] = useState('All')
   const { authenticated, user } = usePrivy()
   const walletAddress = user?.wallet?.address
+  const sentinelRef = useRef<HTMLDivElement>(null)
 
   const spaceParam = searchParams.get('space') || ''
 
@@ -123,14 +163,37 @@ export default function DashboardPage() {
     setSearchParams(searchParams)
   }
 
-  const { items: allItems, loading: allLoading, error: allError } = useAllActivity()
+  const { items: allItems, loading: allLoading, loadingMore, error: allError, hasMore, loadMore } = useAllActivity()
   const { items: circleItems, loading: circleLoading, error: circleError } = useCircleFeed(
     filter === 'circle' ? walletAddress : undefined,
   )
 
   const sourceItems = filter === 'all' ? allItems : circleItems
+
+  const allCertifiers = useMemo(() => {
+    const addrs = new Set<Address>()
+    for (const item of sourceItems) {
+      if (item.certifierAddress) addrs.add(item.certifierAddress as Address)
+    }
+    return [...addrs]
+  }, [sourceItems])
+
+  const { getDisplay, getAvatar } = useEnsNames(allCertifiers)
   const loading = filter === 'all' ? allLoading : circleLoading
   const feedError = filter === 'all' ? allError : circleError
+
+  // Infinite scroll observer
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el || filter !== 'all') return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) loadMore() },
+      { rootMargin: '200px' },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [filter, loadMore])
 
   // Apply space filter then intention filter
   const spaceFiltered = spacePlatformIds
@@ -241,11 +304,26 @@ export default function DashboardPage() {
               )}
             </Card>
           ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {filteredItems.map((item) => (
-                <CircleCard key={item.id} item={item} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                {filteredItems.map((item) => {
+                  const addr = item.certifierAddress as Address
+                  const name = addr ? getDisplay(addr) : item.certifier
+                  const av = addr ? getAvatar(addr) : ''
+                  const isQuest = item.intentions[0]?.startsWith('quest:')
+                  return isQuest
+                    ? <QuestCard key={item.id} item={item} displayName={name} avatar={av} />
+                    : <CircleCard key={item.id} item={item} displayName={name} avatar={av} />
+                })}
+              </div>
+
+              {/* Infinite scroll sentinel */}
+              {filter === 'all' && hasMore && (
+                <div ref={sentinelRef} className="flex justify-center py-6">
+                  {loadingMore && <SofiaLoader size={40} />}
+                </div>
+              )}
+            </>
           )}
         </>
       )}

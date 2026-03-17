@@ -4,8 +4,9 @@ import {
 } from '@0xsofia/dashboard-graphql'
 import { SOFIA_PROXY_ADDRESS } from '../config'
 
-// Same atom ID as extension (Daily Certification atom on mainnet)
-const DAILY_CERTIFICATION_ATOM_ID = '0x047a274edc6bb2776c611945efbb45ac77b904e915c0abe79fb77963a6de9eff'
+// Same atom IDs as extension (mainnet)
+export const DAILY_CERTIFICATION_ATOM_ID = '0x047a274edc6bb2776c611945efbb45ac77b904e915c0abe79fb77963a6de9eff'
+export const DAILY_VOTE_ATOM_ID = '0xd33d7e785a7c6c7775947961b20b1c7176a4e764c309c769c85cd5aa8195a3eb'
 
 export interface StreakEntry {
   address: string
@@ -58,14 +59,14 @@ function calculateStreaks(
   return result
 }
 
-export async function fetchStreakLeaderboard(): Promise<StreakEntry[]> {
+export async function fetchStreakLeaderboard(atomId: string = DAILY_CERTIFICATION_ATOM_ID): Promise<StreakEntry[]> {
   const [depositsData, vaultData] = await Promise.all([
     useGetProxyDepositDaysQuery.fetcher({
       senderId: SOFIA_PROXY_ADDRESS.toLowerCase(),
-      termId: DAILY_CERTIFICATION_ATOM_ID,
+      termId: atomId,
     })(),
     useGetStreakVaultPositionsQuery.fetcher({
-      termId: DAILY_CERTIFICATION_ATOM_ID,
+      termId: atomId,
       curveId: 1,
       limit: 100,
     })(),

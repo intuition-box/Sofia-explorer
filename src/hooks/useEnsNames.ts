@@ -7,10 +7,10 @@ import { createAvatar } from '@dicebear/core'
 import { glass } from '@dicebear/collection'
 import { useGetAccountLabelsQuery } from '@0xsofia/dashboard-graphql'
 
-// ENS fallback client for addresses not indexed by Intuition
+// ENS client — use default RPC (cloudflare-eth.com) like the extension does
 const ensClient = createPublicClient({
   chain: mainnet,
-  transport: http('https://rpc.ankr.com/eth'),
+  transport: http(),
 })
 
 // Global caches persist across re-renders
@@ -20,6 +20,11 @@ const avatarCache = new Map<string, string | null>()
 function isRealLabel(label?: string | null): boolean {
   if (!label) return false
   return !label.startsWith('0x') && !label.includes('...')
+}
+
+function isEnsName(label?: string | null): boolean {
+  if (!label) return false
+  return label.endsWith('.eth') || label.endsWith('.box')
 }
 
 async function resolveViaGraphQL(addresses: string[]): Promise<void> {
@@ -47,15 +52,21 @@ async function resolveViaGraphQL(addresses: string[]): Promise<void> {
 
 async function resolveViaEns(address: string): Promise<void> {
   const key = address.toLowerCase()
-  if (labelCache.has(key)) return
 
   try {
     const name = await ensClient.getEnsName({
       address: key as `0x${string}`,
     })
-    labelCache.set(key, name)
-  } catch {
-    labelCache.set(key, null)
+    // Only update if we got a result — never overwrite a good GraphQL label with null
+    if (name) {
+      labelCache.set(key, name)
+    } else {
+      // RPC responded successfully with no ENS name — cache null
+      labelCache.set(key, null)
+    }
+  } catch (err) {
+    // Network/rate-limit error — do NOT cache null so it gets retried
+    console.warn('[useEnsNames] ENS lookup failed for', key, err)
   }
 }
 
@@ -64,16 +75,35 @@ async function resolveEnsAvatar(address: string): Promise<void> {
   if (avatarCache.has(key)) return
 
   const name = labelCache.get(key)
-  if (!name) {
+  if (!name || !isEnsName(name)) {
     avatarCache.set(key, null)
     return
   }
 
+  // Try ENSTATE API first (fast, free, reliable)
+  try {
+    const res = await fetch(`https://enstate.rs/n/${name}`)
+    if (res.ok) {
+      const data = await res.json()
+      if (data.avatar) {
+        avatarCache.set(key, data.avatar)
+        return
+      }
+    }
+  } catch {}
+
+  // Fallback to viem ENS resolution
   try {
     const avatar = await ensClient.getEnsAvatar({ name: normalize(name) })
-    avatarCache.set(key, avatar)
+    if (avatar) {
+      avatarCache.set(key, avatar)
+    } else if (!avatarCache.has(key)) {
+      avatarCache.set(key, null)
+    }
   } catch {
-    avatarCache.set(key, null)
+    if (!avatarCache.has(key)) {
+      avatarCache.set(key, null)
+    }
   }
 }
 
@@ -84,10 +114,10 @@ async function batchResolve(
   onUpdate: () => void,
 ): Promise<void> {
   const unique = [...new Set(addresses.map((a) => a.toLowerCase()))]
-  const uncached = unique.filter((a) => !labelCache.has(a))
+  // Include addresses with null labels (failed lookups) so they get retried
+  const uncached = unique.filter((a) => !labelCache.has(a) || labelCache.get(a) === null)
 
   if (uncached.length === 0) {
-    // Still need to resolve avatars for cached labels without avatars
     await resolveAvatars(unique, onUpdate)
     return
   }
@@ -96,10 +126,11 @@ async function batchResolve(
   await resolveViaGraphQL(uncached)
   onUpdate()
 
-  // Step 2: ENS fallback for any still-unresolved labels
-  const stillMissing = uncached.filter((a) => !labelCache.has(a))
-  for (let i = 0; i < stillMissing.length; i += ENS_BATCH_SIZE) {
-    const batch = stillMissing.slice(i, i + ENS_BATCH_SIZE)
+  // Step 2: ENS reverse lookup for addresses without an ENS name yet
+  // (safe: resolveViaEns won't overwrite a good GraphQL label)
+  const needsEns = uncached.filter((a) => !isEnsName(labelCache.get(a)))
+  for (let i = 0; i < needsEns.length; i += ENS_BATCH_SIZE) {
+    const batch = needsEns.slice(i, i + ENS_BATCH_SIZE)
     await Promise.allSettled(batch.map(resolveViaEns))
     onUpdate()
   }
@@ -134,9 +165,15 @@ export function useEnsNames(addresses: Address[]) {
   )
 
   useEffect(() => {
-    if (!addressKey || runningRef.current) return
-    runningRef.current = true
+    if (!addressKey) return
 
+    // If already running, queue a re-run after current finishes
+    if (runningRef.current) {
+      const timer = setTimeout(() => setRevision((r) => r + 1), 500)
+      return () => clearTimeout(timer)
+    }
+
+    runningRef.current = true
     batchResolve(addresses, () => setRevision((r) => r + 1)).finally(() => {
       runningRef.current = false
     })
