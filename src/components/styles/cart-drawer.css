@@ -1,2 +1,2 @@
 /* ── CartDrawer ── */
-.cd-aside { top: 74px; width: 432px; height: calc(100vh - 96px); z-index: 9999; background: var(--sidebar); border-left: 1px solid var(--border); }
+.cd-aside { top: 74px; width: 400px; height: calc(100vh - 70px); z-index: 9999; background: var(--sidebar); border-left: 1px solid var(--border); }

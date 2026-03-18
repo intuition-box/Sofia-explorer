@@ -23,7 +23,7 @@ export default function CartDrawer({ items, isOpen, onClose, onRemove, onClear, 
     >
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+        <div className="flex items-center justify-between px-4 py-4 border-b border-border">
           {items.length > 0 ? (
             <button onPointerDown={(e) => { e.stopPropagation(); onClear() }} className="text-sm text-muted-foreground hover:text-destructive transition-colors">
               Clear all
