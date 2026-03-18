@@ -90,10 +90,10 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
             </Button>
           )}
 
-          {ready && authenticated && walletAddress && location.pathname !== '/profile' && (
+          {ready && authenticated && walletAddress && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="p-1 h-9 w-9">
+                <Button variant="ghost" size="icon" className={`p-1 h-9 w-9 hdr-profile-btn ${location.pathname === '/profile' ? 'hdr-profile-hidden' : ''}`}>
                   <img src={ensAvatar} alt={ensName} className="h-7 w-7 rounded-full" referrerPolicy="no-referrer" />
                   <span className="sr-only">Profile</span>
                 </Button>

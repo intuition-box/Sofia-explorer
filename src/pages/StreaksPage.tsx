@@ -53,7 +53,7 @@ export default function StreaksPage() {
   return (
     <div>
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-      <div className="space-y-8 page-content">
+      <div className="space-y-8 page-content page-enter">
 
       {/* Tabs */}
       <div className="flex gap-1 bg-muted rounded-lg p-1">

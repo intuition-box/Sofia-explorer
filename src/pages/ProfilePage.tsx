@@ -93,7 +93,7 @@ export default function ProfilePage() {
   return (
     <div>
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-      <div className="space-y-6 page-content">
+      <div className="space-y-6 page-content page-enter">
 
       {view === 'overview' && (
         <OverviewTab

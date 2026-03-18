@@ -39,7 +39,7 @@ export default function VotePage() {
     return (
       <div>
         <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-        <div className="page-content">
+        <div className="page-content page-enter">
           <p className="text-sm text-muted-foreground">
             {error || 'No claims available.'}
           </p>
@@ -68,7 +68,7 @@ export default function VotePage() {
   return (
     <div>
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-      <div className="space-y-6 page-content">
+      <div className="space-y-6 page-content page-enter">
 
       {/* Card navigation */}
       <div className="flex items-center justify-between">

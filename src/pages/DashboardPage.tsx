@@ -175,7 +175,7 @@ export default function DashboardPage() {
   return (
     <div>
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-      <div className="space-y-4 page-content">
+      <div className="space-y-4 page-content page-enter">
       {/* Feed mode toggle */}
       <div className="flex items-center gap-3 mb-2">
         <Button

@@ -7,3 +7,13 @@
 .hdr-divider { height: 1px; background: var(--border); margin: 0 4px 4px; }
 .hdr-menu-item { border-radius: 8px; padding: 10px 12px; font-size: 14px; color: var(--foreground); }
 .hdr-cart-btn { background-color: oklch(0.80 0.06 25 / 0.3); }
+
+/* Profile avatar transition */
+.hdr-profile-btn {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.hdr-profile-btn.hdr-profile-hidden {
+  opacity: 0;
+  transform: translateX(20px);
+  pointer-events: none;
+}
