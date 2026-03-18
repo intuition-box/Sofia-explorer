@@ -1,7 +1,7 @@
 import { X, Trash2 } from 'lucide-react'
 import { Button } from './ui/button'
 import type { CartItem } from '../hooks/useCart'
-import { INTENTION_COLORS } from '../config/intentions'
+import { INTENTION_COLORS, intentionBadgeStyle } from '../config/intentions'
 import './styles/cart-drawer.css'
 
 interface CartDrawerProps {
@@ -69,11 +69,7 @@ export default function CartDrawer({ items, isOpen, onClose, onRemove, onClear, 
                     <div className="flex items-center gap-1.5 mt-1">
                       <span
                         className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                        style={{
-                          color,
-                          backgroundColor: `${color}15`,
-                          border: `1px solid ${color}30`,
-                        }}
+                        style={intentionBadgeStyle(color)}
                       >
                         {item.intention}
                       </span>

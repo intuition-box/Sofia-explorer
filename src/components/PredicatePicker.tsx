@@ -4,7 +4,7 @@ import { Card } from './ui/card'
 import { Button } from './ui/button'
 import { Check } from 'lucide-react'
 import type { CircleItem } from '../services/circleService'
-import { INTENTION_COLORS } from '../config/intentions'
+import { INTENTION_COLORS, getSideColor } from '../config/intentions'
 
 interface PredicatePickerProps {
   isOpen: boolean
@@ -42,7 +42,7 @@ export default function PredicatePicker({ isOpen, side, item, onConfirm, onClose
   if (!isOpen) return null
 
   const isSupport = side === 'support'
-  const accentColor = isSupport ? '#22C55E' : '#EF4444'
+  const accentColor = getSideColor(side)
 
   return createPortal(
     <div

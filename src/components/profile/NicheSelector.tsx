@@ -4,6 +4,7 @@ import { Badge } from '../ui/badge'
 import { Card } from '../ui/card'
 import { ScrollArea } from '../ui/scroll-area'
 import { ArrowLeft } from 'lucide-react'
+import '../styles/niche-selector.css'
 
 interface NicheSelectorProps {
   selectedDomains: string[]
@@ -37,9 +38,9 @@ export default function NicheSelector({
               .filter((n) => selectedNiches.includes(n.id)).length
 
             return (
-              <Card key={domain.id} style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <h3 className="font-semibold" style={{ fontSize: 17 }}>{domain.label}</h3>
+              <Card key={domain.id} className="ns-card">
+                <div className="ns-header">
+                  <h3 className="font-semibold ns-title">{domain.label}</h3>
                   {domainNicheCount > 0 && (
                     <Badge variant="default" className="text-xs">{domainNicheCount}</Badge>
                   )}
@@ -47,11 +48,11 @@ export default function NicheSelector({
 
                 {domain.categories.map((category, catIdx) => (
                   <div key={category.id}>
-                    {catIdx > 0 && <div style={{ borderTop: '1px solid var(--border)', marginBottom: 12 }} />}
-                    <p className="text-xs font-medium text-muted-foreground" style={{ marginBottom: 8 }}>
+                    {catIdx > 0 && <div className="ns-divider" />}
+                    <p className="text-xs font-medium text-muted-foreground ns-cat-label">
                       {category.label}
                     </p>
-                    <div className="flex flex-wrap" style={{ gap: 6 }}>
+                    <div className="flex flex-wrap ns-niche-grid">
                       {category.niches.map((niche) => (
                         <Badge
                           key={niche.id}

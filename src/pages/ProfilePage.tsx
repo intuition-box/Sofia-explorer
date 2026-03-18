@@ -20,6 +20,7 @@ import { Button } from '../components/ui/button'
 import { Wallet } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import { PAGE_COLORS } from '../config/pageColors'
+import '@/components/styles/pages.css'
 
 type View = 'overview' | 'interests' | 'niches' | 'platforms' | 'scores'
 
@@ -117,7 +118,7 @@ export default function ProfilePage() {
   return (
     <div>
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-      <div className="space-y-6" style={{ padding: '16px 8px' }}>
+      <div className="space-y-6 page-content">
 
       <ProfileHeader
         walletAddress={address}

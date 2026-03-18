@@ -76,3 +76,13 @@ export const QUEST_BADGES: Record<string, { name: string; category: string }> = 
   'twitter linked': { name: 'Twitter Linked', category: 'social' },
   'social linked': { name: 'Social Linked', category: 'social' },
 }
+
+/** Accent color for support/oppose side */
+export function getSideColor(side: 'support' | 'oppose'): string {
+  return side === 'support' ? '#22C55E' : '#EF4444'
+}
+
+/** Inline style object for intention badge pills */
+export function intentionBadgeStyle(color: string) {
+  return { color, backgroundColor: `${color}15`, border: `1px solid ${color}30` }
+}

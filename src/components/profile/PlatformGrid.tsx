@@ -127,7 +127,7 @@ export default function PlatformGrid({
                       <div className="pg-name-wrap">
                         <span className="font-medium truncate pg-name">{platform.name}</span>
                         {isSuggested && !isConnected && (
-                          <Badge variant="secondary" className="text-[10px]" style={{ marginTop: 4 }}>Suggested</Badge>
+                          <Badge variant="secondary" className="text-[10px] pg-badge">Suggested</Badge>
                         )}
                       </div>
                     </div>

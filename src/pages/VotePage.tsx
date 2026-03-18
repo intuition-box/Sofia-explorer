@@ -8,6 +8,7 @@ import SofiaLoader from '../components/ui/SofiaLoader'
 import { useDebateClaims } from '../hooks/useDebateClaims'
 import PageHeader from '../components/PageHeader'
 import { PAGE_COLORS } from '../config/pageColors'
+import '@/components/styles/pages.css'
 
 function formatMarketCap(value: bigint): string {
   const num = parseFloat(formatEther(value))
@@ -38,7 +39,7 @@ export default function VotePage() {
     return (
       <div>
         <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-        <div style={{ padding: '16px 8px' }}>
+        <div className="page-content">
           <p className="text-sm text-muted-foreground">
             {error || 'No claims available.'}
           </p>
@@ -67,7 +68,7 @@ export default function VotePage() {
   return (
     <div>
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-      <div className="space-y-6" style={{ padding: '16px 8px' }}>
+      <div className="space-y-6 page-content">
 
       {/* Card navigation */}
       <div className="flex items-center justify-between">

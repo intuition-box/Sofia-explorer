@@ -5,6 +5,7 @@ import { Button } from './ui/button'
 import { useDeposit } from '../hooks/useDeposit'
 import type { CartItem } from '../hooks/useCart'
 import { EXPLORER_URL } from '../config'
+import { intentionBadgeStyle } from '../config/intentions'
 import SofiaLoader from './ui/SofiaLoader'
 
 const WEIGHT_OPTIONS = [0.01, 0.5, 1, 5, 10]
@@ -154,7 +155,7 @@ export default function WeightModal({ isOpen, items, onClose, onSuccess }: Weigh
                         <span className="text-xs font-medium truncate flex-1">{item.title}</span>
                         <span
                           className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0"
-                          style={{ color, backgroundColor: `${color}15`, border: `1px solid ${color}30` }}
+                          style={intentionBadgeStyle(color)}
                         >
                           {item.intention}
                         </span>

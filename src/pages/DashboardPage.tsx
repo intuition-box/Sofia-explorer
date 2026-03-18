@@ -9,18 +9,19 @@ import { Card } from '../components/ui/card'
 import { Badge } from '../components/ui/badge'
 import { ScrollArea } from '../components/ui/scroll-area'
 import { Button } from '../components/ui/button'
-import { ChevronUp, ChevronDown, Users, Globe, X } from 'lucide-react'
+import { Users, Globe, X } from 'lucide-react'
 import SofiaLoader from '../components/ui/SofiaLoader'
 import { useEnsNames } from '../hooks/useEnsNames'
 import type { Address } from 'viem'
 import PageHeader from '../components/PageHeader'
-import IntentionTooltip from '../components/IntentionTooltip'
 import PredicatePicker from '../components/PredicatePicker'
+import QuestCard from '../components/QuestCard'
+import CircleCard from '../components/CircleCard'
 import { useCart } from '../hooks/useCart'
 import type { CartItem } from '../hooks/useCart'
 import { PAGE_COLORS } from '../config/pageColors'
 import { INTENTION_COLORS } from '../config/intentions'
-import { timeAgo } from '../utils/formatting'
+import '@/components/styles/pages.css'
 
 /** Build a Set of platform IDs that belong to a given Sofia domain */
 function getPlatformIdsForDomain(domainId: string): Set<string> {
@@ -42,128 +43,7 @@ function itemMatchesDomain(item: CircleItem, platformIds: Set<string>): boolean 
   return false
 }
 
-/** Verb phrase displayed before the colored intention word */
-const INTENTION_VERB: Record<string, string> = {
-  Trusted: '',
-  Distrusted: '',
-  Work: 'visits for',
-  Learning: 'visits for',
-  Fun: 'visits for',
-  Inspiration: 'visits for',
-  Buying: 'visits for',
-  Music: 'listens to',
-  Attending: 'is',
-  Valued: 'has',
-}
-
-const QUEST_CATEGORY_STYLES: Record<string, { color: string; icon: string }> = {
-  daily:     { color: '#FFD700', icon: '☀️' },
-  streak:    { color: '#FF6B35', icon: '🔥' },
-  milestone: { color: '#8B5CF6', icon: '⭐' },
-  discovery: { color: '#06B6D4', icon: '🧭' },
-  gold:      { color: '#D4A017', icon: '🪙' },
-  vote:      { color: '#3B82F6', icon: '🗳️' },
-  social:    { color: '#EC4899', icon: '🤝' },
-}
-
 const INTENT_FILTERS = ['All', 'Trusted', 'Distrusted', 'Work', 'Learning', 'Fun', 'Inspiration']
-
-function QuestCard({ item, displayName, avatar, isPrivate }: { item: CircleItem; displayName: string; avatar: string; isPrivate?: boolean }) {
-  const category = item.intentions[0]?.replace('quest:', '') ?? 'milestone'
-  const style = QUEST_CATEGORY_STYLES[category] ?? QUEST_CATEGORY_STYLES.milestone
-  const shownName = isPrivate ? 'A user' : displayName
-
-  return (
-    <Card
-      className="p-4 flex flex-col gap-2 hover:shadow-md transition-shadow"
-      style={{ borderLeft: `3px solid ${style.color}` }}
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {!isPrivate && <img src={avatar} alt="" className="h-6 w-6 rounded-full shrink-0" referrerPolicy="no-referrer" />}
-          <span style={{ fontSize: 18 }}>{style.icon}</span>
-          <span className="text-sm font-bold">{shownName}</span>
-        </div>
-        <span className="text-xs text-muted-foreground">{timeAgo(item.timestamp)}</span>
-      </div>
-      <p className="text-sm">
-        <span className="text-muted-foreground">earned</span>
-        {' '}
-        <span style={{ color: style.color, fontWeight: 700 }}>{item.title}</span>
-      </p>
-    </Card>
-  )
-}
-
-function CircleCard({ item, displayName, avatar, isPrivate, onDeposit }: {
-  item: CircleItem; displayName: string; avatar: string; isPrivate?: boolean
-  onDeposit?: (side: 'support' | 'oppose', item: CircleItem) => void
-}) {
-  const shownName = isPrivate ? 'Someone' : displayName
-
-  return (
-    <Card className="p-4 flex flex-col gap-4 hover:shadow-md transition-shadow">
-      {/* Header: avatar + name + time + favicon */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2 min-w-0">
-          {!isPrivate && <img src={avatar} alt="" className="h-6 w-6 rounded-full shrink-0" referrerPolicy="no-referrer" />}
-          <span className="text-sm font-bold truncate">{shownName}</span>
-          <span className="text-xs text-muted-foreground shrink-0">{timeAgo(item.timestamp)}</span>
-        </div>
-        <img
-          src={item.favicon}
-          alt=""
-          className="h-8 w-8 rounded-lg bg-muted shrink-0"
-          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-        />
-      </div>
-
-      {/* Phrase: user + verb + colored intentions + title */}
-      <p className="text-sm leading-relaxed">
-        <span className="font-semibold">{shownName}</span>
-        {' '}
-        {item.intentions.map((intent, i) => {
-          const verb = INTENTION_VERB[intent] ?? ''
-          const intentColor = INTENTION_COLORS[intent] ?? 'var(--foreground)'
-          return (
-            <span key={intent}>
-              {i > 0 && <span className="text-muted-foreground">{i === item.intentions.length - 1 ? ' & ' : ', '}</span>}
-              {verb && <span className="text-muted-foreground">{verb} </span>}
-              <IntentionTooltip termId={item.intentionVaults[intent]?.termId} color={intentColor}>
-                <span style={{ color: intentColor, fontWeight: 600 }}>{intent.toLowerCase()}</span>
-              </IntentionTooltip>
-            </span>
-          )
-        })}
-        {' '}
-        <span className="font-semibold">{item.title}</span>
-      </p>
-      {item.url && item.domain && (
-        <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:underline truncate">{item.domain}</a>
-      )}
-
-      {/* Actions */}
-      <div className="flex items-center gap-2">
-        <Button
-          variant="outline" size="sm" className="text-xs h-7 gap-1"
-          disabled={Object.keys(item.intentionVaults).length === 0}
-          onClick={() => onDeposit?.('support', item)}
-        >
-          <ChevronUp className="h-3.5 w-3.5" />
-          Support
-        </Button>
-        <Button
-          variant="outline" size="sm" className="text-xs h-7 gap-1"
-          disabled={!Object.values(item.intentionVaults).some(v => v.counterTermId)}
-          onClick={() => onDeposit?.('oppose', item)}
-        >
-          <ChevronDown className="h-3.5 w-3.5" />
-          Oppose
-        </Button>
-      </div>
-    </Card>
-  )
-}
 
 export default function DashboardPage() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -295,7 +175,7 @@ export default function DashboardPage() {
   return (
     <div>
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-      <div className="space-y-4" style={{ padding: '16px 8px' }}>
+      <div className="space-y-4 page-content">
       {/* Feed mode toggle */}
       <div className="flex items-center gap-3 mb-2">
         <Button

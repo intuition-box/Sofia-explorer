@@ -3,6 +3,7 @@ import { Card } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { Check, ArrowLeft } from 'lucide-react'
+import '../styles/domain-selector.css'
 
 const DOMAIN_ICONS: Record<string, string> = {
   'tech-dev': '💻',
@@ -41,7 +42,7 @@ export default function DomainSelector({
         <Badge variant="secondary" className="text-sm px-3 py-1">{selectedDomains.length} selected</Badge>
       </div>
 
-      <div className="grid gap-4 mt-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', marginBottom: 40 }}>
+      <div className="grid gap-4 mt-4 ds-grid">
         {SOFIA_DOMAINS.map((domain) => {
           const isSelected = selectedDomains.includes(domain.id)
           const nicheCount = domain.categories.reduce((s, c) => s + c.niches.length, 0)
@@ -71,7 +72,7 @@ export default function DomainSelector({
         })}
       </div>
 
-      <div className="flex gap-2 pb-6" style={{ paddingTop: 32 }}>
+      <div className="flex gap-2 pb-6 ds-actions">
         {onBack && (
           <Button variant="outline" onClick={onBack}>
             <ArrowLeft className="h-4 w-4 mr-1" />
