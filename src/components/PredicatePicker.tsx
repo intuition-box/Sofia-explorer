@@ -4,19 +4,7 @@ import { Card } from './ui/card'
 import { Button } from './ui/button'
 import { Check } from 'lucide-react'
 import type { CircleItem } from '../services/circleService'
-
-const INTENTION_COLORS: Record<string, string> = {
-  Trusted: '#22C55E',
-  Distrusted: '#EF4444',
-  Work: '#3B82F6',
-  Learning: '#06B6D4',
-  Fun: '#F59E0B',
-  Inspiration: '#8B5CF6',
-  Buying: '#EC4899',
-  Music: '#FF5722',
-  Attending: '#10B981',
-  Valued: '#F97316',
-}
+import { INTENTION_COLORS } from '../config/intentions'
 
 interface PredicatePickerProps {
   isOpen: boolean

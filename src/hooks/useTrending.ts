@@ -5,6 +5,7 @@ import {
 } from '@0xsofia/dashboard-graphql'
 import { PREDICATE_IDS } from '../config'
 import type { IntentCategory, TrendingItemLive } from '../types'
+import { extractDomain } from '../utils/formatting'
 
 type TrendingTripleRaw = GetTrendingByPredicateQuery['triples'][number]
 
@@ -28,15 +29,6 @@ function isValidTriple(triple: TrendingTripleRaw): boolean {
   const thingUrl = triple.object?.value?.thing?.url
   if (!thingUrl && !label.startsWith('http') && !/[\w-]+\.[\w.-]+/.test(label)) return false
   return true
-}
-
-function extractDomain(url: string): string {
-  try {
-    const hostname = new URL(url).hostname
-    return hostname.replace(/^www\./, '')
-  } catch {
-    return url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0]
-  }
 }
 
 function tripleToItem(triple: TrendingTripleRaw, category: IntentCategory): TrendingItemLive {

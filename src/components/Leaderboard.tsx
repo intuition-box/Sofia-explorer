@@ -1,21 +1,14 @@
 import { useState, useMemo } from 'react'
-import { formatEther } from 'viem'
 import type { Address } from 'viem'
 import { useEnsNames } from '../hooks/useEnsNames'
 import { EXPLORER_URL } from '../config'
 import type { LeaderboardProps, AlphaTester, PoolPosition } from '../types'
 import { Card } from './ui/card'
 import { Button } from './ui/button'
+import { formatTrust } from '../utils/formatting'
 
 type AlphaSortOption = 'TX' | 'Intentions' | 'Pioneer' | 'Trust Volume'
 type PoolSortOption = 'Shares' | 'Current Value' | 'P&L' | 'P&L %'
-
-function formatTrust(wei: bigint) {
-  const num = parseFloat(formatEther(wei))
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'k T'
-  if (num >= 1) return num.toFixed(2) + ' T'
-  return num.toFixed(4) + ' T'
-}
 
 function sortAlpha(data: AlphaTester[], sortBy: AlphaSortOption) {
   return [...data].sort((a, b) => {

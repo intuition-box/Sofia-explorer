@@ -19,6 +19,8 @@ import PredicatePicker from '../components/PredicatePicker'
 import { useCart } from '../hooks/useCart'
 import type { CartItem } from '../hooks/useCart'
 import { PAGE_COLORS } from '../config/pageColors'
+import { INTENTION_COLORS } from '../config/intentions'
+import { timeAgo } from '../utils/formatting'
 
 /** Build a Set of platform IDs that belong to a given Sofia domain */
 function getPlatformIdsForDomain(domainId: string): Set<string> {
@@ -38,29 +40,6 @@ function itemMatchesDomain(item: CircleItem, platformIds: Set<string>): boolean 
     if (host.includes(pid)) return true
   }
   return false
-}
-
-function timeAgo(timestamp: string): string {
-  if (!timestamp) return ''
-  const diff = Date.now() - new Date(timestamp).getTime()
-  const hours = Math.floor(diff / 3600000)
-  if (hours < 1) return 'now'
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.floor(hours / 24)
-  return `${days}d ago`
-}
-
-const INTENTION_COLORS: Record<string, string> = {
-  Trusted: '#22C55E',
-  Distrusted: '#EF4444',
-  Work: '#3B82F6',
-  Learning: '#06B6D4',
-  Fun: '#F59E0B',
-  Inspiration: '#8B5CF6',
-  Buying: '#EC4899',
-  Music: '#FF5722',
-  Attending: '#10B981',
-  Valued: '#F97316',
 }
 
 /** Verb phrase displayed before the colored intention word */

@@ -5,6 +5,8 @@ import {
 } from '@0xsofia/dashboard-graphql'
 import { getAddress } from 'viem'
 import { SOFIA_PROXY_ADDRESS, PREDICATE_IDS, SUBJECT_IDS } from '../config'
+import { PREDICATE_TO_INTENTION, LABEL_TO_INTENTION, QUEST_BADGES } from '../config/intentions'
+import { extractDomain, cleanLabel } from '../utils/formatting'
 
 export interface CircleItem {
   id: string
@@ -17,79 +19,6 @@ export interface CircleItem {
   intentions: string[]
   timestamp: string
   intentionVaults: Record<string, { termId: string; counterTermId: string }>
-}
-
-const PREDICATE_TO_INTENTION: Record<string, string> = {
-  [PREDICATE_IDS.TRUSTS]: 'Trusted',
-  [PREDICATE_IDS.DISTRUST]: 'Distrusted',
-  [PREDICATE_IDS.VISITS_FOR_WORK]: 'Work',
-  [PREDICATE_IDS.VISITS_FOR_LEARNING]: 'Learning',
-  [PREDICATE_IDS.VISITS_FOR_FUN]: 'Fun',
-  [PREDICATE_IDS.VISITS_FOR_INSPIRATION]: 'Inspiration',
-}
-
-const LABEL_TO_INTENTION: Record<string, string> = {
-  trusts: 'Trusted',
-  distrust: 'Distrusted',
-  'visits for work': 'Work',
-  'visits for learning': 'Learning',
-  'visits for fun': 'Fun',
-  'visits for inspiration': 'Inspiration',
-  'visits for buying': 'Buying',
-  'visits for music': 'Music',
-  attending: 'Attending',
-  'has value': 'Valued',
-}
-
-/** Quest badge config — shared with activityService */
-const QUEST_BADGES: Record<string, { name: string; category: string }> = {
-  'daily certification': { name: 'Daily Certification', category: 'daily' },
-  'daily voter': { name: 'Daily Voter', category: 'daily' },
-  'first signal': { name: 'First Signal', category: 'milestone' },
-  'first step': { name: 'First Step', category: 'discovery' },
-  'first coins': { name: 'First Coins', category: 'gold' },
-  'first vote': { name: 'First Vote', category: 'vote' },
-  'first follow': { name: 'First Follow', category: 'social' },
-  'first trust': { name: 'First Trust', category: 'social' },
-  'trailblazer': { name: 'Trailblazer', category: 'discovery' },
-  'saver': { name: 'Saver', category: 'gold' },
-  'committed': { name: 'Committed', category: 'streak' },
-  'dedicated': { name: 'Dedicated', category: 'streak' },
-  'relentless': { name: 'Relentless', category: 'streak' },
-  'critic': { name: 'Critic', category: 'vote' },
-  'judge': { name: 'Judge', category: 'vote' },
-  'engaged voter': { name: 'Engaged Voter', category: 'vote' },
-  'civic duty': { name: 'Civic Duty', category: 'vote' },
-  'signal rookie': { name: 'Signal Rookie', category: 'milestone' },
-  'signal maker': { name: 'Signal Maker', category: 'milestone' },
-  'centurion': { name: 'Centurion', category: 'milestone' },
-  'signal pro': { name: 'Signal Pro', category: 'milestone' },
-  'social butterfly': { name: 'Social Butterfly', category: 'social' },
-  'networker': { name: 'Networker', category: 'social' },
-  'explorer': { name: 'Explorer', category: 'discovery' },
-  'pathfinder': { name: 'Pathfinder', category: 'discovery' },
-  'collector': { name: 'Collector', category: 'milestone' },
-  'gold digger': { name: 'Gold Digger', category: 'gold' },
-  'treasurer': { name: 'Treasurer', category: 'gold' },
-  'midas touch': { name: 'Midas Touch', category: 'gold' },
-  'discord linked': { name: 'Discord Linked', category: 'social' },
-  'youtube linked': { name: 'YouTube Linked', category: 'social' },
-  'spotify linked': { name: 'Spotify Linked', category: 'social' },
-  'twitch linked': { name: 'Twitch Linked', category: 'social' },
-  'twitter linked': { name: 'Twitter Linked', category: 'social' },
-  'social linked': { name: 'Social Linked', category: 'social' },
-}
-
-function extractDomain(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '')
-  } catch {
-    return url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0]
-  }
-}
-
-function cleanLabel(raw: string): string {
-  try { return decodeURIComponent(raw) } catch { return raw.replace(/%20/g, ' ') }
 }
 
 // Cache trusted wallets so we don't re-fetch on every loadMore
