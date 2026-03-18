@@ -1,0 +1,32 @@
+/* ── ProfileDrawer ── */
+.pd-aside { top: 74px; width: 400px; height: calc(100vh - 70px); z-index: 9999; background: var(--sidebar); border-left: 1px solid var(--border); }
+
+.pd-avatar { width: 72px; height: 72px; }
+
+.pd-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+.pd-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 8px;
+  border-radius: 10px;
+  background: var(--muted);
+}
+
+.pd-stat-value { font-size: 18px; font-weight: 700; line-height: 1; }
+.pd-stat-label { font-size: 11px; color: var(--muted-foreground); }
+
+.pd-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--foreground);
+  transition: background 0.15s;
+}
+.pd-nav-link:hover { background: var(--muted); }

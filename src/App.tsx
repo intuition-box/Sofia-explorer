@@ -4,6 +4,7 @@ import { Header } from './components/Header'
 import { Sidebar } from './components/Sidebar'
 import { RightSidebar } from './components/RightSidebar'
 import CartDrawer from './components/CartDrawer'
+import ProfileDrawer from './components/ProfileDrawer'
 import WeightModal from './components/WeightModal'
 import { useCart } from './hooks/useCart'
 import DashboardPage from './pages/DashboardPage'
@@ -19,6 +20,7 @@ export default function App() {
   const isCallback = location.pathname === '/auth/callback'
   const cart = useCart()
   const [cartOpen, setCartOpen] = useState(false)
+  const [profileDrawerOpen, setProfileDrawerOpen] = useState(false)
   const [weightModalOpen, setWeightModalOpen] = useState(false)
 
   const handleCartSubmit = useCallback(() => {
@@ -36,7 +38,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onCartClick={() => setCartOpen(o => !o)} />
+      <Header onCartClick={() => setCartOpen(o => !o)} onProfileClick={() => setProfileDrawerOpen(o => !o)} />
       <Sidebar />
       <RightSidebar />
 
@@ -47,6 +49,11 @@ export default function App() {
         onRemove={cart.removeItem}
         onClear={cart.clear}
         onSubmit={handleCartSubmit}
+      />
+
+      <ProfileDrawer
+        isOpen={profileDrawerOpen}
+        onClose={() => setProfileDrawerOpen(false)}
       />
 
       <WeightModal
