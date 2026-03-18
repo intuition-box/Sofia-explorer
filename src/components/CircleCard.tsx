@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ChevronUp, ChevronDown } from 'lucide-react'
+import { ChevronUp, ChevronDown, ExternalLink } from 'lucide-react'
 import IntentionTooltip from '@/components/IntentionTooltip'
 import type { CircleItem } from '@/services/circleService'
 import { INTENTION_COLORS } from '@/config/intentions'
@@ -90,6 +90,13 @@ export default function CircleCard({ item, displayName, avatar, isPrivate, onDep
           <ChevronDown className="h-3.5 w-3.5" />
           Oppose
         </Button>
+        {item.url && (
+          <Button variant="ghost" size="icon" className="h-7 w-7 ml-auto" asChild>
+            <a href={item.url} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </Button>
+        )}
       </div>
     </Card>
   )

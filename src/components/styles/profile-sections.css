@@ -322,14 +322,27 @@
 .ac-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 6px;
   margin-top: auto;
+}
+
+.ac-actions > button,
+.ac-actions > a {
+  position: relative;
+  z-index: 1;
 }
 
 .ac-btn {
   font-size: 11px;
   height: 28px;
   gap: 4px;
+}
+
+.ac-btn-icon {
+  height: 28px;
+  width: 28px;
+  padding: 0;
 }
 
 .ac-btn-share {

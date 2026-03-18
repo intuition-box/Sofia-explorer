@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { Header } from './components/Header'
 import { Sidebar } from './components/Sidebar'
@@ -15,6 +15,8 @@ import DomainSelectionPage from './pages/DomainSelectionPage'
 import NicheSelectionPage from './pages/NicheSelectionPage'
 import PlatformConnectionPage from './pages/PlatformConnectionPage'
 import DomainNicheSelectionPage from './pages/DomainNicheSelectionPage'
+import AllPlatformsPage from './pages/AllPlatformsPage'
+import ScoresPage from './pages/ScoresPage'
 import StreaksPage from './pages/StreaksPage'
 import VotePage from './pages/VotePage'
 import OAuthCallbackPage from './pages/OAuthCallbackPage'
@@ -27,6 +29,10 @@ export default function App() {
   const isProfilePage = location.pathname.startsWith('/profile')
   const [cartOpen, setCartOpen] = useState(false)
   const [weightModalOpen, setWeightModalOpen] = useState(false)
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [location.pathname])
 
   const handleCartSubmit = useCallback(() => {
     setCartOpen(false)
@@ -78,6 +84,8 @@ export default function App() {
           <Route path="/profile/interest/:domainId/niches" element={<DomainNicheSelectionPage />} />
           <Route path="/profile/domains" element={<DomainSelectionPage />} />
           <Route path="/profile/niches" element={<NicheSelectionPage />} />
+          <Route path="/platforms" element={<AllPlatformsPage />} />
+          <Route path="/scores" element={<ScoresPage />} />
           <Route path="/streaks" element={<StreaksPage />} />
           <Route path="/vote" element={<VotePage />} />
           <Route path="/auth/callback" element={<OAuthCallbackPage />} />

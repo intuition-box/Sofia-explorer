@@ -43,8 +43,8 @@ export function Sidebar() {
     { to: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
     { to: '/streaks', icon: Flame, label: 'Streaks' },
     { to: '/vote', icon: Vote, label: 'Vote' },
-    { to: '/profile?view=scores', icon: BarChart3, label: 'My Scores' },
-    { to: '/profile?view=platforms', icon: Globe, label: 'Platforms' },
+    { to: '/scores', icon: BarChart3, label: 'My Stats' },
+    { to: '/platforms', icon: Globe, label: 'Platforms' },
   ]
 
   return (
