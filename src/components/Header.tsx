@@ -57,7 +57,7 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
         <nav className="flex items-center space-x-1 flex-shrink-0 ml-4">
           <div className="flex items-center gap-0.5">
             <Button variant="ghost" size="icon" className="h-9 w-9 hdr-cart-btn" onClick={onCartClick}>
-              <img src="/logo.png" alt="Cart" className="h-5 w-5" />
+              <img src={theme === 'dark' ? '/logo.png' : '/logo_invert.png'} alt="Cart" className="h-5 w-5" />
             </Button>
             {cart.count > 0 && (
               <span className="min-w-[14px] h-[14px] rounded-full bg-red-500 text-white text-[8px] font-bold flex items-center justify-center leading-none flex-shrink-0 px-[3px] -ml-1">

@@ -60,6 +60,26 @@ export async function buildWalletClient(
 }
 
 // ---------------------------------------------------------------------------
+// Fee types
+// ---------------------------------------------------------------------------
+
+export interface FeeParams {
+  depositFixed: bigint
+  depositPct: bigint
+  creationFixed: bigint
+  feeDenom: bigint
+}
+
+export interface CostEstimate {
+  depositAmount: number
+  sofiaFixedFee: number
+  sofiaPercentFee: number
+  totalFees: number
+  totalEstimate: number
+  depositCount: number
+}
+
+// ---------------------------------------------------------------------------
 // Fee calculation
 // ---------------------------------------------------------------------------
 
@@ -73,6 +93,64 @@ export async function calculateFee(
     functionName: 'calculateDepositFee',
     args: [BigInt(depositCount), totalDeposit],
   })
+}
+
+// ---------------------------------------------------------------------------
+// Fee params reading (from SofiaFeeProxy contract)
+// ---------------------------------------------------------------------------
+
+let feeParamsCache: FeeParams | null = null
+
+export async function getFeeParams(): Promise<FeeParams> {
+  if (feeParamsCache) return feeParamsCache
+
+  const [depositFixed, depositPct, feeDenom] = await Promise.all([
+    publicClient.readContract({ address: PROXY_ADDRESS, abi: SofiaFeeProxyAbi, functionName: 'depositFixedFee' }) as Promise<bigint>,
+    publicClient.readContract({ address: PROXY_ADDRESS, abi: SofiaFeeProxyAbi, functionName: 'depositPercentageFee' }) as Promise<bigint>,
+    publicClient.readContract({ address: PROXY_ADDRESS, abi: SofiaFeeProxyAbi, functionName: 'FEE_DENOMINATOR' }) as Promise<bigint>,
+  ])
+
+  let creationFixed = 0n
+  try {
+    creationFixed = await publicClient.readContract({ address: PROXY_ADDRESS, abi: SofiaFeeProxyAbi, functionName: 'creationFixedFee' }) as bigint
+  } catch {
+    // creationFixedFee not available on older contract deployments
+  }
+
+  feeParamsCache = { depositFixed, depositPct, creationFixed, feeDenom }
+  return feeParamsCache
+}
+
+// ---------------------------------------------------------------------------
+// Pure cost estimation (same logic as extension)
+// ---------------------------------------------------------------------------
+
+export function estimateDepositCost(
+  depositTrust: number,
+  feeParams: FeeParams,
+): CostEstimate {
+  const { depositFixed, depositPct, feeDenom } = feeParams
+  const depositCount = 1
+
+  // Fixed fee per deposit
+  const fixedFeePerDeposit = Number(depositFixed) / 1e18
+  const sofiaFixedFee = fixedFeePerDeposit * depositCount
+
+  // Percentage fee
+  const pctRate = Number(depositPct) / Number(feeDenom)
+  const sofiaPercentFee = pctRate * depositTrust
+
+  const totalFees = sofiaFixedFee + sofiaPercentFee
+  const totalEstimate = depositTrust + totalFees
+
+  return {
+    depositAmount: depositTrust,
+    sofiaFixedFee,
+    sofiaPercentFee,
+    totalFees,
+    totalEstimate,
+    depositCount,
+  }
 }
 
 // ---------------------------------------------------------------------------

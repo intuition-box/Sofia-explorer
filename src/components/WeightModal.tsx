@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo } from 'react'
 import { createPortal } from 'react-dom'
-import { Card } from './ui/card'
-import { Button } from './ui/button'
 import { useDeposit } from '../hooks/useDeposit'
+import { useFeeEstimate } from '../hooks/useFeeEstimate'
 import type { CartItem } from '../hooks/useCart'
 import { EXPLORER_URL } from '../config'
 import { intentionBadgeStyle } from '../config/intentions'
 import SofiaLoader from './ui/SofiaLoader'
+import './styles/weight-modal.css'
 
 const WEIGHT_OPTIONS = [0.01, 0.5, 1, 5, 10]
 
@@ -22,8 +22,8 @@ export default function WeightModal({ isOpen, items, onClose, onSuccess }: Weigh
   const [customValues, setCustomValues] = useState<string[]>([])
   const [balance, setBalance] = useState<string | null>(null)
   const { depositBatch, processing, txResult, reset, getBalance } = useDeposit()
+  const { estimate } = useFeeEstimate()
 
-  // Initialize weights when items change
   useEffect(() => {
     if (isOpen && items.length > 0) {
       setWeights(new Array(items.length).fill(0.5))
@@ -43,6 +43,17 @@ export default function WeightModal({ isOpen, items, onClose, onSuccess }: Weigh
   }, [items, weights, customValues])
 
   const balNum = balance ? parseFloat(balance) : 0
+
+  const breakdown = useMemo(() => {
+    const costEstimate = estimate?.(totalDeposit) ?? null
+    return {
+      deposit: totalDeposit,
+      sofiaFixedFee: costEstimate?.sofiaFixedFee ?? 0,
+      sofiaPercentFee: costEstimate?.sofiaPercentFee ?? 0,
+      totalFees: costEstimate?.totalFees ?? 0,
+      totalEstimate: costEstimate?.totalEstimate ?? totalDeposit,
+    }
+  }, [totalDeposit, estimate])
 
   const handleWeightSelect = (index: number, value: number) => {
     setWeights(prev => { const n = [...prev]; n[index] = value; return n })
@@ -67,172 +78,226 @@ export default function WeightModal({ isOpen, items, onClose, onSuccess }: Weigh
     onClose()
   }
 
+  const formatTrust = (val: number): string => {
+    if (val === 0) return '0'
+    return parseFloat(val.toFixed(4)).toString()
+  }
+
+  const isFormState = !txResult && !processing
+
   if (!isOpen || items.length === 0) return null
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className={`wm-overlay ${processing ? 'wm-processing' : ''}`}
       onClick={(e) => { if (e.target === e.currentTarget && !processing) handleClose() }}
     >
-      <Card className="w-full max-w-md mx-4 p-0 overflow-hidden max-h-[85vh] flex flex-col">
-        {/* Header */}
-        <div className="px-5 pt-5 pb-3 border-b border-border shrink-0">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold">
-              Confirm Deposit ({items.length} item{items.length > 1 ? 's' : ''})
-            </h3>
-            {!processing && (
-              <button onClick={handleClose} className="text-muted-foreground hover:text-foreground text-lg leading-none">&times;</button>
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">Set deposit amounts and confirm</p>
-        </div>
+      <div className="wm-content">
+        <div className="wm-body">
+          {/* Description — form state only */}
+          {isFormState && (
+            <p className="wm-description">Set your deposit amount and confirm.</p>
+          )}
 
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+          {/* Triplet cards — always visible except on success */}
+          {!txResult?.success && (
+            <div className="wm-triplets-list">
+              {items.map((item, index) => {
+                const color = item.intentionColor || '#888'
+                const isCustom = !!customValues[index]?.trim()
+                const currentValue = isCustom
+                  ? (customValues[index] || '')
+                  : (weights[index] ?? 0.5)
+
+                return (
+                  <div key={item.id} className="wm-triplet-card">
+                    {/* Centered triplet text */}
+                    <div className="wm-triplet-text">
+                      {item.favicon && (
+                        <img
+                          src={item.favicon}
+                          alt=""
+                          style={{ width: 18, height: 18, borderRadius: 4, flexShrink: 0 }}
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                        />
+                      )}
+                      <span style={{ fontWeight: 500 }}>{item.title}</span>
+                      <span style={{ opacity: 0.4 }}>·</span>
+                      <span
+                        style={{
+                          ...intentionBadgeStyle(color),
+                          fontSize: 11,
+                          fontWeight: 600,
+                          padding: '2px 8px',
+                          borderRadius: 999,
+                        }}
+                      >
+                        {item.intention}
+                      </span>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: item.side === 'support' ? '#10b981' : '#ef4444' }}>
+                        {item.side === 'support' ? '▲' : '▼'}
+                      </span>
+                    </div>
+
+                    {/* Amount input + pills — form state only */}
+                    {isFormState && (
+                      <div className="wm-amount-row">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.001"
+                          value={currentValue}
+                          onChange={(e) => {
+                            handleWeightSelect(index, 0) // clear preset
+                            handleCustomChange(index, e.target.value)
+                          }}
+                          onFocus={(e) => {
+                            handleCustomChange(index, String(currentValue))
+                            e.target.select()
+                          }}
+                          className="wm-amount-input"
+                          placeholder="0.01"
+                          disabled={processing}
+                        />
+                        <div className="wm-pills">
+                          {WEIGHT_OPTIONS.map((w) => (
+                            <button
+                              key={w}
+                              onClick={() => handleWeightSelect(index, w)}
+                              className={`wm-pill ${!isCustom && weights[index] === w ? 'wm-pill-active' : ''}`}
+                              disabled={processing}
+                            >
+                              {w}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Cost summary — form state only */}
+          {isFormState && (
+            <div className="wm-cost-summary">
+              <div className="wm-cost-row">
+                <span>Deposit</span>
+                <span style={{ fontWeight: 500 }}>{formatTrust(breakdown.deposit)} TRUST</span>
+              </div>
+              {breakdown.totalFees > 0 && (
+                <>
+                  <div className="wm-cost-divider" />
+                  <div className="wm-cost-row" style={{ fontSize: 11, fontWeight: 600 }}>
+                    <span>Fees</span>
+                    <span>{formatTrust(breakdown.totalFees)} TRUST</span>
+                  </div>
+                  {breakdown.sofiaFixedFee > 0 && (
+                    <div className="wm-cost-row" style={{ fontSize: 11, paddingLeft: 12, opacity: 0.6 }}>
+                      <span>Sofia fixed fee</span>
+                      <span>{formatTrust(breakdown.sofiaFixedFee)} TRUST</span>
+                    </div>
+                  )}
+                  {breakdown.sofiaPercentFee > 0 && (
+                    <div className="wm-cost-row" style={{ fontSize: 11, paddingLeft: 12, opacity: 0.6 }}>
+                      <span>Sofia % fee</span>
+                      <span>{formatTrust(breakdown.sofiaPercentFee)} TRUST</span>
+                    </div>
+                  )}
+                  <div className="wm-cost-divider" />
+                  <div className="wm-cost-row wm-cost-total">
+                    <span>Total</span>
+                    <span>{formatTrust(breakdown.totalEstimate)} TRUST</span>
+                  </div>
+                </>
+              )}
+              <div className={`wm-cost-row wm-cost-balance ${balNum < breakdown.totalEstimate ? 'wm-cost-insufficient' : ''}`}>
+                <span>Balance</span>
+                <span>{balance ? `${formatTrust(parseFloat(balance))} TRUST` : '...'}</span>
+              </div>
+              <p className="wm-cost-note">* Estimated — actual may vary</p>
+            </div>
+          )}
+
           {/* Success state */}
           {txResult?.success && (
-            <div className="text-center space-y-3 py-4">
-              <div className="text-3xl">✅</div>
-              <p className="text-sm font-semibold">Transaction confirmed!</p>
-              <p className="text-xs text-muted-foreground">
-                {items.length} deposit{items.length > 1 ? 's' : ''} submitted successfully
-              </p>
-              {txResult.txHash && (
-                <a
-                  href={`${EXPLORER_URL}/tx/${txResult.txHash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-primary hover:underline"
-                >
-                  View on Explorer →
-                </a>
-              )}
-              <Button className="w-full mt-2" onClick={handleClose}>Close</Button>
+            <div className="wm-success-card">
+              <div className="wm-success-glow" />
+              <div className="wm-success-inner">
+                <p style={{ fontSize: 22, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>
+                  Transaction<br />Validated
+                </p>
+                <p className="text-sm text-muted-foreground" style={{ margin: 0 }}>
+                  {items.length} deposit{items.length > 1 ? 's' : ''} submitted successfully
+                </p>
+                {txResult.txHash && (
+                  <a
+                    href={`${EXPLORER_URL}/tx/${txResult.txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-primary hover:underline"
+                    style={{ marginTop: 4 }}
+                  >
+                    View on Explorer →
+                  </a>
+                )}
+              </div>
             </div>
           )}
 
           {/* Error state */}
           {txResult && !txResult.success && !processing && (
-            <div className="space-y-3">
-              <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3">
-                <p className="text-xs text-destructive">{txResult.error}</p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" className="flex-1" onClick={handleClose}>Cancel</Button>
-                <Button className="flex-1" onClick={() => { reset(); handleSubmit() }}>Retry</Button>
+            <div className="wm-error-section">
+              <span style={{ fontSize: 18 }}>❌</span>
+              <div>
+                <p className="text-sm font-semibold" style={{ margin: '0 0 4px' }}>Transaction Failed</p>
+                <p className="text-xs text-destructive" style={{ margin: 0 }}>{txResult.error}</p>
               </div>
             </div>
           )}
 
           {/* Processing state */}
-          {processing && (
-            <div className="flex flex-col items-center gap-3 py-6">
+          {processing && !txResult?.success && (
+            <div className="wm-processing-section">
               <SofiaLoader size={56} />
-              <p className="text-sm text-muted-foreground">Confirming transaction...</p>
-              <p className="text-xs text-muted-foreground">
-                {items.length > 1 ? 'Batch deposit in progress' : 'Deposit in progress'}
-              </p>
+              <div className="wm-processing-text">
+                <p className="text-sm font-medium" style={{ margin: 0 }}>Creating</p>
+                <p className="text-xs text-muted-foreground" style={{ margin: 0 }}>
+                  {items.length > 1 ? 'Batch deposit in progress...' : 'Deposit in progress...'}
+                </p>
+              </div>
             </div>
           )}
 
-          {/* Form state */}
-          {!txResult && !processing && (
-            <>
-              {/* Item list with weight selectors */}
-              <div className="space-y-3">
-                {items.map((item, index) => {
-                  const color = item.intentionColor || '#888'
-                  const currentAmount = getAmount(index)
-                  const isCustom = !!customValues[index]?.trim()
-                  return (
-                    <div key={item.id} className="rounded-lg border border-border p-3 space-y-2" style={{ borderLeftWidth: 3, borderLeftColor: color }}>
-                      {/* Item info */}
-                      <div className="flex items-center gap-2">
-                        {item.favicon && (
-                          <img src={item.favicon} alt="" className="h-5 w-5 rounded shrink-0"
-                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
-                        )}
-                        <span className="text-xs font-medium truncate flex-1">{item.title}</span>
-                        <span
-                          className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0"
-                          style={intentionBadgeStyle(color)}
-                        >
-                          {item.intention}
-                        </span>
-                        <span className={`text-[10px] font-bold shrink-0 ${item.side === 'support' ? 'text-emerald-500' : 'text-red-500'}`}>
-                          {item.side === 'support' ? '▲' : '▼'}
-                        </span>
-                      </div>
-
-                      {/* Weight selection */}
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {WEIGHT_OPTIONS.map((w) => (
-                          <button
-                            key={w}
-                            onClick={() => handleWeightSelect(index, w)}
-                            className="px-2 py-1 rounded-full text-[11px] font-medium border transition-colors"
-                            style={{
-                              borderColor: !isCustom && weights[index] === w ? color : 'var(--border)',
-                              backgroundColor: !isCustom && weights[index] === w ? `${color}15` : 'transparent',
-                              color: !isCustom && weights[index] === w ? color : 'var(--muted-foreground)',
-                            }}
-                          >
-                            {w}
-                          </button>
-                        ))}
-                        <input
-                          type="number"
-                          min="0.001"
-                          step="0.001"
-                          placeholder="Custom"
-                          value={customValues[index] || ''}
-                          onChange={(e) => handleCustomChange(index, e.target.value)}
-                          onFocus={(e) => e.target.select()}
-                          className="w-16 h-7 px-2 rounded-md border border-border bg-background text-[11px] text-right"
-                        />
-                        <span className="text-[11px] text-muted-foreground ml-auto">{currentAmount} TRUST</span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Footer — cost summary + submit */}
-        {!txResult && !processing && (
-          <div className="border-t border-border px-5 py-4 space-y-3 shrink-0">
-            <div className="space-y-1">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Total deposit</span>
-                <span className="font-medium">{totalDeposit.toFixed(4)} TRUST</span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Fees (estimated)</span>
-                <span className="text-muted-foreground">~{(totalDeposit * 0.05).toFixed(4)} TRUST</span>
-              </div>
-              <div className="flex items-center justify-between text-xs border-t border-border pt-1">
-                <span className="font-medium">Estimated total</span>
-                <span className="font-bold">{(totalDeposit * 1.05).toFixed(4)} TRUST</span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Balance</span>
-                <span className={balNum < totalDeposit * 1.05 ? 'text-destructive font-medium' : 'text-muted-foreground'}>
-                  {balance ? `${parseFloat(balance).toFixed(4)} TRUST` : '...'}
-                </span>
-              </div>
-            </div>
-            <Button
-              className="w-full"
-              disabled={totalDeposit <= 0 || balNum < totalDeposit * 1.05}
-              onClick={handleSubmit}
+          {/* Action buttons */}
+          <div className="wm-actions">
+            <button
+              className="wm-btn wm-btn-cancel"
+              onClick={handleClose}
             >
-              Submit {items.length} Deposit{items.length > 1 ? 's' : ''} · {totalDeposit.toFixed(2)} TRUST
-            </Button>
+              {txResult ? 'Close' : 'Cancel'}
+            </button>
+            {!txResult && (
+              <button
+                className="wm-btn wm-btn-submit"
+                onClick={handleSubmit}
+                disabled={processing || totalDeposit <= 0 || balNum < breakdown.totalEstimate}
+              >
+                {processing ? 'Submitting...' : `Submit ${items.length} Deposit${items.length > 1 ? 's' : ''}`}
+              </button>
+            )}
+            {txResult && !txResult.success && !processing && (
+              <button
+                className="wm-btn wm-btn-submit"
+                onClick={() => { reset(); handleSubmit() }}
+              >
+                Retry
+              </button>
+            )}
           </div>
-        )}
-      </Card>
+        </div>
+      </div>
     </div>,
     document.body,
   )
