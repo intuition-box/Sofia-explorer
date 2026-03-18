@@ -20,6 +20,7 @@ interface PlatformGridProps {
   onVerifyChallenge: (platformId: string) => Promise<void>
   onBack: () => void
   platforms?: typeof PLATFORM_CATALOG
+  currentDomain?: string
 }
 
 const STATUS_LABELS: Record<ConnectionStatus, string> = {
@@ -41,6 +42,7 @@ export default function PlatformGrid({
   onVerifyChallenge,
   onBack,
   platforms: platformsProp,
+  currentDomain,
 }: PlatformGridProps) {
   const [search, setSearch] = useState('')
   const suggested = getSuggestedPlatforms(selectedNiches)
@@ -65,7 +67,9 @@ export default function PlatformGrid({
   const grouped = useMemo(() => {
     const groups = new Map<string, typeof sorted>()
     for (const p of sorted) {
-      const domainId = p.targetDomains?.[0] || 'other'
+      const domainId = (currentDomain && p.targetDomains?.includes(currentDomain))
+        ? currentDomain
+        : p.targetDomains?.[0] || 'other'
       const existing = groups.get(domainId) || []
       existing.push(p)
       groups.set(domainId, existing)
@@ -83,12 +87,12 @@ export default function PlatformGrid({
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute h-4 w-4 text-muted-foreground" style={{ left: 12, top: '50%', transform: 'translateY(-50%)' }} />
         <Input
           placeholder="Search platforms..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
+          style={{ paddingLeft: 36 }}
         />
       </div>
 

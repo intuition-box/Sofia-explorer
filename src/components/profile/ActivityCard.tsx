@@ -86,6 +86,18 @@ export default function ActivityCard({ item, walletAddress, onAddValue }: Activi
           <Plus className="h-3.5 w-3.5" />
           Add Value
         </Button>
+        {item.url && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ac-btn-icon"
+            asChild
+          >
+            <a href={item.url} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </Button>
+        )}
         <Button
           variant="ghost"
           size="sm"
@@ -94,18 +106,6 @@ export default function ActivityCard({ item, walletAddress, onAddValue }: Activi
         >
           <Share2 className="h-3.5 w-3.5" />
         </Button>
-        {item.url && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="ac-btn-share"
-            asChild
-          >
-            <a href={item.url} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          </Button>
-        )}
       </div>
     </Card>
   )

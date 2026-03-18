@@ -41,6 +41,7 @@ export default function PlatformConnectionPage() {
           onVerifyChallenge={verifyChallengeCode}
           onBack={() => navigate(`/profile/interest/${domainId}`)}
           platforms={platforms}
+          currentDomain={domainId}
         />
       </div>
     </div>
