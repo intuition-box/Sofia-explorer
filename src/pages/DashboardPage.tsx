@@ -199,11 +199,11 @@ export default function DashboardPage() {
 
       {/* Space filter badge */}
       {spaceParam && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Badge variant="secondary" style={{ fontSize: 13, padding: '4px 12px', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+        <div className="dp-space-filter">
+          <Badge variant="secondary" className="dp-space-badge">
             {spaceLabel}
-            <button onClick={clearSpace} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex' }}>
-              <X style={{ width: 14, height: 14, color: 'var(--muted-foreground)' }} />
+            <button onClick={clearSpace} className="dp-space-close">
+              <X className="dp-space-close-icon" />
             </button>
           </Badge>
         </div>
@@ -228,7 +228,7 @@ export default function DashboardPage() {
 
       {/* Loading */}
       {loading && (
-        <div className="flex items-start justify-center" style={{ minHeight: 'calc(100vh - 200px)', paddingTop: '20vh' }}>
+        <div className="flex items-start justify-center page-loader">
           <SofiaLoader size={96} />
         </div>
       )}

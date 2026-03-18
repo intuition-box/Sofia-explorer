@@ -28,7 +28,7 @@ export default function VotePage() {
     return (
       <div>
         <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-        <div className="flex items-center justify-center" style={{ minHeight: 300 }}>
+        <div className="flex items-center justify-center page-loader-sm">
           <SofiaLoader size={96} />
         </div>
       </div>
@@ -84,7 +84,7 @@ export default function VotePage() {
       </div>
 
       {/* Claim card */}
-      <Card className="p-6" style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <Card className="vp-claim-card">
         <div className="flex items-center justify-between">
           <Badge variant="secondary">{totalPositions} positions</Badge>
           <span className="text-xs text-muted-foreground">{formatMarketCap(totalMarketCap)}</span>
@@ -147,8 +147,7 @@ export default function VotePage() {
           return (
             <Card
               key={c.id}
-              className={`p-4 cursor-pointer hover:shadow-sm transition-shadow ${i === currentIndex ? 'ring-1 ring-primary' : ''}`}
-              style={{ padding: 16 }}
+              className={`cursor-pointer hover:shadow-sm transition-shadow vp-claim-list-card ${i === currentIndex ? 'ring-1 ring-primary' : ''}`}
               onClick={() => setCurrentIndex(i)}
             >
               <div className="flex items-center justify-between">

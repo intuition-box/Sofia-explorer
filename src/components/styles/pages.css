@@ -1,2 +1,19 @@
 /* ── Page content ── */
 .page-content { padding: 16px 8px; }
+
+/* ── Shared page patterns ── */
+.page-loader { min-height: calc(100vh - 200px); padding-top: 20vh; }
+.page-loader-sm { min-height: 300px; }
+
+/* ── Vote page ── */
+.vp-claim-card { padding: 28px; display: flex; flex-direction: column; gap: 20px; }
+.vp-claim-list-card { padding: 16px; }
+
+/* ── Dashboard space filter ── */
+.dp-space-filter { display: flex; align-items: center; gap: 8px; }
+.dp-space-badge { font-size: 13px; padding: 4px 12px; display: inline-flex; align-items: center; gap: 6px; }
+.dp-space-close { background: none; border: none; cursor: pointer; padding: 0; display: flex; }
+.dp-space-close-icon { width: 14px; height: 14px; color: var(--muted-foreground); }
+
+/* ── Quest card ── */
+.qc-icon { font-size: 18px; }

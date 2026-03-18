@@ -1,6 +1,7 @@
 import { Card } from '@/components/ui/card'
 import type { CircleItem } from '@/services/circleService'
 import { timeAgo } from '@/utils/formatting'
+import '@/components/styles/pages.css'
 
 const QUEST_CATEGORY_STYLES: Record<string, { color: string; icon: string }> = {
   daily:     { color: '#FFD700', icon: '☀️' },
@@ -32,7 +33,7 @@ export default function QuestCard({ item, displayName, avatar, isPrivate }: Ques
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {!isPrivate && <img src={avatar} alt="" className="h-6 w-6 rounded-full shrink-0" referrerPolicy="no-referrer" />}
-          <span style={{ fontSize: 18 }}>{style.icon}</span>
+          <span className="qc-icon">{style.icon}</span>
           <span className="text-sm font-bold">{shownName}</span>
         </div>
         <span className="text-xs text-muted-foreground">{timeAgo(item.timestamp)}</span>
