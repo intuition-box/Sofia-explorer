@@ -1,6 +1,6 @@
 /* ── Sidebar ── */
-.sb-aside { width: 384px; background: var(--sidebar); border-right: 1px solid var(--border); padding-top: 85px; }
-.sb-inner { min-height: calc(100vh - 85px); }
+.sb-aside { width: 320px; background: var(--sidebar); border-right: 1px solid var(--border); padding-top: 71px; }
+.sb-inner { min-height: calc(100vh - 71px); }
 
 /* ── Countdown card ── */
 .sb-countdown { padding: 12px; }

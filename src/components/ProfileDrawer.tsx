@@ -90,8 +90,8 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
           </div>
 
           {/* Stats */}
-          <div className="px-6 pt-6 pb-4">
-            <p className="pd-section-title" style={{ padding: 0, marginBottom: 10 }}>Stats</p>
+          <div className="px-3 pt-6 pb-4">
+            <p className="pd-section-title" style={{ padding: 10, marginBottom: 0 }}></p>
             <div className="pd-stat-grid">
               {statItems.map((s) => (
                 <div key={s.label} className="pd-stat-card">
@@ -104,8 +104,8 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
 
           {/* Discovery badges */}
           {stats && (
-            <div className="px-6 pb-4">
-              <p className="pd-section-title" style={{ padding: 0, marginBottom: 10 }}>Discovery</p>
+            <div className="px-3  pt-8 pb-4">
+              <p className="pd-section-title" style={{ padding: 10, marginBottom: 10 }}></p>
               <div className="pd-badge-row">
                 {[
                   { label: 'Pioneer', value: stats.pioneerCount, icon: '/badges/pioneer.png' },
@@ -124,8 +124,8 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
           )}
 
           {/* Trust Circle */}
-          <div className="px-6 pt-2 pb-4 flex-1">
-            <p className="pd-section-title" style={{ padding: 0, marginBottom: 10 }}>
+          <div className="px-3 pt-8 pb-7 flex-1">
+            <p className="pd-section-title" style={{ padding: 20, marginBottom: 10 }}>
               My Trust Circle
               {!trustLoading && <span className="pd-circle-count">{trustCircle.length}</span>}
             </p>

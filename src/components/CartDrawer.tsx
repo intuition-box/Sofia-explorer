@@ -14,12 +14,10 @@ interface CartDrawerProps {
 }
 
 export default function CartDrawer({ items, isOpen, onClose, onRemove, onClear, onSubmit }: CartDrawerProps) {
-  if (!isOpen) return null
-
-  // No zoom — manual sizing. RightSidebar = w-72 (288px) × 1.50 = 432px, top 85px
+  // No zoom — manual sizing. RightSidebar = w-72 (288px) × 1.25 = 360px, top 71px
   return (
     <aside
-      className="fixed right-0 overflow-hidden cd-aside"
+      className={`fixed right-0 overflow-hidden cd-aside ${isOpen ? 'cd-open' : ''}`}
     >
       <div className="flex flex-col h-full">
         {/* Header */}

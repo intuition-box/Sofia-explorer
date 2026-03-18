@@ -11,7 +11,7 @@ const DOMAIN_ICONS: Record<string, string> = {
   'food-lifestyle': '🍽️', literature: '📚', 'personal-dev': '🧠',
 }
 
-export function RightSidebar() {
+export function RightSidebar({ hidden = false }: { hidden?: boolean }) {
   // Placeholder suggested accounts with good scores in user's domains
   const suggestedAccounts = [
     { address: '0x1a2b...3c4d', score: 87, domain: 'tech-dev' },
@@ -20,7 +20,7 @@ export function RightSidebar() {
   ]
 
   return (
-    <aside className="fixed right-0 top-[85px] h-[calc(100vh-85px)] w-72 overflow-y-auto z-40 p-4 space-y-6 rs-aside" style={{ zoom: 1.50 }}>
+    <aside className={`fixed right-0 top-[71px] h-[calc(100vh-71px)] w-72 overflow-y-auto z-40 p-4 space-y-6 rs-aside ${hidden ? 'rs-hidden' : ''}`} style={{ zoom: 1.25 }}>
       {/* Suggested Accounts */}
       <Card>
         <CardHeader className="pb-3">

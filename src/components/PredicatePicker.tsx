@@ -49,7 +49,7 @@ export default function PredicatePicker({ isOpen, side, item, onConfirm, onClose
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <Card className="w-full max-w-md mx-4 p-0 overflow-hidden rounded-2xl" style={{ borderTop: `3px solid ${accentColor}`, zoom: 1.50 }}>
+      <Card className="w-full max-w-md mx-4 p-0 overflow-hidden rounded-2xl" style={{ borderTop: `3px solid ${accentColor}`, zoom: 1.25 }}>
         {/* Header */}
         <div className="px-6 pt-6 pb-4">
           <div className="flex items-center justify-between">

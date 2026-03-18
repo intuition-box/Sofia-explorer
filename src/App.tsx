@@ -40,7 +40,7 @@ export default function App() {
     <div className="min-h-screen bg-background">
       <Header onCartClick={() => setCartOpen(o => !o)} />
       <Sidebar />
-      {!isProfilePage && <RightSidebar />}
+      <RightSidebar hidden={isProfilePage || cartOpen} />
 
       <CartDrawer
         items={cart.items}
@@ -63,7 +63,7 @@ export default function App() {
         onSuccess={handleDepositSuccess}
       />
 
-      <main className={isProfilePage ? 'main-content main-content--profile' : 'main-content'} style={{ zoom: 1.50 }}>
+      <main className={isProfilePage ? 'main-content main-content--profile' : 'main-content'} style={{ zoom: 1.25 }}>
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />

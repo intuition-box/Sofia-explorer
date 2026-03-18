@@ -49,7 +49,7 @@ export function Sidebar() {
 
   return (
     <aside className="fixed left-0 top-0 h-screen overflow-y-auto z-40 sb-aside">
-      <div className="p-4 space-y-6 sb-inner" style={{ zoom: 1.50 }}>
+      <div className="p-4 space-y-6 sb-inner" style={{ zoom: 1.25 }}>
         {/* Navigation */}
         <div>
           <h3 className="mb-3 px-2 text-sm font-medium text-foreground">

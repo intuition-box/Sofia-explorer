@@ -3,4 +3,13 @@
 .main-content--profile { margin-right: 322px; }
 
 /* ── RightSidebar ── */
-.rs-aside { background: var(--sidebar); border-left: 1px solid var(--border); }
+.rs-aside {
+  background: var(--sidebar);
+  border-left: 1px solid var(--border);
+  transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.rs-aside.rs-hidden {
+  opacity: 0;
+  transform: translateX(40px);
+  pointer-events: none;
+}

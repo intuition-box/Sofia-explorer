@@ -32,7 +32,7 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
     : ''
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b" style={{ zoom: 1.50 }}>
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b" style={{ zoom: 1.25 }}>
       <div className="flex h-14 items-center justify-between px-4 w-full">
         {/* Left side - Logo and Search */}
         <div className="flex items-center space-x-4 flex-1 min-w-0">
@@ -90,7 +90,7 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
             </Button>
           )}
 
-          {ready && authenticated && walletAddress && (
+          {ready && authenticated && walletAddress && location.pathname !== '/profile' && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="p-1 h-9 w-9">
