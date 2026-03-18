@@ -122,7 +122,6 @@ export default function WeightModal({ isOpen, items, onClose, onSuccess }: Weigh
                         />
                       )}
                       <span style={{ fontWeight: 500 }}>{item.title}</span>
-                      <span style={{ opacity: 0.4 }}>·</span>
                       <span
                         style={{
                           ...intentionBadgeStyle(color),
@@ -133,9 +132,6 @@ export default function WeightModal({ isOpen, items, onClose, onSuccess }: Weigh
                         }}
                       >
                         {item.intention}
-                      </span>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: item.side === 'support' ? '#10b981' : '#ef4444' }}>
-                        {item.side === 'support' ? '▲' : '▼'}
                       </span>
                     </div>
 

@@ -1,0 +1,249 @@
+/* ── InterestPage layout ── */
+.ip-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.ip-back {
+  gap: 6px;
+  font-size: 12px;
+  align-self: flex-start;
+}
+
+.ip-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.ip-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 40%, transparent);
+}
+
+.ip-loader {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+/* ── Stats ── */
+.ip-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.ip-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 8px;
+}
+
+.ip-stat-value {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--foreground);
+}
+
+.ip-stat-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Trending ── */
+.ip-trending-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.ip-trending-card {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ip-trending-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ip-trending-favicon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+
+.ip-trending-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ip-trending-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ip-trending-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.ip-trending-stat {
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+.ip-trending-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted-foreground);
+  text-decoration: none;
+}
+.ip-trending-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Platforms ── */
+.ip-platforms-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.ip-platform-card {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0.5;
+}
+
+.ip-platform-connected {
+  opacity: 1;
+}
+
+.ip-platform-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.ip-platform-status {
+  font-size: 10px;
+  color: var(--muted-foreground);
+}
+
+.ip-platform-on {
+  color: #22C55E;
+}
+
+.ip-platform-add {
+  cursor: pointer;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 2px dashed color-mix(in oklab, var(--border) 60%, transparent);
+  background: transparent;
+  transition: border-color 0.15s, background 0.15s;
+}
+.ip-platform-add:hover {
+  border-color: var(--border);
+  background: color-mix(in oklab, var(--muted) 30%, transparent);
+}
+
+.ip-platform-add-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--muted-foreground);
+}
+
+.ip-platform-add-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+/* ── Claims ── */
+.ip-claims-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ip-claim-card {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ip-claim-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.ip-claim-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--muted);
+  overflow: hidden;
+}
+
+.ip-claim-bar-fill {
+  height: 100%;
+  background: #22C55E;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.ip-claim-meta {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ip-claim-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+.ip-claim-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 4px;
+}

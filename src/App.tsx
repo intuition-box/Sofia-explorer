@@ -10,6 +10,9 @@ import { useCart } from './hooks/useCart'
 import DashboardPage from './pages/DashboardPage'
 import LeaderboardPage from './pages/LeaderboardPage'
 import ProfilePage from './pages/ProfilePage'
+import InterestPage from './pages/InterestPage'
+import DomainSelectionPage from './pages/DomainSelectionPage'
+import NicheSelectionPage from './pages/NicheSelectionPage'
 import StreaksPage from './pages/StreaksPage'
 import VotePage from './pages/VotePage'
 import OAuthCallbackPage from './pages/OAuthCallbackPage'
@@ -19,7 +22,7 @@ export default function App() {
   const location = useLocation()
   const isCallback = location.pathname === '/auth/callback'
   const cart = useCart()
-  const isProfilePage = location.pathname === '/profile'
+  const isProfilePage = location.pathname.startsWith('/profile')
   const [cartOpen, setCartOpen] = useState(false)
   const [weightModalOpen, setWeightModalOpen] = useState(false)
 
@@ -52,7 +55,7 @@ export default function App() {
       />
 
       <ProfileDrawer
-        isOpen={isProfilePage}
+        isOpen={isProfilePage && !cartOpen}
         onClose={() => {}}
       />
 
@@ -68,6 +71,9 @@ export default function App() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile/interest/:domainId" element={<InterestPage />} />
+          <Route path="/profile/domains" element={<DomainSelectionPage />} />
+          <Route path="/profile/niches" element={<NicheSelectionPage />} />
           <Route path="/streaks" element={<StreaksPage />} />
           <Route path="/vote" element={<VotePage />} />
           <Route path="/auth/callback" element={<OAuthCallbackPage />} />

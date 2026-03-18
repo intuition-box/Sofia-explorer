@@ -85,6 +85,68 @@ usePlatformConnections() → connected count
 
 ---
 
+## Phase 3.5 — Ameliorer ProfilePage (Activity Cards + Top Claims + Skeletons)
+
+### Context
+La ProfilePage affiche Last Activity (grille de CircleCard) + My Interests. Ameliorations :
+- Cards activite simplifiees (pas de nom user, c'est sa propre page)
+- Bouton **"Add Value"** au lieu de Support/Oppose
+- **Liste des positions** sur chaque claim (comme PagePositionBoard dans l'extension)
+- Bouton **Share** pour partager une intention sur X
+- Nouvelle section **"Top Claims"** au-dessus de Last Activity
+- **Skeletons** pour chaque section en loading
+
+### Fichiers a creer
+
+- `src/components/profile/ActivityCard.tsx` — Card simplifiee pour la page profil
+  - Pas de header user (pas d'avatar, pas de nom)
+  - Favicon + titre + intentions colorees + timestamp + lien domaine
+  - Bouton **"Add Value"** : si l'user a une position → ajoute dans le meme vault. Desactive si aucune position
+  - **Liste des positions** (mini PagePositionBoard) : top 3 certifiers avec rank, avatar, label, badge "You"
+  - Bouton **Share** (icone share) → lien Twitter/X
+  - Reference : `core/extension/components/ui/PagePositionBoard.tsx`
+
+- `src/components/profile/TopClaimsSection.tsx` — Section au-dessus de Last Activity
+  - Claims/intentions les plus performants de l'user, tries par :
+    - Total market cap (somme support + oppose vaults)
+    - Nombre de positions (certifiers)
+  - Utilise `CircleItem.intentionVaults` → termIds → vault data via `debateService.ts > extractVaultData()`
+  - Cards compactes : favicon + titre + intention badge + market cap + position count + "Add Value"
+
+- `src/hooks/useClaimPositions.ts` — Fetch positions d'un vault (termId)
+  - Liste des certifiers avec account_id, shares, triees par shares desc
+  - Reutilise pattern GraphQL existant
+
+- `src/components/profile/ProfileSkeletons.tsx` — Skeleton components
+  - `ActivityCardSkeleton`, `TopClaimSkeleton`, `InterestCardSkeleton`
+  - Pattern : divs avec `animate-pulse` + `bg-muted`
+
+### Fichiers a modifier
+
+- `src/components/profile/LastActivitySection.tsx`
+  - Remplacer `CircleCard`/`QuestCard` par `ActivityCard`
+  - Afficher skeletons pendant le loading
+
+- `src/pages/ProfilePage.tsx` — Nouvel ordre :
+  1. PageHeader
+  2. **Top Claims** (nouveau)
+  3. Last Activity (ameliore avec ActivityCard)
+  4. My Interests
+
+- `src/components/styles/profile-sections.css` — Ajouter styles :
+  - `.ac-*` — ActivityCard (compact, sans header user)
+  - `.ac-positions` — mini position board
+  - `.tc-*` — TopClaimsSection
+  - `.sk-*` — Skeletons
+
+### Donnees reutilisees
+- `src/services/debateService.ts` — extractVaultData pattern pour market cap
+- `core/extension/components/ui/PagePositionBoard.tsx` — pattern positions (rank, avatar, label, You/Circle tags)
+- `src/config/intentions.ts` — INTENTION_COLORS pour les badges
+- `src/utils/formatting.ts` — timeAgo, extractDomain
+
+---
+
 ## Phase 4 — Interest Page (nouvelle route)
 
 ### Fichiers a creer
@@ -124,17 +186,22 @@ usePlatformConnections() → connected count
 ---
 
 ## Ordre d'implementation
-1. ProfileDrawer (CSS + composant + branchement App/Header)
-2. Services (domainActivityService, domainTrendingService, domainDebateService)
-3. Hooks (useUserActivity, useDomainTrending, useDomainClaims)
-4. LastActivitySection + InterestsGrid
-5. Rewrite ProfilePage
-6. InterestPage + route + pageColors
+1. ~~ProfileDrawer (CSS + composant + branchement App/Header)~~ ✓
+2. ~~Services (domainActivityService, domainTrendingService, domainDebateService)~~ ✓
+3. ~~Hooks (useUserActivity, useDomainTrending, useDomainClaims)~~ ✓
+4. ~~LastActivitySection + InterestsGrid~~ ✓
+5. ~~Rewrite ProfilePage~~ ✓
+6. ActivityCard + TopClaimsSection + Skeletons + useClaimPositions
+7. InterestPage + route + pageColors
 
 ## Verification
-- Ouvrir `/profile` → voir Last Activity (feed filtre user) + Interests Grid
+- Ouvrir `/profile` → voir Top Claims → Last Activity → My Interests
+- Chaque section a un skeleton pendant le loading
+- ActivityCards montrent : favicon + titre + intentions + positions list + Add Value + Share
+- Top Claims tries par market cap
+- Add Value fonctionne (appelle onDeposit avec le bon vault)
+- Share ouvre un lien Twitter/X avec le claim
 - Cliquer sur un domaine → naviguer vers `/profile/interest/:domainId`
 - Interest page affiche trending, stats, platforms, votes pour ce domaine
 - Header → cliquer profil → ProfileDrawer s'ouvre a droite
-- Drawer se ferme au clic X ou clic exterieur
 - Dark/light mode fonctionne sur tous les nouveaux composants

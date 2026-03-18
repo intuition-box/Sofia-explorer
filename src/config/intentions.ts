@@ -2,16 +2,16 @@ import { PREDICATE_IDS } from '../config'
 
 /** Hex color for each intention label */
 export const INTENTION_COLORS: Record<string, string> = {
-  Trusted: '#22C55E',
-  Distrusted: '#EF4444',
-  Work: '#3B82F6',
-  Learning: '#06B6D4',
-  Fun: '#F59E0B',
-  Inspiration: '#8B5CF6',
-  Buying: '#EC4899',
-  Music: '#FF5722',
-  Attending: '#10B981',
-  Valued: '#F97316',
+  Trusted: '#6DD4A0',
+  Distrusted: '#E87C7C',
+  Work: '#7BADE0',
+  Learning: '#5CC4D6',
+  Fun: '#E4B95A',
+  Inspiration: '#A78BDB',
+  Buying: '#D98CB3',
+  Music: '#E0896A',
+  Attending: '#6DC4A8',
+  Valued: '#E0A06A',
 }
 
 /** Map on-chain predicate ID → display intention label */
@@ -84,5 +84,5 @@ export function getSideColor(side: 'support' | 'oppose'): string {
 
 /** Inline style object for intention badge pills */
 export function intentionBadgeStyle(color: string) {
-  return { color, backgroundColor: `${color}15`, border: `1px solid ${color}30` }
+  return { backgroundColor: `${color}20`, border: `1px solid ${color}40` }
 }

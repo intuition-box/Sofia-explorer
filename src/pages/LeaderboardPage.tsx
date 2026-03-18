@@ -31,7 +31,7 @@ export default function LeaderboardPage() {
     {
       label: 'Trust Volume',
       value: totals.trustVolume > 0n
-        ? `${parseFloat(formatEther(totals.trustVolume)).toFixed(2)} ETH`
+        ? `${parseFloat(formatEther(totals.trustVolume)).toFixed(2)} T`
         : '0',
     },
   ]

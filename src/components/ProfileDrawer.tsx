@@ -149,7 +149,7 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
                     </Avatar>
                     <div className="pd-circle-info">
                       <span className="pd-circle-label">{account.label}</span>
-                      <span className="pd-circle-trust">{account.trustAmount.toFixed(6)} ETH</span>
+                      <span className="pd-circle-trust">{account.trustAmount.toFixed(6)} T</span>
                     </div>
                   </div>
                 ))}

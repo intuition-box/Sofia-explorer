@@ -12,10 +12,10 @@ import '@/components/styles/pages.css'
 
 function formatMarketCap(value: bigint): string {
   const num = parseFloat(formatEther(value))
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'k ETH'
-  if (num >= 1) return num.toFixed(2) + ' ETH'
-  if (num >= 0.001) return num.toFixed(4) + ' ETH'
-  return '0 ETH'
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'k T'
+  if (num >= 1) return num.toFixed(2) + ' T'
+  if (num >= 0.001) return num.toFixed(4) + ' T'
+  return '0 T'
 }
 
 export default function VotePage() {
