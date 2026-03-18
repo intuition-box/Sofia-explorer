@@ -19,8 +19,8 @@ export default function App() {
   const location = useLocation()
   const isCallback = location.pathname === '/auth/callback'
   const cart = useCart()
+  const isProfilePage = location.pathname === '/profile'
   const [cartOpen, setCartOpen] = useState(false)
-  const [profileDrawerOpen, setProfileDrawerOpen] = useState(false)
   const [weightModalOpen, setWeightModalOpen] = useState(false)
 
   const handleCartSubmit = useCallback(() => {
@@ -38,9 +38,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onCartClick={() => setCartOpen(o => !o)} onProfileClick={() => setProfileDrawerOpen(o => !o)} />
+      <Header onCartClick={() => setCartOpen(o => !o)} />
       <Sidebar />
-      <RightSidebar />
+      {!isProfilePage && <RightSidebar />}
 
       <CartDrawer
         items={cart.items}
@@ -52,8 +52,8 @@ export default function App() {
       />
 
       <ProfileDrawer
-        isOpen={profileDrawerOpen}
-        onClose={() => setProfileDrawerOpen(false)}
+        isOpen={isProfilePage}
+        onClose={() => {}}
       />
 
       <WeightModal
@@ -63,7 +63,7 @@ export default function App() {
         onSuccess={handleDepositSuccess}
       />
 
-      <main className="main-content" style={{ zoom: 1.50 }}>
+      <main className={isProfilePage ? 'main-content main-content--profile' : 'main-content'} style={{ zoom: 1.50 }}>
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />

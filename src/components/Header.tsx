@@ -1,16 +1,23 @@
-import { usePrivy, useLogin } from '@privy-io/react-auth'
+import { usePrivy, useLogin, useLogout } from '@privy-io/react-auth'
 import { Link, useLocation } from 'react-router-dom'
 import { Button } from "./ui/button";
-import { Search, Bell, Home, Wallet, Sun, Moon } from "lucide-react";
+import { Search, Bell, Home, Wallet, LogOut, Sun, Moon } from "lucide-react";
 import { useTheme } from '../hooks/useTheme'
 import { useEnsNames } from '../hooks/useEnsNames'
 import { useCart } from '../hooks/useCart'
 import type { Address } from 'viem'
 import './styles/header.css'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu'
 
-export function Header({ onCartClick, onProfileClick }: { onCartClick?: () => void; onProfileClick?: () => void } = {}) {
+export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
   const { ready, authenticated, user } = usePrivy()
   const { login } = useLogin()
+  const { logout } = useLogout()
   const location = useLocation()
   const { theme, toggleTheme } = useTheme()
   const cart = useCart()
@@ -20,6 +27,9 @@ export function Header({ onCartClick, onProfileClick }: { onCartClick?: () => vo
   const { getDisplay, getAvatar } = useEnsNames(addresses)
   const ensName = walletAddress ? getDisplay(walletAddress as Address) : ''
   const ensAvatar = walletAddress ? getAvatar(walletAddress as Address) : ''
+  const displayAddress = walletAddress
+    ? walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4)
+    : ''
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b" style={{ zoom: 1.50 }}>
@@ -81,10 +91,32 @@ export function Header({ onCartClick, onProfileClick }: { onCartClick?: () => vo
           )}
 
           {ready && authenticated && walletAddress && (
-            <Button variant="ghost" size="icon" className="p-1 h-9 w-9" onClick={onProfileClick}>
-              <img src={ensAvatar} alt={ensName} className="h-7 w-7 rounded-full" referrerPolicy="no-referrer" />
-              <span className="sr-only">Profile</span>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="p-1 h-9 w-9">
+                  <img src={ensAvatar} alt={ensName} className="h-7 w-7 rounded-full" referrerPolicy="no-referrer" />
+                  <span className="sr-only">Profile</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="hdr-dropdown">
+                {/* User info header */}
+                <div className="hdr-user-info">
+                  <img src={ensAvatar} alt={ensName} className="h-10 w-10 rounded-full" referrerPolicy="no-referrer" />
+                  <div className="hdr-user-meta">
+                    <div className="hdr-user-name">{ensName}</div>
+                    <div className="hdr-user-address">{displayAddress}</div>
+                  </div>
+                </div>
+                <div className="hdr-divider" />
+                <Link to="/profile">
+                  <DropdownMenuItem className="hdr-menu-item">My Profile</DropdownMenuItem>
+                </Link>
+                <DropdownMenuItem onClick={() => logout()} className="hdr-menu-item">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Disconnect
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
         </nav>
       </div>

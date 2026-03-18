@@ -1,5 +1,6 @@
 /* ── App main layout ── */
-.main-content { margin-left: 262px; margin-right: 262px; padding-top: 56px; padding-bottom: 48px; padding-left: 12px; padding-right: 12px; }
+.main-content { margin-left: 262px; margin-right: 262px; padding-top: 56px; padding-bottom: 48px; padding-left: 12px; padding-right: 12px; transition: margin-right 0.2s ease; }
+.main-content--profile { margin-right: 322px; }
 
 /* ── RightSidebar ── */
 .rs-aside { background: var(--sidebar); border-left: 1px solid var(--border); }

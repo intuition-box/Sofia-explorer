@@ -1,11 +1,14 @@
-import { X, Compass, Layers, Monitor, BarChart3, LogOut } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { usePrivy, useLogout } from '@privy-io/react-auth'
+import { usePrivy } from '@privy-io/react-auth'
 import { useEnsNames } from '../hooks/useEnsNames'
 import { useDiscoveryScore } from '../hooks/useDiscoveryScore'
 import { useDomainSelection } from '../hooks/useDomainSelection'
 import { usePlatformConnections } from '../hooks/usePlatformConnections'
+import { useReputationScores } from '../hooks/useReputationScores'
+import { useShareProfile } from '../hooks/useShareProfile'
+import { useTrustCircle } from '../hooks/useTrustCircle'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
+import { Button } from './ui/button'
+import ShareProfileModal from './profile/ShareProfileModal'
 import type { Address } from 'viem'
 import './styles/profile-drawer.css'
 
@@ -16,14 +19,34 @@ interface ProfileDrawerProps {
 
 export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
   const { authenticated, user } = usePrivy()
-  const { logout } = useLogout()
   const address = user?.wallet?.address ?? ''
   const { getDisplay, getAvatar } = useEnsNames(address ? [address as Address] : [])
   const { stats } = useDiscoveryScore(address || undefined)
   const { selectedDomains, selectedNiches } = useDomainSelection()
-  const { connectedCount } = usePlatformConnections()
+  const { getStatus, connectedCount } = usePlatformConnections()
+  const scores = useReputationScores(getStatus, selectedDomains, selectedNiches)
+  const domainScores = scores?.domains ?? []
+  const { accounts: trustCircle, loading: trustLoading } = useTrustCircle(address || undefined)
 
-  if (!isOpen || !authenticated) return null
+  const {
+    isModalOpen,
+    openShareModal,
+    closeShareModal,
+    shareUrl,
+    ogImageUrl,
+    isLoading: shareLoading,
+    error: shareError,
+    handleCopyLink,
+    handleShareOnX,
+    copied,
+  } = useShareProfile({
+    walletAddress: address,
+    domainScores,
+    connectedCount,
+    totalCertifications: stats?.totalCertifications ?? 0,
+  })
+
+  if (!authenticated) return null
 
   const displayName = address ? getDisplay(address as Address) : ''
   const avatar = address ? getAvatar(address as Address) : ''
@@ -37,100 +60,116 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
     { label: 'Signals', value: stats?.totalCertifications ?? 0 },
   ]
 
-  const navLinks = [
-    { label: 'Overview', icon: Compass, to: '/profile' },
-    { label: 'Interests', icon: Layers, to: '/profile?view=interests' },
-    { label: 'Platforms', icon: Monitor, to: '/profile?view=platforms' },
-    { label: 'Scores', icon: BarChart3, to: '/profile?view=scores' },
-  ]
-
   return (
-    <aside className="fixed right-0 overflow-hidden pd-aside">
-      <div className="flex flex-col h-full">
-        {/* Header */}
-        <div className="flex items-center justify-end px-4 py-4 border-b border-border">
-          <button
-            onPointerDown={(e) => { e.stopPropagation(); onClose() }}
-            className="text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted/50"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+    <>
+      <aside className={`fixed right-0 overflow-hidden pd-aside ${isOpen ? 'pd-open' : ''}`}>
+        <div className="flex flex-col h-full overflow-y-auto">
 
-        {/* Profile info */}
-        <div className="flex flex-col items-center gap-3 px-6 py-6">
-          <Avatar className="pd-avatar border-2 border-border">
-            {avatar && <AvatarImage src={avatar} alt={displayName} />}
-            <AvatarFallback className="text-xl">{initials}</AvatarFallback>
-          </Avatar>
-          <div className="text-center">
-            <p className="text-base font-bold">{displayName}</p>
-            <p className="text-xs text-muted-foreground tabular-nums">{shortAddr}</p>
+          {/* Banner — avatar + name + share */}
+          <div className="pd-banner">
+            <Avatar className="pd-avatar border-2 border-border shadow-lg">
+              {avatar && <AvatarImage src={avatar} alt={displayName} />}
+              <AvatarFallback className="text-2xl">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="text-center">
+              <p className="pd-name">{displayName}</p>
+              <p className="pd-address">{shortAddr}</p>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={openShareModal}
+              disabled={shareLoading}
+              className="pd-share-btn"
+            >
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              {shareLoading ? 'Sharing...' : 'Share on X'}
+            </Button>
           </div>
-        </div>
 
-        {/* Stats grid */}
-        <div className="px-6 pb-4">
-          <div className="pd-stat-grid">
-            {statItems.map((s) => (
-              <div key={s.label} className="pd-stat-card">
-                <span className="pd-stat-value">{s.value}</span>
-                <span className="pd-stat-label">{s.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Discovery badges */}
-        {stats && (
-          <div className="px-6 pb-4">
+          {/* Stats */}
+          <div className="px-6 pt-6 pb-4">
+            <p className="pd-section-title" style={{ padding: 0, marginBottom: 10 }}>Stats</p>
             <div className="pd-stat-grid">
-              <div className="pd-stat-card">
-                <span className="pd-stat-value">{stats.pioneerCount}</span>
-                <span className="pd-stat-label">Pioneer</span>
-              </div>
-              <div className="pd-stat-card">
-                <span className="pd-stat-value">{stats.explorerCount}</span>
-                <span className="pd-stat-label">Explorer</span>
-              </div>
-              <div className="pd-stat-card">
-                <span className="pd-stat-value">{stats.contributorCount}</span>
-                <span className="pd-stat-label">Contributor</span>
-              </div>
-              <div className="pd-stat-card">
-                <span className="pd-stat-value">{stats.trustedCount}</span>
-                <span className="pd-stat-label">Trusted</span>
-              </div>
+              {statItems.map((s) => (
+                <div key={s.label} className="pd-stat-card">
+                  <span className="pd-stat-value">{s.value}</span>
+                  <span className="pd-stat-label">{s.label}</span>
+                </div>
+              ))}
             </div>
           </div>
-        )}
 
-        {/* Quick nav */}
-        <div className="flex-1 px-4 py-2 space-y-1 overflow-y-auto">
-          {navLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              onClick={onClose}
-              className="pd-nav-link"
-            >
-              <link.icon className="h-4 w-4 text-muted-foreground" />
-              {link.label}
-            </Link>
-          ))}
-        </div>
+          {/* Discovery badges */}
+          {stats && (
+            <div className="px-6 pb-4">
+              <p className="pd-section-title" style={{ padding: 0, marginBottom: 10 }}>Discovery</p>
+              <div className="pd-badge-row">
+                {[
+                  { label: 'Pioneer', value: stats.pioneerCount, icon: '/badges/pioneer.png' },
+                  { label: 'Explorer', value: stats.explorerCount, icon: '/badges/explorer.png' },
+                  { label: 'Contributor', value: stats.contributorCount, icon: '/badges/contributor.png' },
+                  { label: 'Trusted', value: stats.trustedCount, icon: '/badges/trust.png' },
+                ].map((b) => (
+                  <div key={b.label} className="pd-badge-card">
+                    <img src={b.icon} alt={b.label} className="pd-badge-icon" />
+                    <span className="pd-badge-label">{b.label}</span>
+                    <span className="pd-badge-value">{b.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-        {/* Logout */}
-        <div className="border-t border-border p-4">
-          <button
-            onClick={() => { logout(); onClose() }}
-            className="pd-nav-link w-full text-destructive hover:text-destructive"
-          >
-            <LogOut className="h-4 w-4" />
-            Disconnect
-          </button>
+          {/* Trust Circle */}
+          <div className="px-6 pt-2 pb-4 flex-1">
+            <p className="pd-section-title" style={{ padding: 0, marginBottom: 10 }}>
+              My Trust Circle
+              {!trustLoading && <span className="pd-circle-count">{trustCircle.length}</span>}
+            </p>
+
+            {trustLoading ? (
+              <div className="pd-circle-loading">
+                <span className="pd-circle-loading-text">Loading...</span>
+              </div>
+            ) : trustCircle.length === 0 ? (
+              <p className="pd-circle-empty">No accounts in trust circle yet</p>
+            ) : (
+              <div className="pd-circle-list">
+                {trustCircle.map((account, i) => (
+                  <div key={account.termId} className="pd-circle-item">
+                    <span className="pd-circle-rank">{i + 1}</span>
+                    <Avatar className="pd-circle-avatar">
+                      {account.image && <AvatarImage src={account.image} alt={account.label} />}
+                      <AvatarFallback className="text-xs">
+                        {account.label.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="pd-circle-info">
+                      <span className="pd-circle-label">{account.label}</span>
+                      <span className="pd-circle-trust">{account.trustAmount.toFixed(6)} ETH</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+
+      <ShareProfileModal
+        isOpen={isModalOpen}
+        onClose={closeShareModal}
+        shareUrl={shareUrl}
+        ogImageUrl={ogImageUrl}
+        isLoading={shareLoading}
+        error={shareError}
+        onCopyLink={handleCopyLink}
+        onShareOnX={handleShareOnX}
+        copied={copied}
+      />
+    </>
   )
 }

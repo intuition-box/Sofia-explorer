@@ -13,7 +13,7 @@
  * 4. Trusted: count of trust positions on the user
  */
 
-import { GRAPHQL_URL } from '../config'
+import { GRAPHQL_URL, SUBJECT_IDS, PREDICATE_IDS } from '../config'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -114,23 +114,45 @@ const POSITIONS_BY_OBJECTS_QUERY = `
   }
 `
 
-// Step 3: Count people who trust this user
-const TRUSTED_BY_QUERY = `
-  query TrustedBy($userAddress: String!) {
-    positions_aggregate(
+// Step 3a: Find the Account atom for a wallet address
+const FIND_ACCOUNT_ATOM_QUERY = `
+  query FindAccountAtom($address: String!) {
+    atoms(
       where: {
-        vault: {
-          term: {
-            triple: {
-              predicate: { label: { _eq: "trusts" } }
-              object: { label: { _ilike: $userAddress } }
+        _and: [
+          { data: { _ilike: $address } }
+          { type: { _eq: "Account" } }
+        ]
+      }
+      limit: 1
+    ) {
+      term_id
+    }
+  }
+`
+
+// Step 3b: Find the triple I → TRUSTS → MY_ACCOUNT_ATOM and get positions
+const TRUSTED_BY_POSITIONS_QUERY = `
+  query GetTrustedByPositions($subjectId: String!, $predicateId: String!, $objectId: String!) {
+    triples(
+      where: {
+        _and: [
+          { subject_id: { _eq: $subjectId } }
+          { predicate_id: { _eq: $predicateId } }
+          { object_id: { _eq: $objectId } }
+        ]
+      }
+    ) {
+      term_id
+      term {
+        vaults {
+          positions {
+            account {
+              id
             }
           }
         }
-        shares: { _gt: "0" }
       }
-    ) {
-      aggregate { count }
     }
   }
 `
@@ -251,13 +273,37 @@ export async function fetchDiscoveryStats(walletAddress: string): Promise<Discov
     }
   }
 
-  // Step 5: Fetch trusted count
+  // Step 5: Fetch trusted count (same logic as extension)
+  // 5a: Find my Account atom
+  // 5b: Find triple I → TRUSTS → myAtom, count unique position holders
   let trustedCount = 0
   try {
-    const res = await gqlRequest<{
-      positions_aggregate: { aggregate: { count: number } }
-    }>(TRUSTED_BY_QUERY, { userAddress })
-    trustedCount = res.positions_aggregate.aggregate.count
+    const atomRes = await gqlRequest<{ atoms: { term_id: string }[] }>(
+      FIND_ACCOUNT_ATOM_QUERY,
+      { address: `%${userAddress}%` },
+    )
+    const myAtomId = atomRes.atoms?.[0]?.term_id
+    if (myAtomId) {
+      const res = await gqlRequest<{
+        triples: {
+          term_id: string
+          term: { vaults: { positions: { account: { id: string } }[] }[] }
+        }[]
+      }>(TRUSTED_BY_POSITIONS_QUERY, {
+        subjectId: SUBJECT_IDS.I,
+        predicateId: PREDICATE_IDS.TRUSTS,
+        objectId: myAtomId,
+      })
+      const uniqueAccounts = new Set<string>()
+      for (const triple of res.triples || []) {
+        for (const vault of triple.term?.vaults || []) {
+          for (const pos of vault.positions || []) {
+            if (pos.account?.id) uniqueAccounts.add(pos.account.id)
+          }
+        }
+      }
+      trustedCount = uniqueAccounts.size
+    }
   } catch {
     // non-critical
   }

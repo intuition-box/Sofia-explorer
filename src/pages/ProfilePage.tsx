@@ -1,20 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { usePrivy, useLogin } from '@privy-io/react-auth'
-import { useEnsNames } from '../hooks/useEnsNames'
-import { useUserProfile } from '../hooks/useUserProfile'
 import { useDiscoveryScore } from '../hooks/useDiscoveryScore'
 import { useDomainSelection } from '../hooks/useDomainSelection'
 import { usePlatformConnections } from '../hooks/usePlatformConnections'
 import { useReputationScores } from '../hooks/useReputationScores'
-import { useShareProfile } from '../hooks/useShareProfile'
 import OverviewTab from '../components/profile/OverviewTab'
 import DomainSelector from '../components/profile/DomainSelector'
 import NicheSelector from '../components/profile/NicheSelector'
 import PlatformGrid from '../components/profile/PlatformGrid'
 import ScoreView from '../components/profile/ScoreView'
-import ShareProfileModal from '../components/profile/ShareProfileModal'
-import ProfileHeader from '../components/profile/ProfileHeader'
 import { Card } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Wallet } from 'lucide-react'
@@ -39,8 +34,6 @@ export default function ProfilePage() {
   }, [searchParams])
 
   const address = user?.wallet?.address ?? ''
-  const { getDisplay, getAvatar } = useEnsNames(address ? [address as `0x${string}`] : [])
-  const { profile } = useUserProfile(address || undefined)
   const { stats: discoveryStats } = useDiscoveryScore(address || undefined)
 
   const {
@@ -62,24 +55,6 @@ export default function ProfilePage() {
 
   const scores = useReputationScores(getStatus, selectedDomains, selectedNiches)
   const domainScores = scores?.domains ?? []
-
-  const {
-    isModalOpen,
-    openShareModal,
-    closeShareModal,
-    shareUrl,
-    ogImageUrl,
-    isLoading: shareLoading,
-    error: shareError,
-    handleCopyLink,
-    handleShareOnX,
-    copied,
-  } = useShareProfile({
-    walletAddress: address,
-    domainScores,
-    connectedCount,
-    totalCertifications: 0,
-  })
 
   // Not authenticated — show connect prompt
   if (!authenticated) {
@@ -119,16 +94,6 @@ export default function ProfilePage() {
     <div>
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
       <div className="space-y-6 page-content">
-
-      <ProfileHeader
-        walletAddress={address}
-        ensName={address ? (() => { const d = getDisplay(address as `0x${string}`); return d.includes('...') ? undefined : d })() : undefined}
-        avatar={address ? getAvatar(address as `0x${string}`) : undefined}
-        socialLinked={connectedCount > 0}
-        signals={discoveryStats?.totalCertifications ?? 0}
-        onShare={openShareModal}
-        sharing={shareLoading}
-      />
 
       {view === 'overview' && (
         <OverviewTab
@@ -188,17 +153,6 @@ export default function ProfilePage() {
         />
       )}
 
-      <ShareProfileModal
-        isOpen={isModalOpen}
-        onClose={closeShareModal}
-        shareUrl={shareUrl}
-        ogImageUrl={ogImageUrl}
-        isLoading={shareLoading}
-        error={shareError}
-        onCopyLink={handleCopyLink}
-        onShareOnX={handleShareOnX}
-        copied={copied}
-      />
       </div>
     </div>
   )
