@@ -1,7 +1,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --font-size: 14px;
+  --font-size: 18px;
   --background: #ffffff;
   --foreground: oklch(0.145 0 0);
   --card: #ffffff;
@@ -186,4 +186,68 @@
 
 html {
   font-size: var(--font-size);
+  font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Segoe UI', sans-serif;
+}
+
+/* ── Sofia-specific tokens (additive — does not override existing theme) ── */
+
+:root {
+  /* Intent colors */
+  --color-intent-work: #3b82f6;
+  --color-intent-learning: #22c55e;
+  --color-intent-fun: #f59e0b;
+  --color-intent-inspiration: #8b5cf6;
+
+  /* Reward / badge colors */
+  --color-gold: #fbbf24;
+  --color-golden: #d4a017;
+  --color-clay: #C7866C;
+  --color-olive: #A6AF6B;
+
+  /* Glass utility tokens */
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-blur: 50px;
+}
+
+.dark {
+  --glass-bg: rgba(0, 0, 0, 0.14);
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+@theme inline {
+  --color-intent-work: var(--color-intent-work);
+  --color-intent-learning: var(--color-intent-learning);
+  --color-intent-fun: var(--color-intent-fun);
+  --color-intent-inspiration: var(--color-intent-inspiration);
+  --color-gold: var(--color-gold);
+  --color-golden: var(--color-golden);
+  --color-clay: var(--color-clay);
+  --color-olive: var(--color-olive);
+}
+
+/* Display heading utility */
+.font-display {
+  font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Segoe UI', sans-serif;
+  font-weight: 900;
+  line-height: 1;
+}
+
+/* CTA pulse animation */
+@keyframes sofia-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes sofia-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-sofia-pulse {
+  animation: sofia-pulse 2s ease-in-out infinite;
+}
+
+.animate-sofia-fade-in {
+  animation: sofia-fade-in 0.4s ease-out;
 }
