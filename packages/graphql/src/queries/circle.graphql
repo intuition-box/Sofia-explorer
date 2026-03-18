@@ -49,6 +49,7 @@ query GetFollowingCount($address: String!) {
   }
 }
 
+# Pour circleService (feed My Circle) — version originale, NE PAS MODIFIER
 query GetTrustCircleAccounts(
   $subjectId: String!
   $predicateId: String!
@@ -81,6 +82,48 @@ query GetTrustCircleAccounts(
         positions(where: { account_id: { _ilike: $walletAddress } }) {
           account_id
           shares
+        }
+      }
+    }
+  }
+}
+
+# Pour trustCircleService (drawer) — copie de l'extension
+query GetMyTrustCircle(
+  $subjectId: String!
+  $predicateId: String!
+  $walletAddress: String!
+) {
+  triples(
+    where: {
+      _and: [
+        { subject_id: { _eq: $subjectId } }
+        { predicate_id: { _eq: $predicateId } }
+        { object: { type: { _eq: "Account" } } }
+        { positions: { account_id: { _eq: $walletAddress }, shares: { _gt: "0" } } }
+      ]
+    }
+  ) {
+    term_id
+    created_at
+    object {
+      term_id
+      data
+      image
+      label
+      type
+      wallet_id
+      accounts {
+        id
+      }
+    }
+    term {
+      vaults(order_by: { curve_id: asc }) {
+        curve_id
+        positions(where: { account_id: { _eq: $walletAddress }, shares: { _gt: "0" } }) {
+          account_id
+          shares
+          created_at
         }
       }
     }
