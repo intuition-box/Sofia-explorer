@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Star, Activity } from "lucide-react";
 import TrendingPages from './TrendingPages';
+import './styles/layout.css'
 
 const DOMAIN_ICONS: Record<string, string> = {
   'tech-dev': '💻', 'design-creative': '🎨', 'music-audio': '🎵', gaming: '🎮',
@@ -19,7 +20,7 @@ export function RightSidebar() {
   ]
 
   return (
-    <aside className="fixed right-0 top-[85px] h-[calc(100vh-85px)] w-72 overflow-y-auto z-40 p-4 space-y-6" style={{ zoom: 1.50, background: 'var(--sidebar)', borderLeft: '1px solid var(--border)' }}>
+    <aside className="fixed right-0 top-[85px] h-[calc(100vh-85px)] w-72 overflow-y-auto z-40 p-4 space-y-6 rs-aside" style={{ zoom: 1.50 }}>
       {/* Suggested Accounts */}
       <Card>
         <CardHeader className="pb-3">

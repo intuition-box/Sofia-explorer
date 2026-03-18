@@ -6,6 +6,7 @@ import type { LeaderboardProps, AlphaTester, PoolPosition } from '../types'
 import { Card } from './ui/card'
 import { Button } from './ui/button'
 import { formatTrust } from '../utils/formatting'
+import './styles/leaderboard.css'
 
 type AlphaSortOption = 'TX' | 'Intentions' | 'Pioneer' | 'Trust Volume'
 type PoolSortOption = 'Shares' | 'Current Value' | 'P&L' | 'P&L %'
@@ -47,34 +48,6 @@ const POOL_COLUMNS: { label: string; key: PoolSortOption }[] = [
   { label: 'P&L %', key: 'P&L %' },
 ]
 
-const cellBase: React.CSSProperties = {
-  padding: '12px 16px',
-  fontSize: 14,
-  verticalAlign: 'middle',
-}
-
-const cellNum: React.CSSProperties = {
-  ...cellBase,
-  textAlign: 'right',
-  fontVariantNumeric: 'tabular-nums',
-}
-
-const cellHead: React.CSSProperties = {
-  ...cellBase,
-  fontSize: 12,
-  fontWeight: 600,
-  color: 'var(--muted-foreground)',
-  textTransform: 'uppercase' as const,
-  letterSpacing: '0.5px',
-}
-
-const cellHeadNum: React.CSSProperties = {
-  ...cellHead,
-  textAlign: 'right',
-  cursor: 'pointer',
-  userSelect: 'none' as const,
-}
-
 export default function Leaderboard({
   alphaData = [],
   alphaLoading,
@@ -105,11 +78,11 @@ export default function Leaderboard({
   const columns = isAlpha ? ALPHA_COLUMNS : POOL_COLUMNS
 
   return (
-    <Card style={{ overflow: 'hidden' }}>
+    <Card className="overflow-hidden">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px' }}>
-        <span style={{ fontSize: 16, fontWeight: 600 }}>Leaderboard</span>
-        <div style={{ display: 'flex', gap: 4 }}>
+      <div className="lb-header">
+        <span className="lb-title">Leaderboard</span>
+        <div className="lb-tab-group">
           <Button
             size="sm"
             variant={activeTab === 'alpha' ? 'default' : 'ghost'}
@@ -128,16 +101,16 @@ export default function Leaderboard({
       </div>
 
       {/* Table */}
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', whiteSpace: 'nowrap' }}>
+      <div className="overflow-x-auto">
+        <table className="lb-table">
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              <th style={{ ...cellHead, width: 50, textAlign: 'center' }}>#</th>
-              <th style={{ ...cellHead, textAlign: 'left' }}>User</th>
+            <tr className="lb-border-row">
+              <th className="lb-rank-head">#</th>
+              <th className="lb-cell-head">User</th>
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  style={cellHeadNum}
+                  className="lb-cell-head-num"
                   onClick={() =>
                     isAlpha
                       ? setAlphaSortBy(col.key as AlphaSortOption)
@@ -153,16 +126,16 @@ export default function Leaderboard({
           <tbody>
             {loading &&
               Array.from({ length: 5 }).map((_, i) => (
-                <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td colSpan={2 + columns.length} style={cellBase}>
-                    <div className="bg-muted animate-pulse" style={{ height: 20, borderRadius: 4 }} />
+                <tr key={i} className="lb-border-row">
+                  <td colSpan={2 + columns.length} className="lb-cell">
+                    <div className="lb-skeleton bg-muted animate-pulse" />
                   </td>
                 </tr>
               ))}
 
             {error && (
               <tr>
-                <td colSpan={2 + columns.length} style={{ ...cellBase, textAlign: 'center', color: 'var(--destructive-foreground)' }}>
+                <td colSpan={2 + columns.length} className="lb-error">
                   {error}
                 </td>
               </tr>
@@ -174,32 +147,28 @@ export default function Leaderboard({
                 return (
                   <tr
                     key={user.address}
-                    style={{
-                      borderBottom: '1px solid var(--border)',
-                      borderLeft: isSelf ? '3px solid var(--primary)' : undefined,
-                      background: isSelf ? 'rgba(255,198,176,0.08)' : undefined,
-                    }}
+                    className={"lb-border-row" + (isSelf ? " lb-self-row" : "")}
                   >
-                    <td style={{ ...cellBase, width: 50, textAlign: 'center', color: 'var(--muted-foreground)', fontWeight: 500 }}>{i + 1}</td>
-                    <td style={cellBase}>
+                    <td className="lb-rank">{i + 1}</td>
+                    <td className="lb-cell">
                       <a
                         href={`${EXPLORER_URL}/address/${user.address}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'inherit', textDecoration: 'none', fontWeight: 500 }}
+                        className="lb-user-link"
                       >
                         <img
                           src={getAvatar(user.address)}
                           alt=""
-                          style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover' }}
+                          className="lb-avatar"
                         />
-                        <span style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis' }}>{getDisplay(user.address)}</span>
+                        <span className="lb-username">{getDisplay(user.address)}</span>
                       </a>
                     </td>
-                    <td style={cellNum}>{user.intentions.toLocaleString()}</td>
-                    <td style={cellNum}>{user.pioneer}</td>
-                    <td style={cellNum}>{formatTrust(user.trustVolume)}</td>
-                    <td style={cellNum}>{user.tx.toLocaleString()}</td>
+                    <td className="lb-cell-num">{user.intentions.toLocaleString()}</td>
+                    <td className="lb-cell-num">{user.pioneer}</td>
+                    <td className="lb-cell-num">{formatTrust(user.trustVolume)}</td>
+                    <td className="lb-cell-num">{user.tx.toLocaleString()}</td>
                   </tr>
                 )
               })}
@@ -210,33 +179,29 @@ export default function Leaderboard({
                 return (
                   <tr
                     key={pos.address}
-                    style={{
-                      borderBottom: '1px solid var(--border)',
-                      borderLeft: isSelf ? '3px solid var(--primary)' : undefined,
-                      background: isSelf ? 'rgba(255,198,176,0.08)' : undefined,
-                    }}
+                    className={"lb-border-row" + (isSelf ? " lb-self-row" : "")}
                   >
-                    <td style={{ ...cellBase, width: 50, textAlign: 'center', color: 'var(--muted-foreground)', fontWeight: 500 }}>{i + 1}</td>
-                    <td style={cellBase}>
+                    <td className="lb-rank">{i + 1}</td>
+                    <td className="lb-cell">
                       <a
                         href={`${EXPLORER_URL}/address/${pos.address}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'inherit', textDecoration: 'none', fontWeight: 500 }}
+                        className="lb-user-link"
                       >
                         <img
                           src={getAvatar(pos.address)}
                           alt=""
-                          style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover' }}
+                          className="lb-avatar"
                         />
-                        <span style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis' }}>{getDisplay(pos.address)}</span>
+                        <span className="lb-username">{getDisplay(pos.address)}</span>
                       </a>
                     </td>
-                    <td style={cellNum}>{formatTrust(pos.currentValue)}</td>
-                    <td style={{ ...cellNum, color: pos.pnl >= 0n ? '#22c55e' : '#ef4444' }}>
+                    <td className="lb-cell-num">{formatTrust(pos.currentValue)}</td>
+                    <td className={"lb-cell-num " + (pos.pnl >= 0n ? "lb-positive" : "lb-negative")}>
                       {pos.pnl >= 0n ? '+' : ''}{formatTrust(pos.pnl)}
                     </td>
-                    <td style={{ ...cellNum, color: pos.pnlPercent >= 0 ? '#22c55e' : '#ef4444' }}>
+                    <td className={"lb-cell-num " + (pos.pnlPercent >= 0 ? "lb-positive" : "lb-negative")}>
                       {pos.pnlPercent >= 0 ? '+' : ''}{pos.pnlPercent.toFixed(1)}%
                     </td>
                   </tr>

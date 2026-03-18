@@ -6,6 +6,7 @@ import { useTheme } from '../hooks/useTheme'
 import { useEnsNames } from '../hooks/useEnsNames'
 import { useCart } from '../hooks/useCart'
 import type { Address } from 'viem'
+import './styles/header.css'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,7 +56,7 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
         {/* Right side - Navigation + Auth */}
         <nav className="flex items-center space-x-1 flex-shrink-0 ml-4">
           <div className="flex items-center gap-0.5">
-            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={onCartClick} style={{ backgroundColor: 'oklch(0.80 0.06 25 / 0.3)' }}>
+            <Button variant="ghost" size="icon" className="h-9 w-9 hdr-cart-btn" onClick={onCartClick}>
               <img src="/logo.png" alt="Cart" className="h-5 w-5" />
             </Button>
             {cart.count > 0 && (
@@ -97,20 +98,20 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
                   <span className="sr-only">Profile</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" style={{ minWidth: 220, background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 12, padding: 8 }}>
+              <DropdownMenuContent align="end" className="hdr-dropdown">
                 {/* User info header */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 8px 12px' }}>
+                <div className="hdr-user-info">
                   <img src={ensAvatar} alt={ensName} className="h-10 w-10 rounded-full" referrerPolicy="no-referrer" />
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ensName}</div>
-                    <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>{displayAddress}</div>
+                  <div className="hdr-user-meta">
+                    <div className="hdr-user-name">{ensName}</div>
+                    <div className="hdr-user-address">{displayAddress}</div>
                   </div>
                 </div>
-                <div style={{ height: 1, background: 'var(--border)', margin: '0 4px 4px' }} />
+                <div className="hdr-divider" />
                 <Link to="/profile">
-                  <DropdownMenuItem style={{ borderRadius: 8, padding: '10px 12px', fontSize: 14 }}>My Profile</DropdownMenuItem>
+                  <DropdownMenuItem className="hdr-menu-item">My Profile</DropdownMenuItem>
                 </Link>
-                <DropdownMenuItem onClick={() => logout()} style={{ borderRadius: 8, padding: '10px 12px', fontSize: 14 }}>
+                <DropdownMenuItem onClick={() => logout()} className="hdr-menu-item">
                   <LogOut className="mr-2 h-4 w-4" />
                   Disconnect
                 </DropdownMenuItem>

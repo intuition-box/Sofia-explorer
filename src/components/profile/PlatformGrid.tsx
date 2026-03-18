@@ -8,6 +8,7 @@ import { Badge } from '../ui/badge'
 import { Input } from '../ui/input'
 import { ArrowLeft, Search, ExternalLink, Check, Loader2 } from 'lucide-react'
 import { getCertifyUrl } from '../../utils/sofiaDetect'
+import '../styles/platform-grid.css'
 
 interface PlatformGridProps {
   selectedNiches: string[]
@@ -94,13 +95,13 @@ export default function PlatformGrid({
 
         return (
           <div key={domainId}>
-            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 16, marginBottom: 14 }}>
-              <h3 className="font-semibold" style={{ fontSize: 18 }}>
-                {label} <span className="text-muted-foreground" style={{ fontSize: 14, fontWeight: 400 }}>({platforms.length})</span>
+            <div className="pg-domain-header">
+              <h3 className="font-semibold pg-domain-title">
+                {label} <span className="text-muted-foreground pg-domain-count">({platforms.length})</span>
               </h3>
             </div>
 
-            <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))' }}>
+            <div className="grid gap-3 pg-grid">
               {platforms.map((platform) => {
                 const status = getStatus(platform.id)
                 const isConnected = status === 'connected'
@@ -110,22 +111,21 @@ export default function PlatformGrid({
                 return (
                   <Card
                     key={platform.id}
-                    className={isConnected ? 'border-green-500/30 bg-green-50/50' : ''}
-                    style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}
+                    className={`pg-card ${isConnected ? 'border-green-500/30 bg-green-50/50' : ''}`}
                   >
                     {/* Platform identity */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div className="pg-identity">
                       <img
                         src={`/favicons/${platform.id}.png`}
                         alt=""
-                        style={{ width: 36, height: 36, borderRadius: 8, flexShrink: 0 }}
+                        className="pg-icon"
                         onError={(e) => {
                           const el = e.target as HTMLImageElement
                           el.style.display = 'none'
                         }}
                       />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <span className="font-medium truncate" style={{ fontSize: 16, display: 'block' }}>{platform.name}</span>
+                      <div className="pg-name-wrap">
+                        <span className="font-medium truncate pg-name">{platform.name}</span>
                         {isSuggested && !isConnected && (
                           <Badge variant="secondary" className="text-[10px]" style={{ marginTop: 4 }}>Suggested</Badge>
                         )}
@@ -133,11 +133,11 @@ export default function PlatformGrid({
                     </div>
 
                     {/* Actions */}
-                    <div style={{ display: 'flex', gap: 8 }}>
+                    <div className="pg-actions">
                       <Button
                         size="sm"
                         variant={isConnected ? 'outline' : 'default'}
-                        style={{ flex: 1, fontSize: 11, height: 28 }}
+                        className="pg-action-btn"
                         disabled={isConnecting}
                         onClick={() => {
                           if (isConnected) {
@@ -155,12 +155,12 @@ export default function PlatformGrid({
                         href={getCertifyUrl(`https://${platform.apiBaseUrl ? new URL(platform.apiBaseUrl).hostname : platform.id + '.com'}`)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ flex: 1 }}
+                        className="pg-certify-link"
                       >
                         <Button
                           size="sm"
                           variant="outline"
-                          style={{ width: '100%', fontSize: 11, height: 28 }}
+                          className="pg-certify-btn"
                         >
                           <ExternalLink className="h-3 w-3 mr-1" />
                           Certify

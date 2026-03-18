@@ -2,6 +2,7 @@ import { X, Trash2 } from 'lucide-react'
 import { Button } from './ui/button'
 import type { CartItem } from '../hooks/useCart'
 import { INTENTION_COLORS } from '../config/intentions'
+import './styles/cart-drawer.css'
 
 interface CartDrawerProps {
   items: CartItem[]
@@ -18,8 +19,7 @@ export default function CartDrawer({ items, isOpen, onClose, onRemove, onClear, 
   // No zoom — manual sizing. RightSidebar = w-72 (288px) × 1.50 = 432px, top 85px
   return (
     <aside
-      className="fixed right-0 overflow-hidden"
-      style={{ top: 74, width: 432, height: 'calc(100vh - 96px)', zIndex: 9999, background: 'var(--sidebar)', borderLeft: '1px solid var(--border)' }}
+      className="fixed right-0 overflow-hidden cd-aside"
     >
       <div className="flex flex-col h-full">
         {/* Header */}

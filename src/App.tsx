@@ -12,6 +12,7 @@ import ProfilePage from './pages/ProfilePage'
 import StreaksPage from './pages/StreaksPage'
 import VotePage from './pages/VotePage'
 import OAuthCallbackPage from './pages/OAuthCallbackPage'
+import './components/styles/layout.css'
 
 export default function App() {
   const location = useLocation()
@@ -55,7 +56,7 @@ export default function App() {
         onSuccess={handleDepositSuccess}
       />
 
-      <main style={{ marginLeft: 262, marginRight: 262, paddingTop: 56, paddingBottom: 48, paddingLeft: 12, paddingRight: 12, zoom: 1.50 }}>
+      <main className="main-content" style={{ zoom: 1.50 }}>
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
