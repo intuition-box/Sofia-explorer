@@ -1,11 +1,12 @@
 import { usePrivy, useLogin, useLogout } from '@privy-io/react-auth'
 import { Link, useLocation } from 'react-router-dom'
 import { Button } from "./ui/button";
-import { Search, Bell, Home, Wallet, LogOut, Sun, Moon, ShoppingCart } from "lucide-react";
+import { Search, Bell, Home, Wallet, LogOut, Sun, Moon } from "lucide-react";
 import { useTheme } from '../hooks/useTheme'
 import { useEnsNames } from '../hooks/useEnsNames'
 import { useCart } from '../hooks/useCart'
 import type { Address } from 'viem'
+import './styles/header.css'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +32,7 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
     : ''
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b" style={{ zoom: 1.50 }}>
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b" style={{ zoom: 1.25 }}>
       <div className="flex h-14 items-center justify-between px-4 w-full">
         {/* Left side - Logo and Search */}
         <div className="flex items-center space-x-4 flex-1 min-w-0">
@@ -55,8 +56,8 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
         {/* Right side - Navigation + Auth */}
         <nav className="flex items-center space-x-1 flex-shrink-0 ml-4">
           <div className="flex items-center gap-0.5">
-            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={onCartClick} style={{ backgroundColor: 'oklch(0.80 0.06 25 / 0.3)' }}>
-              <img src="/logo.png" alt="Cart" className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="h-9 w-9 hdr-cart-btn" onClick={onCartClick}>
+              <img src={theme === 'dark' ? '/logo.png' : '/logo_invert.png'} alt="Cart" className="h-5 w-5" />
             </Button>
             {cart.count > 0 && (
               <span className="min-w-[14px] h-[14px] rounded-full bg-red-500 text-white text-[8px] font-bold flex items-center justify-center leading-none flex-shrink-0 px-[3px] -ml-1">
@@ -92,25 +93,25 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
           {ready && authenticated && walletAddress && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="p-1 h-9 w-9">
+                <Button variant="ghost" size="icon" className={`p-1 h-9 w-9 hdr-profile-btn ${location.pathname === '/profile' ? 'hdr-profile-hidden' : ''}`}>
                   <img src={ensAvatar} alt={ensName} className="h-7 w-7 rounded-full" referrerPolicy="no-referrer" />
                   <span className="sr-only">Profile</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" style={{ minWidth: 220, background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 12, padding: 8 }}>
+              <DropdownMenuContent align="end" className="hdr-dropdown">
                 {/* User info header */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 8px 12px' }}>
+                <div className="hdr-user-info">
                   <img src={ensAvatar} alt={ensName} className="h-10 w-10 rounded-full" referrerPolicy="no-referrer" />
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ensName}</div>
-                    <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>{displayAddress}</div>
+                  <div className="hdr-user-meta">
+                    <div className="hdr-user-name">{ensName}</div>
+                    <div className="hdr-user-address">{displayAddress}</div>
                   </div>
                 </div>
-                <div style={{ height: 1, background: 'var(--border)', margin: '0 4px 4px' }} />
+                <div className="hdr-divider" />
                 <Link to="/profile">
-                  <DropdownMenuItem style={{ borderRadius: 8, padding: '10px 12px', fontSize: 14 }}>My Profile</DropdownMenuItem>
+                  <DropdownMenuItem className="hdr-menu-item">My Profile</DropdownMenuItem>
                 </Link>
-                <DropdownMenuItem onClick={() => logout()} style={{ borderRadius: 8, padding: '10px 12px', fontSize: 14 }}>
+                <DropdownMenuItem onClick={() => logout()} className="hdr-menu-item">
                   <LogOut className="mr-2 h-4 w-4" />
                   Disconnect
                 </DropdownMenuItem>

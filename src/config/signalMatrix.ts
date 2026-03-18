@@ -804,7 +804,7 @@ export const DOMAIN_SCORING_MODELS: Record<string, DomainScoringModel> = {
 
 // === SCORING PRINCIPLES (GLOBAL CONSTANTS) ===
 
-export const SCORING_PRINCIPLES = {
+const SCORING_PRINCIPLES = {
   /** Regularite > Burst: 2x/jour pendant 30j = 3x mieux que 60x en 1 jour */
   BURST_PENALTY_THRESHOLD: 0.2,
   /** Creation > Consommation: uploader score 10x plus qu'ecouter */
@@ -827,7 +827,7 @@ export const SCORING_PRINCIPLES = {
 
 // === INTEGRATION ROADMAP ===
 
-export const INTEGRATION_PHASES = {
+const INTEGRATION_PHASES = {
   0: {
     label: "Existant",
     platforms: [
@@ -894,28 +894,3 @@ export const INTEGRATION_PHASES = {
   },
 } as const
 
-// === HELPERS ===
-
-export const FORMULA_BY_PLATFORM = new Map(
-  SIGNAL_FORMULAS.map((f) => [f.platformId, f])
-)
-
-export function getFormulaForPlatform(
-  platformId: string
-): SignalFormula | undefined {
-  return FORMULA_BY_PLATFORM.get(platformId)
-}
-
-export function getDomainScoringModel(
-  domainId: string
-): DomainScoringModel | undefined {
-  return DOMAIN_SCORING_MODELS[domainId]
-}
-
-export function getPlatformsByIntegrationPhase(
-  phase: number
-): string[] {
-  const phaseData =
-    INTEGRATION_PHASES[phase as keyof typeof INTEGRATION_PHASES]
-  return phaseData ? [...phaseData.platforms] : []
-}

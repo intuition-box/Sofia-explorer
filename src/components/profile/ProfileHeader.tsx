@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Button } from '../ui/button'
 import { Card } from '../ui/card'
+import '../styles/page-header.css'
 
 interface ProfileHeaderProps {
   walletAddress: string
@@ -23,7 +24,7 @@ export default function ProfileHeader({
   return (
     <Card className="p-6">
       <div className="flex items-center gap-6">
-        <Avatar className="shrink-0 border-2 border-border" style={{ width: 64, height: 64, minWidth: 64 }}>
+        <Avatar className="shrink-0 border-2 border-border ph-avatar">
           {avatar && <AvatarImage src={avatar} alt={displayName} />}
           <AvatarFallback className="text-lg">{initials}</AvatarFallback>
         </Avatar>

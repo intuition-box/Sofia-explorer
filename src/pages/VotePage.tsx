@@ -8,13 +8,14 @@ import SofiaLoader from '../components/ui/SofiaLoader'
 import { useDebateClaims } from '../hooks/useDebateClaims'
 import PageHeader from '../components/PageHeader'
 import { PAGE_COLORS } from '../config/pageColors'
+import '@/components/styles/pages.css'
 
 function formatMarketCap(value: bigint): string {
   const num = parseFloat(formatEther(value))
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'k ETH'
-  if (num >= 1) return num.toFixed(2) + ' ETH'
-  if (num >= 0.001) return num.toFixed(4) + ' ETH'
-  return '0 ETH'
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'k T'
+  if (num >= 1) return num.toFixed(2) + ' T'
+  if (num >= 0.001) return num.toFixed(4) + ' T'
+  return '0 T'
 }
 
 export default function VotePage() {
@@ -27,7 +28,7 @@ export default function VotePage() {
     return (
       <div>
         <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-        <div className="flex items-center justify-center" style={{ minHeight: 300 }}>
+        <div className="flex items-center justify-center page-loader-sm">
           <SofiaLoader size={96} />
         </div>
       </div>
@@ -38,7 +39,7 @@ export default function VotePage() {
     return (
       <div>
         <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-        <div style={{ padding: '16px 8px' }}>
+        <div className="page-content page-enter">
           <p className="text-sm text-muted-foreground">
             {error || 'No claims available.'}
           </p>
@@ -67,7 +68,7 @@ export default function VotePage() {
   return (
     <div>
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-      <div className="space-y-6" style={{ padding: '16px 8px' }}>
+      <div className="space-y-6 page-content page-enter">
 
       {/* Card navigation */}
       <div className="flex items-center justify-between">
@@ -83,7 +84,7 @@ export default function VotePage() {
       </div>
 
       {/* Claim card */}
-      <Card className="p-6" style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <Card className="vp-claim-card">
         <div className="flex items-center justify-between">
           <Badge variant="secondary">{totalPositions} positions</Badge>
           <span className="text-xs text-muted-foreground">{formatMarketCap(totalMarketCap)}</span>
@@ -146,8 +147,7 @@ export default function VotePage() {
           return (
             <Card
               key={c.id}
-              className={`p-4 cursor-pointer hover:shadow-sm transition-shadow ${i === currentIndex ? 'ring-1 ring-primary' : ''}`}
-              style={{ padding: 16 }}
+              className={`cursor-pointer hover:shadow-sm transition-shadow vp-claim-list-card ${i === currentIndex ? 'ring-1 ring-primary' : ''}`}
               onClick={() => setCurrentIndex(i)}
             >
               <div className="flex items-center justify-between">

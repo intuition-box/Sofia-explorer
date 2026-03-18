@@ -55,10 +55,6 @@ export function useDomainSelection() {
     })
   }, [])
 
-  const clearSelection = useCallback(() => {
-    setState({ selectedDomains: [], selectedNiches: [] })
-  }, [])
-
   const suggestedPlatforms = getSuggestedPlatforms(state.selectedNiches)
 
   return {
@@ -67,6 +63,5 @@ export function useDomainSelection() {
     suggestedPlatforms,
     toggleDomain,
     toggleNiche,
-    clearSelection,
   }
 }

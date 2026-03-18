@@ -1,18 +1,11 @@
 import { useState } from 'react'
-import { formatEther } from 'viem'
 import type { Address } from 'viem'
 import type { UserStats } from '../types'
 import { OG_BASE_URL } from '../config'
 import { Card } from './ui/card'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
-
-function formatTrust(wei: bigint) {
-  const num = parseFloat(formatEther(wei))
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'k T'
-  if (num >= 1) return num.toFixed(2) + ' T'
-  return num.toFixed(4) + ' T'
-}
+import { formatTrust } from '../utils/formatting'
 
 interface PersonalStatsProps {
   userStats: UserStats

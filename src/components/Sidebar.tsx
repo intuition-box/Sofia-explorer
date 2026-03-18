@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { Home, User, Trophy, Flame, Vote, BarChart3, Globe } from "lucide-react";
 import { useDomainSelection } from '../hooks/useDomainSelection'
 import { SEASON_END } from '../config'
+import './styles/sidebar.css'
 
 function getTimeLeft() {
   const diff = SEASON_END.getTime() - Date.now()
@@ -47,8 +48,8 @@ export function Sidebar() {
   ]
 
   return (
-    <aside className="fixed left-0 top-0 h-screen overflow-y-auto z-40" style={{ width: 384, background: 'var(--sidebar)', borderRight: '1px solid var(--border)', paddingTop: 85 }}>
-      <div className="p-4 space-y-6" style={{ zoom: 1.50, minHeight: 'calc(100vh - 85px)' }}>
+    <aside className="fixed left-0 top-0 h-screen overflow-y-auto z-40 sb-aside">
+      <div className="p-4 space-y-6 sb-inner" style={{ zoom: 1.25 }}>
         {/* Navigation */}
         <div>
           <h3 className="mb-3 px-2 text-sm font-medium text-foreground">
@@ -112,15 +113,15 @@ export function Sidebar() {
         )}
 
         {/* Season Countdown */}
-        <div className="rounded-lg border" style={{ padding: 12 }}>
-          <p style={{ fontSize: 11, color: 'var(--muted-foreground)' }}>Beta Season ends in</p>
-          <p style={{ fontSize: 20, fontWeight: 700, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>
+        <div className="rounded-lg border sb-countdown">
+          <p className="sb-countdown-label">Beta Season ends in</p>
+          <p className="sb-countdown-time">
             {timeLeft.days}d : {pad(timeLeft.hours)}h : {pad(timeLeft.minutes)}m
           </p>
-          <p style={{ fontSize: 11, color: 'var(--muted-foreground)', marginTop: 4 }}>
+          <p className="sb-countdown-hint">
             The top spots are being claimed right now.
           </p>
-          <Button size="sm" style={{ marginTop: 8, width: '100%', fontSize: 12 }}>
+          <Button size="sm" className="sb-countdown-btn">
             Install Sofia
           </Button>
         </div>

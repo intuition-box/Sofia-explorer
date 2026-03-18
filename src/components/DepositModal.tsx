@@ -4,6 +4,7 @@ import { Card } from './ui/card'
 import { Button } from './ui/button'
 import { useDeposit } from '../hooks/useDeposit'
 import { EXPLORER_URL } from '../config'
+import { getSideColor } from '../config/intentions'
 import SofiaLoader from './ui/SofiaLoader'
 
 const AMOUNTS = [0.01, 0.1, 0.5, 1, 5]
@@ -48,7 +49,7 @@ export default function DepositModal({ isOpen, side, termId, title, onClose }: D
   if (!isOpen) return null
 
   const isSupport = side === 'support'
-  const accentColor = isSupport ? '#22C55E' : '#EF4444'
+  const accentColor = getSideColor(side)
 
   return createPortal(
     <div

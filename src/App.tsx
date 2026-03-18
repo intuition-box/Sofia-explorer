@@ -4,19 +4,27 @@ import { Header } from './components/Header'
 import { Sidebar } from './components/Sidebar'
 import { RightSidebar } from './components/RightSidebar'
 import CartDrawer from './components/CartDrawer'
+import ProfileDrawer from './components/ProfileDrawer'
 import WeightModal from './components/WeightModal'
 import { useCart } from './hooks/useCart'
 import DashboardPage from './pages/DashboardPage'
 import LeaderboardPage from './pages/LeaderboardPage'
 import ProfilePage from './pages/ProfilePage'
+import InterestPage from './pages/InterestPage'
+import DomainSelectionPage from './pages/DomainSelectionPage'
+import NicheSelectionPage from './pages/NicheSelectionPage'
+import PlatformConnectionPage from './pages/PlatformConnectionPage'
+import DomainNicheSelectionPage from './pages/DomainNicheSelectionPage'
 import StreaksPage from './pages/StreaksPage'
 import VotePage from './pages/VotePage'
 import OAuthCallbackPage from './pages/OAuthCallbackPage'
+import './components/styles/layout.css'
 
 export default function App() {
   const location = useLocation()
   const isCallback = location.pathname === '/auth/callback'
   const cart = useCart()
+  const isProfilePage = location.pathname.startsWith('/profile')
   const [cartOpen, setCartOpen] = useState(false)
   const [weightModalOpen, setWeightModalOpen] = useState(false)
 
@@ -37,7 +45,7 @@ export default function App() {
     <div className="min-h-screen bg-background">
       <Header onCartClick={() => setCartOpen(o => !o)} />
       <Sidebar />
-      <RightSidebar />
+      <RightSidebar hidden={isProfilePage || cartOpen} />
 
       <CartDrawer
         items={cart.items}
@@ -48,6 +56,11 @@ export default function App() {
         onSubmit={handleCartSubmit}
       />
 
+      <ProfileDrawer
+        isOpen={isProfilePage && !cartOpen}
+        onClose={() => {}}
+      />
+
       <WeightModal
         isOpen={weightModalOpen}
         items={cart.items}
@@ -55,11 +68,16 @@ export default function App() {
         onSuccess={handleDepositSuccess}
       />
 
-      <main style={{ marginLeft: 262, marginRight: 262, paddingTop: 56, paddingBottom: 48, paddingLeft: 12, paddingRight: 12, zoom: 1.50 }}>
+      <main className={isProfilePage ? 'main-content main-content--profile' : 'main-content'} style={{ zoom: 1.25 }}>
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile/interest/:domainId" element={<InterestPage />} />
+          <Route path="/profile/interest/:domainId/platforms" element={<PlatformConnectionPage />} />
+          <Route path="/profile/interest/:domainId/niches" element={<DomainNicheSelectionPage />} />
+          <Route path="/profile/domains" element={<DomainSelectionPage />} />
+          <Route path="/profile/niches" element={<NicheSelectionPage />} />
           <Route path="/streaks" element={<StreaksPage />} />
           <Route path="/vote" element={<VotePage />} />
           <Route path="/auth/callback" element={<OAuthCallbackPage />} />

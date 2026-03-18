@@ -1,86 +1,93 @@
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { usePrivy, useLogin } from '@privy-io/react-auth'
-import { useEnsNames } from '../hooks/useEnsNames'
-import { useUserProfile } from '../hooks/useUserProfile'
-import { useDiscoveryScore } from '../hooks/useDiscoveryScore'
 import { useDomainSelection } from '../hooks/useDomainSelection'
 import { usePlatformConnections } from '../hooks/usePlatformConnections'
 import { useReputationScores } from '../hooks/useReputationScores'
-import { useShareProfile } from '../hooks/useShareProfile'
-import OverviewTab from '../components/profile/OverviewTab'
-import DomainSelector from '../components/profile/DomainSelector'
-import NicheSelector from '../components/profile/NicheSelector'
-import PlatformGrid from '../components/profile/PlatformGrid'
-import ScoreView from '../components/profile/ScoreView'
-import ShareProfileModal from '../components/profile/ShareProfileModal'
-import ProfileHeader from '../components/profile/ProfileHeader'
+import { useUserActivity } from '../hooks/useUserActivity'
+import { useTopClaims } from '../hooks/useTopClaims'
+import { useCart } from '../hooks/useCart'
+import type { CartItem } from '../hooks/useCart'
+import LastActivitySection from '../components/profile/LastActivitySection'
+import InterestsGrid from '../components/profile/InterestsGrid'
+import TopClaimsSection from '../components/profile/TopClaimsSection'
+import PredicatePicker from '../components/PredicatePicker'
+import type { CircleItem } from '../services/circleService'
+import { INTENTION_COLORS } from '../config/intentions'
 import { Card } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Wallet } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import { PAGE_COLORS } from '../config/pageColors'
-
-type View = 'overview' | 'interests' | 'niches' | 'platforms' | 'scores'
+import '@/components/styles/pages.css'
+import '@/components/styles/profile-sections.css'
 
 export default function ProfilePage() {
   const { authenticated, user } = usePrivy()
   const { login } = useLogin()
-  const [searchParams] = useSearchParams()
-  const [view, setView] = useState<View>('overview')
-
-  // Read ?view= from URL (e.g. /profile?view=scores)
-  useEffect(() => {
-    const urlView = searchParams.get('view')
-    if (urlView && ['overview', 'interests', 'niches', 'platforms', 'scores'].includes(urlView)) {
-      setView(urlView as View)
-    }
-  }, [searchParams])
-
   const address = user?.wallet?.address ?? ''
-  const { getDisplay, getAvatar } = useEnsNames(address ? [address as `0x${string}`] : [])
-  const { profile } = useUserProfile(address || undefined)
-  const { stats: discoveryStats } = useDiscoveryScore(address || undefined)
-
-  const {
-    selectedDomains,
-    selectedNiches,
-    toggleDomain,
-    toggleNiche,
-  } = useDomainSelection()
-
-  const {
-    getStatus,
-    getConnection,
-    connect,
-    disconnect,
-    startChallenge,
-    verifyChallengeCode,
-    connectedCount,
-  } = usePlatformConnections()
-
+  const { selectedDomains, selectedNiches, toggleDomain } = useDomainSelection()
+  const navigate = useNavigate()
+  const { getStatus } = usePlatformConnections()
   const scores = useReputationScores(getStatus, selectedDomains, selectedNiches)
   const domainScores = scores?.domains ?? []
+  const { items: activityItems, loading: activityLoading } = useUserActivity(address || undefined)
+  const { claims: topClaims, loading: claimsLoading } = useTopClaims(activityItems, address || undefined)
+  const cart = useCart()
+  const [predicatePicker, setPredicatePicker] = useState<{ side: 'support' | 'oppose'; item: CircleItem } | null>(null)
 
-  const {
-    isModalOpen,
-    openShareModal,
-    closeShareModal,
-    shareUrl,
-    ogImageUrl,
-    isLoading: shareLoading,
-    error: shareError,
-    handleCopyLink,
-    handleShareOnX,
-    copied,
-  } = useShareProfile({
-    walletAddress: address,
-    domainScores,
-    connectedCount,
-    totalCertifications: 0,
-  })
+  /** Called when user clicks Add Value on a card — same logic as DashboardPage Support */
+  const handleAddValue = useCallback((item: CircleItem) => {
+    if (!authenticated) return
+    const side: 'support' | 'oppose' = 'support'
 
-  // Not authenticated — show connect prompt
+    const available = item.intentions.filter((intent) => {
+      const vault = item.intentionVaults[intent]
+      if (!vault) return false
+      return !!vault.termId
+    })
+
+    if (available.length === 0) return
+
+    if (available.length === 1) {
+      const intent = available[0]
+      const vault = item.intentionVaults[intent]
+      const color = INTENTION_COLORS[intent] ?? '#888'
+      cart.addItem({
+        id: `${vault.termId}-${side}`,
+        side,
+        termId: vault.termId,
+        intention: intent,
+        title: item.title,
+        favicon: item.favicon,
+        intentionColor: color,
+      })
+    } else {
+      setPredicatePicker({ side, item })
+    }
+  }, [authenticated, cart])
+
+  /** Called from PredicatePicker when user confirms selection */
+  const handlePredicateConfirm = useCallback((selectedIntentions: string[]) => {
+    if (!predicatePicker) return
+    const { side, item } = predicatePicker
+    const newItems: CartItem[] = selectedIntentions.map((intent) => {
+      const vault = item.intentionVaults[intent]
+      const color = INTENTION_COLORS[intent] ?? '#888'
+      return {
+        id: `${vault.termId}-${side}`,
+        side,
+        termId: side === 'support' ? vault.termId : vault.counterTermId,
+        intention: intent,
+        title: item.title,
+        favicon: item.favicon,
+        intentionColor: color,
+      }
+    })
+    cart.addItems(newItems)
+    setPredicatePicker(null)
+  }, [predicatePicker, cart])
+
   if (!authenticated) {
     return (
       <Card className="p-8 text-center">
@@ -97,108 +104,61 @@ export default function ProfilePage() {
     )
   }
 
-  const stats = [
-    { label: 'Domains', value: String(selectedDomains.length) },
-    { label: 'Niches', value: String(selectedNiches.length) },
-    { label: 'Platforms', value: String(connectedCount) },
-  ]
-
-  const handleNavigate = (tab: string) => {
-    if (tab === 'domains') setView('interests')
-    else if (tab === 'niches') setView('niches')
-    else if (tab === 'platforms') setView('platforms')
-    else if (tab === 'scores') setView('scores')
-    else setView('overview')
-  }
-
-  const pcKey = view === 'scores' ? '/profile/scores' : view === 'platforms' ? '/profile/platforms' : '/profile'
-  const pc = PAGE_COLORS[pcKey]
+  const pc = PAGE_COLORS['/profile']
 
   return (
     <div>
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-      <div className="space-y-6" style={{ padding: '16px 8px' }}>
+      <div className="pp-sections page-content page-enter">
 
-      <ProfileHeader
-        walletAddress={address}
-        ensName={address ? (() => { const d = getDisplay(address as `0x${string}`); return d.includes('...') ? undefined : d })() : undefined}
-        avatar={address ? getAvatar(address as `0x${string}`) : undefined}
-        socialLinked={connectedCount > 0}
-        signals={discoveryStats?.totalCertifications ?? 0}
-        onShare={openShareModal}
-        sharing={shareLoading}
-      />
+        {/* Top Claims */}
+        {(activityLoading || claimsLoading || topClaims.length > 0) && (
+          <section className="pp-section">
+            <h3 className="pp-section-title">Top Claims</h3>
+            <TopClaimsSection
+              claims={topClaims}
+              loading={activityLoading || claimsLoading}
+              onAddValue={handleAddValue}
+            />
+          </section>
+        )}
 
-      {view === 'overview' && (
-        <OverviewTab
-          selectedDomains={selectedDomains}
-          selectedNiches={selectedNiches}
-          getStatus={getStatus}
-          domainScores={domainScores}
-          onNavigate={handleNavigate}
-          onToggleNiche={toggleNiche}
-        />
-      )}
+        {/* Last Activity */}
+        <section className="pp-section">
+          <h3 className="pp-section-title">Last Activity</h3>
+          <LastActivitySection
+            items={activityItems}
+            loading={activityLoading}
+            walletAddress={address}
+            onAddValue={handleAddValue}
+          />
+        </section>
 
-      {view === 'interests' && (
-        <DomainSelector
-          selectedDomains={selectedDomains}
-          onToggle={toggleDomain}
-          onContinue={() => setView('niches')}
-          onBack={() => setView('overview')}
-        />
-      )}
+        {/* Interests */}
+        <section className="pp-section">
+          <h3 className="pp-section-title">My Interests</h3>
+          <InterestsGrid
+            selectedDomains={selectedDomains}
+            selectedNiches={selectedNiches}
+            domainScores={domainScores}
+            onAddDomain={() => navigate('/profile/domains')}
+            onRemoveDomain={toggleDomain}
+          />
+        </section>
 
-      {view === 'niches' && (
-        <NicheSelector
-          selectedDomains={selectedDomains}
-          selectedNiches={selectedNiches}
-          onToggleNiche={toggleNiche}
-          onBack={() => setView('interests')}
-          onContinue={() => setView('overview')}
-        />
-      )}
-
-      {view === 'platforms' && (
-        <PlatformGrid
-          selectedNiches={selectedNiches}
-          getStatus={getStatus}
-          getConnection={getConnection}
-          onConnect={connect}
-          onDisconnect={disconnect}
-          onStartChallenge={startChallenge}
-          onVerifyChallenge={verifyChallengeCode}
-          onBack={() => setView('overview')}
-        />
-      )}
-
-      {view === 'scores' && (
-        <ScoreView
-          selectedDomains={selectedDomains}
-          selectedNiches={selectedNiches}
-          getStatus={getStatus}
-          badges={discoveryStats ? {
-            pioneer: discoveryStats.pioneerCount,
-            explorer: discoveryStats.explorerCount,
-            contributor: discoveryStats.contributorCount,
-            trusted: discoveryStats.trustedCount,
-          } : undefined}
-          onBack={() => setView('overview')}
-        />
-      )}
-
-      <ShareProfileModal
-        isOpen={isModalOpen}
-        onClose={closeShareModal}
-        shareUrl={shareUrl}
-        ogImageUrl={ogImageUrl}
-        isLoading={shareLoading}
-        error={shareError}
-        onCopyLink={handleCopyLink}
-        onShareOnX={handleShareOnX}
-        copied={copied}
-      />
       </div>
+
+      {/* Predicate Picker modal */}
+      {predicatePicker && (
+        <PredicatePicker
+          isOpen
+          side={predicatePicker.side}
+          item={predicatePicker.item}
+          onConfirm={handlePredicateConfirm}
+          onClose={() => setPredicatePicker(null)}
+        />
+      )}
+
     </div>
   )
 }
