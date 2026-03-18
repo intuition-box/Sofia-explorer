@@ -60,7 +60,7 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
               <img src={theme === 'dark' ? '/logo.png' : '/logo_invert.png'} alt="Cart" className="h-5 w-5" />
             </Button>
             {cart.count > 0 && (
-              <span className="min-w-[14px] h-[14px] rounded-full bg-red-500 text-white text-[8px] font-bold flex items-center justify-center leading-none flex-shrink-0 px-[3px] -ml-1">
+              <span style={{ minWidth: 16, height: 16, borderRadius: 9999, background: '#EF4444', color: '#fff', fontSize: 9, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, flexShrink: 0, padding: '0 4px', marginLeft: -6 }}>
                 {cart.count}
               </span>
             )}
