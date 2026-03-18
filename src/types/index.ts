@@ -97,32 +97,6 @@ export interface LeaderboardProps {
   connectedAddress?: Address | null
 }
 
-export interface GrainientProps {
-  timeSpeed?: number
-  colorBalance?: number
-  warpStrength?: number
-  warpFrequency?: number
-  warpSpeed?: number
-  warpAmplitude?: number
-  blendAngle?: number
-  blendSoftness?: number
-  rotationAmount?: number
-  noiseScale?: number
-  grainAmount?: number
-  grainScale?: number
-  grainAnimated?: boolean
-  contrast?: number
-  gamma?: number
-  saturation?: number
-  centerX?: number
-  centerY?: number
-  zoom?: number
-  color1?: string
-  color2?: string
-  color3?: string
-  className?: string
-}
-
 // ── User Stats ──
 
 export interface UserStats {
@@ -143,7 +117,3 @@ export interface RpcQueueConfig {
   maxRetries?: number
 }
 
-export interface GraphQLResponse<T> {
-  data?: T
-  errors?: Array<{ message: string }>
-}
