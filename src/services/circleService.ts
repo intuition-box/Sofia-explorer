@@ -16,7 +16,7 @@ export interface CircleItem {
   certifierAddress: string
   intentions: string[]
   timestamp: string
-  termId?: string
+  intentionVaults: Record<string, { termId: string; counterTermId: string }>
 }
 
 const PREDICATE_TO_INTENTION: Record<string, string> = {
@@ -161,6 +161,7 @@ export async function fetchCircleFeed(
     const certifier = evt.deposit?.receiver?.label || evt.redemption?.sender?.label || certifierAddress
 
     const termId = triple.term_id || ''
+    const counterTermId = triple.counter_term_id || ''
 
     // Handle "has tag" events as quest badges
     if (isTag) {
@@ -168,6 +169,7 @@ export async function fetchCircleFeed(
       const quest = QUEST_BADGES[tagName]
       const displayName = quest?.name ?? cleanLabel(objectLabel)
       const category = quest?.category ?? 'milestone'
+      const questIntention = `quest:${category}`
 
       const key = `${certifierAddress}-${objectLabel}`
       if (!groupedMap.has(key)) {
@@ -179,9 +181,9 @@ export async function fetchCircleFeed(
           favicon: '',
           certifier,
           certifierAddress,
-          intentions: [`quest:${category}`],
+          intentions: [questIntention],
           timestamp: evt.created_at || '',
-          termId,
+          intentionVaults: { [questIntention]: { termId, counterTermId } },
         })
       }
       continue
@@ -203,7 +205,12 @@ export async function fetchCircleFeed(
       if (intention && !existing.intentions.includes(intention)) {
         existing.intentions.push(intention)
       }
+      if (intention) {
+        existing.intentionVaults[intention] = { termId, counterTermId }
+      }
     } else {
+      const intentionVaults: Record<string, { termId: string; counterTermId: string }> = {}
+      if (intention) intentionVaults[intention] = { termId, counterTermId }
       groupedMap.set(key, {
         id: evt.id,
         title,
@@ -214,7 +221,7 @@ export async function fetchCircleFeed(
         certifierAddress,
         intentions: intention ? [intention] : [],
         timestamp: evt.created_at || '',
-        termId,
+        intentionVaults,
       })
     }
   }

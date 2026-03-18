@@ -18,6 +18,7 @@ query GetAllActivity($proxy: String!, $limit: Int!, $offset: Int!) {
     }
     triple {
       term_id
+      counter_term_id
       predicate { label term_id }
       object {
         label

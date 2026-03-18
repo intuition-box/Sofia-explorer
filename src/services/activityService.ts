@@ -107,6 +107,7 @@ export async function fetchAllActivity(
     const predicateLabel = triple.predicate?.label || ''
     const isTag = predicateLabel.toLowerCase() === 'has tag'
     const termId = triple.term_id || ''
+    const counterTermId = triple.counter_term_id || ''
 
     const receiver = evt.deposit?.receiver
     const certifierAddress = receiver?.id || ''
@@ -118,6 +119,7 @@ export async function fetchAllActivity(
       const quest = QUEST_BADGES[tagName]
       const displayName = quest?.name ?? cleanTagLabel(objectLabel)
       const category = quest?.category ?? 'milestone'
+      const questIntention = `quest:${category}`
 
       const key = `${certifierAddress}-${objectLabel}`
       if (!groupedMap.has(key)) {
@@ -129,9 +131,9 @@ export async function fetchAllActivity(
           favicon: '',
           certifier,
           certifierAddress,
-          intentions: [`quest:${category}`],
+          intentions: [questIntention],
           timestamp: evt.created_at || '',
-          termId,
+          intentionVaults: { [questIntention]: { termId, counterTermId } },
         })
       }
       continue
@@ -153,7 +155,12 @@ export async function fetchAllActivity(
       if (intention && !existing.intentions.includes(intention)) {
         existing.intentions.push(intention)
       }
+      if (intention) {
+        existing.intentionVaults[intention] = { termId, counterTermId }
+      }
     } else {
+      const intentionVaults: Record<string, { termId: string; counterTermId: string }> = {}
+      if (intention) intentionVaults[intention] = { termId, counterTermId }
       groupedMap.set(key, {
         id: evt.id,
         title,
@@ -164,7 +171,7 @@ export async function fetchAllActivity(
         certifierAddress,
         intentions: intention ? [intention] : [],
         timestamp: evt.created_at || '',
-        termId,
+        intentionVaults,
       })
     }
   }
