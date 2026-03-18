@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { usePrivy } from '@privy-io/react-auth'
 import { formatEther } from 'viem'
-import { DOMAIN_BY_ID } from '@/config/taxonomy'
+import { DOMAIN_BY_ID, getNichesForDomain } from '@/config/taxonomy'
 import { getPlatformsByDomain } from '@/config/platformCatalog'
 import { useDomainSelection } from '@/hooks/useDomainSelection'
 import { usePlatformConnections } from '@/hooks/usePlatformConnections'
@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, ExternalLink, ThumbsUp, ThumbsDown, Plus } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
+import NicheDetailList from '@/components/profile/NicheDetailList'
 import SofiaLoader from '@/components/ui/SofiaLoader'
 import '@/components/styles/interest-page.css'
 
@@ -41,7 +42,7 @@ export default function InterestPage() {
   const { authenticated } = usePrivy()
   const domain = domainId ? DOMAIN_BY_ID.get(domainId) : undefined
 
-  const { selectedDomains, selectedNiches } = useDomainSelection()
+  const { selectedDomains, selectedNiches, toggleNiche } = useDomainSelection()
   const { getStatus } = usePlatformConnections()
   const scores = useReputationScores(getStatus, selectedDomains, selectedNiches)
   const domainScore = scores?.domains.find((d) => d.domainId === domainId)
@@ -118,6 +119,18 @@ export default function InterestPage() {
           </div>
         </section>
 
+        {/* Niches */}
+        <section className="ip-section">
+          <h3 className="ip-section-title">Niches ({nicheCount})</h3>
+          <NicheDetailList
+            domainId={domainId!}
+            domainColor={color}
+            selectedNiches={selectedNiches}
+            nicheScores={domainScore?.topNiches ?? []}
+            onToggleNiche={toggleNiche}
+          />
+        </section>
+
         {/* Trending */}
         <section className="ip-section">
           <h3 className="ip-section-title">Trending</h3>
@@ -165,7 +178,7 @@ export default function InterestPage() {
           <h3 className="ip-section-title">Platforms ({connectedPlatforms.length}/{platforms.length})</h3>
           <div className="ip-platforms-grid">
             {/* Add platform card */}
-            <Card className="ip-platform-add" onClick={() => navigate('/profile/platforms')}>
+            <Card className="ip-platform-add" onClick={() => navigate(`/profile/interest/${domainId}/platforms`)}>
               <Plus className="ip-platform-add-icon" />
               <span className="ip-platform-add-label">Connect</span>
             </Card>

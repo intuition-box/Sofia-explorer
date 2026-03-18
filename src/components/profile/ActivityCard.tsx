@@ -71,7 +71,7 @@ export default function ActivityCard({ item, walletAddress, onAddValue }: Activi
           return (
             <IntentionTooltip key={intent} termId={item.intentionVaults[intent]?.termId} color={color}>
               <span className="ac-badge" style={intentionBadgeStyle(color)}>
-                {verb ? `${verb} ` : ''}{intent.toLowerCase()}
+                {verb ? `${verb} ` : ''}{intent}
               </span>
             </IntentionTooltip>
           )

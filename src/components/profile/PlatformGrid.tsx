@@ -19,6 +19,7 @@ interface PlatformGridProps {
   onStartChallenge: (platformId: string, username: string) => Promise<void>
   onVerifyChallenge: (platformId: string) => Promise<void>
   onBack: () => void
+  platforms?: typeof PLATFORM_CATALOG
 }
 
 const STATUS_LABELS: Record<ConnectionStatus, string> = {
@@ -39,11 +40,13 @@ export default function PlatformGrid({
   onStartChallenge,
   onVerifyChallenge,
   onBack,
+  platforms: platformsProp,
 }: PlatformGridProps) {
   const [search, setSearch] = useState('')
   const suggested = getSuggestedPlatforms(selectedNiches)
+  const catalog = platformsProp ?? PLATFORM_CATALOG
 
-  const filtered = PLATFORM_CATALOG.filter(
+  const filtered = catalog.filter(
     (p) =>
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.id.toLowerCase().includes(search.toLowerCase()),
@@ -76,7 +79,7 @@ export default function PlatformGrid({
         <Button variant="ghost" size="icon" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <h2 className="text-lg font-bold flex-1">Platforms ({PLATFORM_CATALOG.length})</h2>
+        <h2 className="text-lg font-bold flex-1">Platforms ({catalog.length})</h2>
       </div>
 
       <div className="relative">

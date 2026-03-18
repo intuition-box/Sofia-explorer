@@ -13,6 +13,8 @@ import ProfilePage from './pages/ProfilePage'
 import InterestPage from './pages/InterestPage'
 import DomainSelectionPage from './pages/DomainSelectionPage'
 import NicheSelectionPage from './pages/NicheSelectionPage'
+import PlatformConnectionPage from './pages/PlatformConnectionPage'
+import DomainNicheSelectionPage from './pages/DomainNicheSelectionPage'
 import StreaksPage from './pages/StreaksPage'
 import VotePage from './pages/VotePage'
 import OAuthCallbackPage from './pages/OAuthCallbackPage'
@@ -72,6 +74,8 @@ export default function App() {
           <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/profile/interest/:domainId" element={<InterestPage />} />
+          <Route path="/profile/interest/:domainId/platforms" element={<PlatformConnectionPage />} />
+          <Route path="/profile/interest/:domainId/niches" element={<DomainNicheSelectionPage />} />
           <Route path="/profile/domains" element={<DomainSelectionPage />} />
           <Route path="/profile/niches" element={<NicheSelectionPage />} />
           <Route path="/streaks" element={<StreaksPage />} />

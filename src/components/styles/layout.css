@@ -4,9 +4,12 @@
 
 /* ── RightSidebar ── */
 .rs-aside {
+  width: 320px;
   background: var(--sidebar);
   border-left: 1px solid var(--border);
+  padding-top: 71px;
   transition: opacity 0.35s ease, transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100vh;
 }
 .rs-aside.rs-hidden {
   opacity: 0;

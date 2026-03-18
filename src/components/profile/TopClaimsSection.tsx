@@ -60,7 +60,7 @@ export default function TopClaimsSection({ claims, loading, onAddValue }: TopCla
             <div className="tc-actions">
               <IntentionTooltip termId={claim.termId} color={color}>
                 <span className="tc-badge" style={intentionBadgeStyle(color)}>
-                  {claim.intention.toLowerCase()}
+                  {claim.intention}
                 </span>
               </IntentionTooltip>
               <Button
