@@ -30,7 +30,8 @@ function formatMarketCap(value: bigint): string {
 export default function InterestPage() {
   const { domainId } = useParams<{ domainId: string }>()
   const navigate = useNavigate()
-  const { authenticated } = usePrivy()
+  const { authenticated, user } = usePrivy()
+  const walletAddress = user?.wallet?.address
   const domain = domainId ? DOMAIN_BY_ID.get(domainId) : undefined
 
   const { selectedDomains, selectedNiches, toggleNiche } = useDomainSelection()
@@ -51,7 +52,7 @@ export default function InterestPage() {
 
   /** Add Value on a claim — add to cart as support */
   const handleAddValue = useCallback((termId: string, title: string) => {
-    if (!authenticated) return
+    if (!authenticated || !walletAddress) return
     cart.addItem({
       id: `${termId}-support`,
       side: 'support',

@@ -204,22 +204,28 @@ export default function PositionBoardDialog({
 
             {/* Support / Oppose actions */}
             <div className="pbd-actions">
-              <Button
-                className="pbd-btn-support"
-                disabled={userSide === 'oppose'}
-                onClick={() => handleDeposit('support')}
-              >
-                <TrendingUp className="h-4 w-4" />
-                {inCartSupport ? 'Support added' : hasOnChainSupport ? 'Supported' : 'Support'}
-              </Button>
-              <Button
-                className="pbd-btn-oppose"
-                disabled={!counterTermId || userSide === 'support'}
-                onClick={() => handleDeposit('oppose')}
-              >
-                <TrendingDown className="h-4 w-4" />
-                {inCartOppose ? 'Oppose added' : 'Oppose'}
-              </Button>
+              {!walletAddress ? (
+                <div className="pbd-no-wallet">Connect a wallet to interact</div>
+              ) : (
+                <>
+                  <Button
+                    className="pbd-btn-support"
+                    disabled={userSide === 'oppose'}
+                    onClick={() => handleDeposit('support')}
+                  >
+                    <TrendingUp className="h-4 w-4" />
+                    {inCartSupport ? 'Support added' : hasOnChainSupport ? 'Supported' : 'Support'}
+                  </Button>
+                  <Button
+                    className="pbd-btn-oppose"
+                    disabled={!counterTermId || userSide === 'support'}
+                    onClick={() => handleDeposit('oppose')}
+                  >
+                    <TrendingDown className="h-4 w-4" />
+                    {inCartOppose ? 'Oppose added' : 'Oppose'}
+                  </Button>
+                </>
+              )}
             </div>
           </>
         )}

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { usePrivy, useLogin } from '@privy-io/react-auth'
+import { usePrivy, useLogin, useLinkAccount } from '@privy-io/react-auth'
 import { useDomainSelection } from '../hooks/useDomainSelection'
 import { usePlatformConnections } from '../hooks/usePlatformConnections'
 import { useReputationScores } from '../hooks/useReputationScores'
@@ -19,6 +19,7 @@ import '@/components/styles/profile-sections.css'
 export default function ProfilePage() {
   const { authenticated, user } = usePrivy()
   const { login } = useLogin()
+  const { linkWallet } = useLinkAccount({ onSuccess: () => window.location.reload() })
   const address = user?.wallet?.address ?? ''
   const { selectedDomains, selectedNiches, toggleDomain } = useDomainSelection()
   const navigate = useNavigate()
@@ -49,6 +50,22 @@ export default function ProfilePage() {
   return (
     <div>
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
+
+      {/* Link wallet banner */}
+      {!address && (
+        <Card className="pp-wallet-banner">
+          <Wallet className="h-5 w-5 text-muted-foreground" />
+          <div className="pp-wallet-banner-text">
+            <p className="text-sm font-semibold">Read-only mode</p>
+            <p className="text-xs text-muted-foreground">Link a wallet to interact, support claims, and build your reputation.</p>
+          </div>
+          <Button size="sm" onClick={() => linkWallet()}>
+            <Wallet className="h-3.5 w-3.5 mr-1" />
+            Link Wallet
+          </Button>
+        </Card>
+      )}
+
       <div className="pp-sections page-content page-enter">
 
         {/* Top Claims */}

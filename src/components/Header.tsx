@@ -1,4 +1,4 @@
-import { usePrivy, useLogin, useLogout } from '@privy-io/react-auth'
+import { usePrivy, useLogin, useLogout, useLinkAccount } from '@privy-io/react-auth'
 import { Link, useLocation } from 'react-router-dom'
 import { Button } from "./ui/button";
 import { Search, Bell, Home, Wallet, LogOut, Sun, Moon, User } from "lucide-react";
@@ -18,6 +18,7 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
   const { ready, authenticated, user } = usePrivy()
   const { login } = useLogin()
   const { logout } = useLogout()
+  const { linkWallet } = useLinkAccount({ onSuccess: () => window.location.reload() })
   const location = useLocation()
   const { theme, toggleTheme } = useTheme()
   const cart = useCart()
@@ -123,6 +124,12 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
                   </div>
                 </div>
                 <div className="hdr-divider" />
+                {!walletAddress && (
+                  <DropdownMenuItem onClick={() => linkWallet()} className="hdr-menu-item">
+                    <Wallet className="mr-2 h-4 w-4" />
+                    Link Wallet
+                  </DropdownMenuItem>
+                )}
                 <Link to="/profile">
                   <DropdownMenuItem className="hdr-menu-item">My Profile</DropdownMenuItem>
                 </Link>

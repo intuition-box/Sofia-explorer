@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
+import { usePrivy } from '@privy-io/react-auth'
 import { Header } from './components/Header'
 import { Sidebar } from './components/Sidebar'
 import { RightSidebar } from './components/RightSidebar'
@@ -21,6 +22,13 @@ import StreaksPage from './pages/StreaksPage'
 import VotePage from './pages/VotePage'
 import OAuthCallbackPage from './pages/OAuthCallbackPage'
 import './components/styles/layout.css'
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { ready, authenticated } = usePrivy()
+  if (!ready) return null
+  if (!authenticated) return <Navigate to="/" replace />
+  return <>{children}</>
+}
 
 export default function App() {
   const location = useLocation()
@@ -76,19 +84,22 @@ export default function App() {
 
       <main className={isProfilePage ? 'main-content main-content--profile' : 'main-content'} style={{ zoom: 1.25 }}>
         <Routes>
+          {/* Public routes */}
           <Route path="/" element={<DashboardPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/profile/interest/:domainId" element={<InterestPage />} />
-          <Route path="/profile/interest/:domainId/platforms" element={<PlatformConnectionPage />} />
-          <Route path="/profile/interest/:domainId/niches" element={<DomainNicheSelectionPage />} />
-          <Route path="/profile/domains" element={<DomainSelectionPage />} />
-          <Route path="/profile/niches" element={<NicheSelectionPage />} />
-          <Route path="/platforms" element={<AllPlatformsPage />} />
-          <Route path="/scores" element={<ScoresPage />} />
-          <Route path="/streaks" element={<StreaksPage />} />
-          <Route path="/vote" element={<VotePage />} />
           <Route path="/auth/callback" element={<OAuthCallbackPage />} />
+
+          {/* Protected routes */}
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/profile/interest/:domainId" element={<ProtectedRoute><InterestPage /></ProtectedRoute>} />
+          <Route path="/profile/interest/:domainId/platforms" element={<ProtectedRoute><PlatformConnectionPage /></ProtectedRoute>} />
+          <Route path="/profile/interest/:domainId/niches" element={<ProtectedRoute><DomainNicheSelectionPage /></ProtectedRoute>} />
+          <Route path="/profile/domains" element={<ProtectedRoute><DomainSelectionPage /></ProtectedRoute>} />
+          <Route path="/profile/niches" element={<ProtectedRoute><NicheSelectionPage /></ProtectedRoute>} />
+          <Route path="/platforms" element={<ProtectedRoute><AllPlatformsPage /></ProtectedRoute>} />
+          <Route path="/scores" element={<ProtectedRoute><ScoresPage /></ProtectedRoute>} />
+          <Route path="/streaks" element={<ProtectedRoute><StreaksPage /></ProtectedRoute>} />
+          <Route path="/vote" element={<ProtectedRoute><VotePage /></ProtectedRoute>} />
         </Routes>
       </main>
     </div>
