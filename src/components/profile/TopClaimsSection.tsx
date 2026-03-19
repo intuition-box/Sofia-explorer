@@ -1,6 +1,6 @@
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
-import { Share2, Users } from 'lucide-react'
+import { Share2, Users, TrendingUp, TrendingDown } from 'lucide-react'
 import type { TopClaim } from '@/hooks/useTopClaims'
 import { INTENTION_COLORS, intentionBadgeStyle } from '@/config/intentions'
 import { formatEth } from '@/services/vaultTooltipService'
@@ -8,7 +8,6 @@ import IntentionTooltip from '../IntentionTooltip'
 import PositionBoardDialog from './PositionBoardDialog'
 import { TopClaimSkeleton } from './ProfileSkeletons'
 import { useCallback, useState } from 'react'
-import { useClaimPositions } from '@/hooks/useClaimPositions'
 
 interface TopClaimsSectionProps {
   claims: TopClaim[]
@@ -21,7 +20,6 @@ function TopClaimCard({ claim, walletAddress }: { claim: TopClaim; walletAddress
   const totalMcap = formatEth(String(claim.totalMarketCap))
   const posCount = claim.stats.supportCount + claim.stats.opposeCount
   const [boardOpen, setBoardOpen] = useState(false)
-  const { positions } = useClaimPositions(claim.termId, 3)
   const counterTermId = claim.item.intentionVaults[claim.intention]?.counterTermId
 
   const handleShare = useCallback(() => {
@@ -32,59 +30,56 @@ function TopClaimCard({ claim, walletAddress }: { claim: TopClaim; walletAddress
   }, [claim])
 
   return (
-    <Card className="tc-card">
-      <div className="tc-header">
-        <img
-          src={claim.item.favicon}
-          alt=""
-          className="tc-favicon"
-          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-        />
-        <span className="tc-title">{claim.item.title}</span>
-      </div>
-
-      <div className="tc-meta">
-        <span className="tc-stat">{totalMcap} T</span>
-        <span className="tc-stat"><Users className="h-3 w-3" /> {posCount}</span>
-      </div>
-
-      {/* Mini position board — click to open full leaderboard */}
-      {positions.length > 0 && (
-        <div
-          className="ac-positions ac-positions--clickable"
-          onClick={() => setBoardOpen(true)}
-          title="View full leaderboard"
-        >
-          {positions.map((pos, i) => {
-            const isYou = walletAddress && pos.accountId.toLowerCase() === walletAddress.toLowerCase()
-            return (
-              <div key={pos.accountId} className={`ac-pos-row ${isYou ? 'ac-pos-row--you' : ''}`}>
-                <span className="ac-pos-rank">#{i + 1}</span>
-                <span className="ac-pos-label">{pos.label}</span>
-                {isYou && <span className="ac-pos-you">You</span>}
-              </div>
-            )
-          })}
+    <>
+      <Card className="tc-card" style={{ cursor: 'pointer' }} onClick={() => setBoardOpen(true)}>
+        <div className="tc-header">
+          <img
+            src={claim.item.favicon}
+            alt=""
+            className="tc-favicon"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+          />
+          <span className="tc-title">{claim.item.title}</span>
         </div>
-      )}
 
-      <div className="tc-actions">
-        <IntentionTooltip termId={claim.termId} color={color}>
-          <span className="tc-badge" style={intentionBadgeStyle(color)}>
-            {claim.intention}
-          </span>
-        </IntentionTooltip>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="ac-btn-icon"
-          onClick={handleShare}
-        >
-          <Share2 className="h-3.5 w-3.5" />
-        </Button>
-      </div>
+        <div className="tc-stats-row">
+          <div className="tc-stat-block">
+            <span className="tc-stat-value">{totalMcap} T</span>
+          </div>
+          <div className="tc-stat-block">
+            <Users className="h-3 w-3" />
+            <span className="tc-stat-value">{posCount}</span>
+          </div>
+          {claim.stats.userPnlPct !== null && (
+            <div className={`tc-pnl ${claim.stats.userPnlPct >= 0 ? 'tc-pnl--up' : 'tc-pnl--down'}`}>
+              {claim.stats.userPnlPct >= 0
+                ? <TrendingUp className="h-3 w-3" />
+                : <TrendingDown className="h-3 w-3" />}
+              <span className="tc-pnl-value">
+                {claim.stats.userPnlPct >= 0 ? '+' : ''}{claim.stats.userPnlPct}%
+              </span>
+            </div>
+          )}
+        </div>
 
-      {/* Full position board dialog */}
+        <div className="tc-actions">
+          <IntentionTooltip termId={claim.termId} color={color}>
+            <span className="tc-badge" style={intentionBadgeStyle(color)}>
+              {claim.intention}
+            </span>
+          </IntentionTooltip>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ac-btn-icon"
+            onClick={(e) => { e.stopPropagation(); handleShare() }}
+          >
+            <Share2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </Card>
+
+      {/* Dialog — data prefetched on mount */}
       <PositionBoardDialog
         open={boardOpen}
         onOpenChange={setBoardOpen}
@@ -96,7 +91,7 @@ function TopClaimCard({ claim, walletAddress }: { claim: TopClaim; walletAddress
         intentionColor={color}
         walletAddress={walletAddress}
       />
-    </Card>
+    </>
   )
 }
 

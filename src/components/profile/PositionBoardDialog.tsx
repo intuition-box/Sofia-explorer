@@ -38,17 +38,13 @@ export default function PositionBoardDialog({
   intentionColor,
   walletAddress,
 }: PositionBoardDialogProps) {
-  const { positions, loading: posLoading } = useClaimPositions(open ? termId : undefined, 20)
-  const { stats, loading: statsLoading, fetchStats, clear } = useVaultTooltip()
+  // Prefetch data on mount — no need to wait for open
+  const { positions, loading: posLoading } = useClaimPositions(termId, 20)
+  const { stats, loading: statsLoading, fetchStats } = useVaultTooltip()
 
   useEffect(() => {
-    if (open && termId) {
-      fetchStats(termId)
-    }
-    if (!open) {
-      clear()
-    }
-  }, [open, termId, fetchStats, clear])
+    if (termId) fetchStats(termId)
+  }, [termId, fetchStats])
 
   const cart = useCart()
 
