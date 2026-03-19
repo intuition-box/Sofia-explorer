@@ -6,10 +6,9 @@ interface LastActivitySectionProps {
   items: CircleItem[]
   loading: boolean
   walletAddress: string
-  onAddValue?: (item: CircleItem) => void
 }
 
-export default function LastActivitySection({ items, loading, walletAddress, onAddValue }: LastActivitySectionProps) {
+export default function LastActivitySection({ items, loading, walletAddress }: LastActivitySectionProps) {
   if (loading) {
     return (
       <div className="las-grid">
@@ -38,7 +37,6 @@ export default function LastActivitySection({ items, loading, walletAddress, onA
           key={item.id}
           item={item}
           walletAddress={walletAddress}
-          onAddValue={onAddValue}
         />
       ))}
     </div>

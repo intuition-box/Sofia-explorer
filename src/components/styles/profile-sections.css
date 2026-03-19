@@ -1,3 +1,19 @@
+/* ── Wallet banner ── */
+.pp-wallet-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border: 1px dashed color-mix(in oklab, var(--border) 60%, transparent);
+  background: color-mix(in oklab, var(--muted) 30%, transparent);
+}
+
+.pp-wallet-banner-text {
+  flex: 1;
+  min-width: 0;
+}
+
 /* ── ProfilePage sections ── */
 .pp-sections {
   display: flex;
@@ -185,6 +201,11 @@
   gap: 8px;
   height: 100%;
   min-width: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.ac-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--foreground) 8%, transparent);
 }
 
 .ac-header {
@@ -368,6 +389,11 @@
   gap: 8px;
   height: 100%;
   min-width: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.tc-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--foreground) 8%, transparent);
 }
 
 .tc-header {
@@ -394,11 +420,58 @@
   text-overflow: ellipsis;
 }
 
-.tc-meta {
+.tc-stats-row {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--muted) 40%, transparent);
+}
+
+.tc-stat-block {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted-foreground);
+}
+
+.tc-stat-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.tc-stat-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.tc-pnl {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tc-pnl--up {
+  color: #22C55E;
+  background: color-mix(in oklab, #22C55E 10%, transparent);
+}
+
+.tc-pnl--down {
+  color: #EF4444;
+  background: color-mix(in oklab, #EF4444 10%, transparent);
+}
+
+.tc-pnl-value {
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .tc-badge {

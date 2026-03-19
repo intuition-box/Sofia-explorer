@@ -59,7 +59,7 @@ export default function DashboardPage() {
 
   /** Called when user clicks Support/Oppose on a card */
   const handleDeposit = useCallback((side: 'support' | 'oppose', item: CircleItem) => {
-    if (!authenticated) return
+    if (!authenticated || !walletAddress) return
     // Filter intentions that have vault IDs for this side
     const available = item.intentions.filter((intent) => {
       const vault = item.intentionVaults[intent]

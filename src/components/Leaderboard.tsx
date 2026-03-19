@@ -86,6 +86,7 @@ export default function Leaderboard({
           <Button
             size="sm"
             variant={activeTab === 'alpha' ? 'default' : 'ghost'}
+            data-active={activeTab === 'alpha'}
             onClick={() => setActiveTab('alpha')}
           >
             Alpha Testers
@@ -93,6 +94,7 @@ export default function Leaderboard({
           <Button
             size="sm"
             variant={activeTab === 'pool' ? 'default' : 'ghost'}
+            data-active={activeTab === 'pool'}
             onClick={() => setActiveTab('pool')}
           >
             Season Pool

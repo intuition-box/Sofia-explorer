@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { usePrivy } from '@privy-io/react-auth'
 import { Button } from "./ui/button";
-import { Home, User, Trophy, Flame, Vote, BarChart3, Globe } from "lucide-react";
+import { Home, User, Trophy, Flame, Vote, BarChart3, Globe, Lock } from "lucide-react";
 import { useDomainSelection } from '../hooks/useDomainSelection'
 import { SEASON_END } from '../config'
 import './styles/sidebar.css'
@@ -26,6 +27,7 @@ const DOMAIN_ICONS: Record<string, string> = {
 
 export function Sidebar() {
   const location = useLocation()
+  const { authenticated } = usePrivy()
   const { selectedDomains } = useDomainSelection()
   const [timeLeft, setTimeLeft] = useState(getTimeLeft)
 
@@ -35,16 +37,16 @@ export function Sidebar() {
   }, [])
 
   const navItems = [
-    { to: '/', icon: Home, label: 'Home' },
-    { to: '/profile', icon: User, label: 'My Profile' },
+    { to: '/', icon: Home, label: 'Home', public: true },
+    { to: '/profile', icon: User, label: 'My Profile', public: false },
   ]
 
   const quickLinks = [
-    { to: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
-    { to: '/streaks', icon: Flame, label: 'Streaks' },
-    { to: '/vote', icon: Vote, label: 'Vote' },
-    { to: '/scores', icon: BarChart3, label: 'My Stats' },
-    { to: '/platforms', icon: Globe, label: 'Platforms' },
+    { to: '/leaderboard', icon: Trophy, label: 'Leaderboard', public: true },
+    { to: '/streaks', icon: Flame, label: 'Streaks', public: false },
+    { to: '/vote', icon: Vote, label: 'Vote', public: false },
+    { to: '/scores', icon: BarChart3, label: 'My Stats', public: false },
+    { to: '/platforms', icon: Globe, label: 'Platforms', public: false },
   ]
 
   return (
@@ -56,17 +58,34 @@ export function Sidebar() {
             Navigation
           </h3>
           <div className="space-y-1">
-            {navItems.map((item) => (
-              <Link key={item.to} to={item.to}>
-                <Button
-                  variant={location.pathname === item.to ? 'secondary' : 'ghost'}
-                  className="w-full justify-start h-9 px-2 text-foreground hover:bg-muted hover:text-foreground"
-                >
-                  <item.icon className="h-4 w-4 mr-3" />
-                  {item.label}
-                </Button>
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const locked = !item.public && !authenticated
+              if (locked) {
+                return (
+                  <Button
+                    key={item.to}
+                    variant="ghost"
+                    className="w-full justify-start h-9 px-2 sb-locked"
+                    disabled
+                  >
+                    <item.icon className="h-4 w-4 mr-3" />
+                    {item.label}
+                    <Lock className="h-3 w-3 ml-auto" />
+                  </Button>
+                )
+              }
+              return (
+                <Link key={item.to} to={item.to}>
+                  <Button
+                    variant={location.pathname === item.to ? 'secondary' : 'ghost'}
+                    className="w-full justify-start h-9 px-2 text-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <item.icon className="h-4 w-4 mr-3" />
+                    {item.label}
+                  </Button>
+                </Link>
+              )
+            })}
           </div>
         </div>
 
@@ -76,25 +95,42 @@ export function Sidebar() {
             Quick Access
           </h3>
           <div className="space-y-1">
-            {quickLinks.map((item) => (
-              <Link key={item.to} to={item.to}>
-                <Button
-                  variant={location.pathname === item.to ? 'secondary' : 'ghost'}
-                  className="w-full justify-start h-9 px-2 text-foreground hover:bg-muted hover:text-foreground"
-                >
-                  <item.icon className="h-4 w-4 mr-3" />
-                  {item.label}
-                </Button>
-              </Link>
-            ))}
+            {quickLinks.map((item) => {
+              const locked = !item.public && !authenticated
+              if (locked) {
+                return (
+                  <Button
+                    key={item.to}
+                    variant="ghost"
+                    className="w-full justify-start h-9 px-2 sb-locked"
+                    disabled
+                  >
+                    <item.icon className="h-4 w-4 mr-3" />
+                    {item.label}
+                    <Lock className="h-3 w-3 ml-auto" />
+                  </Button>
+                )
+              }
+              return (
+                <Link key={item.to} to={item.to}>
+                  <Button
+                    variant={location.pathname === item.to ? 'secondary' : 'ghost'}
+                    className="w-full justify-start h-9 px-2 text-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <item.icon className="h-4 w-4 mr-3" />
+                    {item.label}
+                  </Button>
+                </Link>
+              )
+            })}
           </div>
         </div>
 
         {/* Quick Spaces */}
-        {selectedDomains.length > 0 && (
+        {authenticated && selectedDomains.length > 0 && (
           <div>
             <h3 className="mb-3 px-2 text-sm font-medium text-foreground">
-              Quick Spaces
+              My Interests
             </h3>
             <div className="space-y-1">
               {selectedDomains.slice(0, 6).map((domainId) => (

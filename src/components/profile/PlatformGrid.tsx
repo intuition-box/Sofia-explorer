@@ -1,14 +1,28 @@
 import { useState, useMemo } from 'react'
 import { PLATFORM_CATALOG } from '../../config/platformCatalog'
 import { getSuggestedPlatforms, DOMAIN_BY_ID } from '../../config/taxonomy'
-import type { ConnectionStatus, PlatformConnection } from '../../types/reputation'
+import type { ConnectionStatus, PlatformConnection, AuthType } from '../../types/reputation'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { Input } from '../ui/input'
-import { ArrowLeft, Search, ExternalLink, Check, Loader2 } from 'lucide-react'
+import { ArrowLeft, Search, ExternalLink, Check, Loader2, Wallet, Link, UserPlus } from 'lucide-react'
 import { getCertifyUrl } from '../../utils/sofiaDetect'
 import '../styles/platform-grid.css'
+
+/** Determine button label + icon based on auth type and web3 domain */
+function getConnectInfo(authType: AuthType, targetDomains: string[]): { label: string; icon: 'oauth' | 'wallet' | 'username' | 'none' } | null {
+  if (authType === 'none') return null
+  if (authType === 'siwe') return { label: 'Link Wallet', icon: 'wallet' }
+  if (authType === 'siwf') return { label: 'Link Farcaster', icon: 'wallet' }
+  if (authType === 'public') {
+    // Web3 public platforms — scan on-chain via wallet
+    if (targetDomains.includes('web3-crypto')) return { label: 'Analyze', icon: 'wallet' }
+    return { label: 'Add Username', icon: 'username' }
+  }
+  // oauth2, oauth1, api_key
+  return { label: 'Connect', icon: 'oauth' }
+}
 
 interface PlatformGridProps {
   selectedNiches: string[]
@@ -45,6 +59,8 @@ export default function PlatformGrid({
   currentDomain,
 }: PlatformGridProps) {
   const [search, setSearch] = useState('')
+  const [usernameInputs, setUsernameInputs] = useState<Record<string, string>>({})
+  const [showUsernameFor, setShowUsernameFor] = useState<string | null>(null)
   const suggested = getSuggestedPlatforms(selectedNiches)
   const catalog = platformsProp ?? PLATFORM_CATALOG
 
@@ -139,27 +155,81 @@ export default function PlatformGrid({
                       </div>
                     </div>
 
+                    {/* Username input (for public/api_key non-web3) */}
+                    {showUsernameFor === platform.id && !isConnected && (
+                      <div className="pg-username-row">
+                        <Input
+                          placeholder="Username"
+                          value={usernameInputs[platform.id] || ''}
+                          onChange={(e) => setUsernameInputs((p) => ({ ...p, [platform.id]: e.target.value }))}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && usernameInputs[platform.id]?.trim()) {
+                              onStartChallenge(platform.id, usernameInputs[platform.id].trim())
+                              setShowUsernameFor(null)
+                            }
+                          }}
+                          className="pg-username-input"
+                        />
+                        <Button
+                          size="sm"
+                          className="pg-username-submit"
+                          disabled={!usernameInputs[platform.id]?.trim()}
+                          onClick={() => {
+                            if (usernameInputs[platform.id]?.trim()) {
+                              onStartChallenge(platform.id, usernameInputs[platform.id].trim())
+                              setShowUsernameFor(null)
+                            }
+                          }}
+                        >
+                          <Check className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Pending verification */}
+                    {status === 'pending_verification' && (
+                      <div className="pg-verify-row">
+                        <span className="pg-verify-label">Code in bio?</span>
+                        <Button size="sm" className="pg-verify-btn" onClick={() => onVerifyChallenge(platform.id)}>
+                          Verify
+                        </Button>
+                      </div>
+                    )}
+
                     {/* Actions */}
                     <div className="pg-actions">
-                      <Button
-                        size="sm"
-                        variant={isConnected ? 'outline' : 'default'}
-                        className="pg-action-btn"
-                        disabled={isConnecting}
-                        onClick={() => {
-                          if (isConnected) {
-                            onDisconnect(platform.id)
-                          } else {
-                            onConnect(platform.id)
-                          }
-                        }}
-                      >
-                        {isConnecting && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
-                        {isConnected && <Check className="h-3 w-3 mr-1" />}
-                        {STATUS_LABELS[status]}
-                      </Button>
+                      {(() => {
+                        const info = getConnectInfo(platform.authType, platform.targetDomains)
+                        if (!info) return null
+
+                        const isPending = status === 'pending_verification'
+                        return (
+                          <Button
+                            size="sm"
+                            variant={isConnected ? 'outline' : 'default'}
+                            className="pg-action-btn"
+                            disabled={isConnecting || isPending}
+                            onClick={() => {
+                              if (isConnected) {
+                                onDisconnect(platform.id)
+                              } else if (info.icon === 'username') {
+                                setShowUsernameFor(showUsernameFor === platform.id ? null : platform.id)
+                              } else {
+                                onConnect(platform.id)
+                              }
+                            }}
+                          >
+                            {isConnecting && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
+                            {isConnected && <Check className="h-3 w-3 mr-1" />}
+                            {!isConnected && !isConnecting && info.icon === 'wallet' && <Wallet className="h-3 w-3 mr-1" />}
+                            {!isConnected && !isConnecting && info.icon === 'username' && <UserPlus className="h-3 w-3 mr-1" />}
+                            {!isConnected && !isConnecting && info.icon === 'oauth' && <Link className="h-3 w-3 mr-1" />}
+                            {isConnected ? STATUS_LABELS[status] : info.label}
+                          </Button>
+                        )
+                      })()}
                       <a
-                        href={getCertifyUrl(`https://${platform.apiBaseUrl ? new URL(platform.apiBaseUrl).hostname : platform.id + '.com'}`)}
+                        href={getCertifyUrl(platform.website || (platform.apiBaseUrl ? `https://${new URL(platform.apiBaseUrl).hostname}` : `https://${platform.id}.com`))}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="pg-certify-link"

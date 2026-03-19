@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, X } from 'lucide-react'
-import { getNichesForDomain } from '@/config/taxonomy'
+import { getCategoriesForDomain } from '@/config/taxonomy'
 import type { NicheScore } from '@/types/reputation'
 import { Card } from '../ui/card'
 
@@ -17,11 +17,11 @@ export default function NicheDetailList({ domainId, domainColor, selectedNiches,
   const navigate = useNavigate()
   const scoreMap = useMemo(() => new Map(nicheScores.map((s) => [s.nicheId, s])), [nicheScores])
 
-  const allNiches = useMemo(() => {
-    return getNichesForDomain(domainId)
+  const allCategories = useMemo(() => {
+    return getCategoriesForDomain(domainId)
   }, [domainId])
 
-  const selected = allNiches.filter((n) => selectedNiches.includes(n.id))
+  const selected = allCategories.filter((c) => selectedNiches.includes(c.id))
 
   if (selected.length === 0) {
     return (
@@ -36,26 +36,26 @@ export default function NicheDetailList({ domainId, domainColor, selectedNiches,
 
   return (
     <div className="ip-niches-grid">
-      {selected.map((niche) => {
-        const nicheScore = scoreMap.get(niche.id)
-        const score = nicheScore?.score ?? 0
+      {selected.map((category) => {
+        const catScore = scoreMap.get(category.id)
+        const score = catScore?.score ?? 0
 
         return (
           <Card
-            key={niche.id}
+            key={category.id}
             className="ip-niche-card"
             style={{ borderTop: `3px solid ${domainColor}` }}
           >
             <div className="ip-niche-header">
               <div className="ip-niche-icon" style={{ background: `${domainColor}20`, color: domainColor }}>
-                {niche.label.slice(0, 2).toUpperCase()}
+                {category.label.slice(0, 2).toUpperCase()}
               </div>
               <div className="ip-niche-meta">
-                <span className="ip-niche-label">{niche.label}</span>
+                <span className="ip-niche-label">{category.label}</span>
               </div>
               <button
                 className="ip-niche-remove"
-                onClick={() => onToggleNiche(niche.id)}
+                onClick={() => onToggleNiche(category.id)}
               >
                 <X className="h-3 w-3" />
               </button>
@@ -66,10 +66,10 @@ export default function NicheDetailList({ domainId, domainColor, selectedNiches,
               <span className="ip-niche-score-label">Score</span>
             </div>
 
-            {nicheScore && (
+            {catScore && (
               <div className="ip-niche-breakdown">
                 {(['creation', 'regularity', 'community', 'monetization', 'anciennete'] as const).map((key) => {
-                  const val = nicheScore.breakdown[key]
+                  const val = catScore.breakdown[key]
                   return (
                     <div key={key} className="ip-niche-bd-item">
                       <div className="ip-niche-bd-bar">
@@ -87,7 +87,7 @@ export default function NicheDetailList({ domainId, domainColor, selectedNiches,
 
       <Card className="ip-niche-add" onClick={() => navigate(`/profile/interest/${domainId}/niches`)}>
         <Plus className="ip-niche-add-icon" />
-        <span className="ip-niche-add-label">Add Niche</span>
+        <span className="ip-niche-add-label">Add Category</span>
       </Card>
     </div>
   )

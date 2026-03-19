@@ -16,6 +16,7 @@ export interface Niche {
 export interface Category {
   id: string
   label: string
+  termId?: string
   niches: Niche[]
 }
 
@@ -57,6 +58,7 @@ export interface PlatformConfig {
   tokenUrl?: string
   scopes?: string[]
   apiBaseUrl?: string
+  website?: string
   dataPoints: string[]
   targetDomains: string[]
   targetNiches: string[]

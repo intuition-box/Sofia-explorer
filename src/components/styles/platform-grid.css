@@ -3,8 +3,8 @@
 .pg-domain-title { font-size: 18px; }
 .pg-domain-count { font-size: 14px; font-weight: 400; }
 .pg-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-.pg-card { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
-.pg-identity { display: flex; align-items: center; gap: 12px; }
+.pg-card { padding: 20px; display: flex; flex-direction: column; gap: 16px; justify-content: space-between; }
+.pg-identity { display: flex; align-items: center; gap: 12px; flex: 1; }
 .pg-icon { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; }
 .pg-name-wrap { flex: 1; min-width: 0; }
 .pg-name { font-size: 16px; display: block; }
@@ -13,3 +13,9 @@
 .pg-certify-link { flex: 1; }
 .pg-certify-btn { width: 100%; font-size: 11px; height: 28px; }
 .pg-badge { margin-top: 4px; }
+.pg-username-row { display: flex; gap: 6px; }
+.pg-username-input { height: 28px; font-size: 11px; flex: 1; }
+.pg-username-submit { height: 28px; width: 28px; padding: 0; flex-shrink: 0; }
+.pg-verify-row { display: flex; align-items: center; gap: 8px; }
+.pg-verify-label { font-size: 11px; color: var(--muted-foreground); }
+.pg-verify-btn { height: 24px; font-size: 11px; }

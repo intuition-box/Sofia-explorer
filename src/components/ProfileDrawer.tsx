@@ -55,7 +55,7 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
 
   const statItems = [
     { label: 'Domains', value: selectedDomains.length },
-    { label: 'Niches', value: selectedNiches.length },
+    { label: 'Categories', value: selectedNiches.length },
     { label: 'Platforms', value: connectedCount },
     { label: 'Signals', value: stats?.totalCertifications ?? 0 },
   ]

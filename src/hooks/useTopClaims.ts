@@ -1,6 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import type { CircleItem } from '@/services/circleService'
 import { fetchVaultStats, type VaultStats } from '@/services/vaultTooltipService'
+import { INTUITION_FEATURED_CLAIMS, SOFIA_CLAIMS } from '@/config/debateConfig'
+
+/** term_ids of debate claims — exclude from Top Claims */
+const DEBATE_TERM_IDS = new Set(
+  [...INTUITION_FEATURED_CLAIMS, ...SOFIA_CLAIMS].map((c) => c.tripleTermId),
+)
 
 export interface TopClaim {
   item: CircleItem
@@ -20,7 +26,7 @@ async function resolveTopClaims(items: CircleItem[], walletAddress: string): Pro
     if (item.intentions.some((i) => i.startsWith('quest:'))) continue
     for (const intent of item.intentions) {
       const vault = item.intentionVaults[intent]
-      if (!vault?.termId || seen.has(vault.termId)) continue
+      if (!vault?.termId || seen.has(vault.termId) || DEBATE_TERM_IDS.has(vault.termId)) continue
       seen.add(vault.termId)
       candidates.push({ item, intention: intent, termId: vault.termId })
     }

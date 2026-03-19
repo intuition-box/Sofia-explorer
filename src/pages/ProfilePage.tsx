@@ -1,19 +1,13 @@
-import { useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { usePrivy, useLogin } from '@privy-io/react-auth'
+import { usePrivy, useLogin, useLinkAccount } from '@privy-io/react-auth'
 import { useDomainSelection } from '../hooks/useDomainSelection'
 import { usePlatformConnections } from '../hooks/usePlatformConnections'
 import { useReputationScores } from '../hooks/useReputationScores'
 import { useUserActivity } from '../hooks/useUserActivity'
 import { useTopClaims } from '../hooks/useTopClaims'
-import { useCart } from '../hooks/useCart'
-import type { CartItem } from '../hooks/useCart'
 import LastActivitySection from '../components/profile/LastActivitySection'
 import InterestsGrid from '../components/profile/InterestsGrid'
 import TopClaimsSection from '../components/profile/TopClaimsSection'
-import PredicatePicker from '../components/PredicatePicker'
-import type { CircleItem } from '../services/circleService'
-import { INTENTION_COLORS } from '../config/intentions'
 import { Card } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Wallet } from 'lucide-react'
@@ -25,6 +19,7 @@ import '@/components/styles/profile-sections.css'
 export default function ProfilePage() {
   const { authenticated, user } = usePrivy()
   const { login } = useLogin()
+  const { linkWallet } = useLinkAccount({ onSuccess: () => window.location.reload() })
   const address = user?.wallet?.address ?? ''
   const { selectedDomains, selectedNiches, toggleDomain } = useDomainSelection()
   const navigate = useNavigate()
@@ -33,60 +28,6 @@ export default function ProfilePage() {
   const domainScores = scores?.domains ?? []
   const { items: activityItems, loading: activityLoading } = useUserActivity(address || undefined)
   const { claims: topClaims, loading: claimsLoading } = useTopClaims(activityItems, address || undefined)
-  const cart = useCart()
-  const [predicatePicker, setPredicatePicker] = useState<{ side: 'support' | 'oppose'; item: CircleItem } | null>(null)
-
-  /** Called when user clicks Add Value on a card — same logic as DashboardPage Support */
-  const handleAddValue = useCallback((item: CircleItem) => {
-    if (!authenticated) return
-    const side: 'support' | 'oppose' = 'support'
-
-    const available = item.intentions.filter((intent) => {
-      const vault = item.intentionVaults[intent]
-      if (!vault) return false
-      return !!vault.termId
-    })
-
-    if (available.length === 0) return
-
-    if (available.length === 1) {
-      const intent = available[0]
-      const vault = item.intentionVaults[intent]
-      const color = INTENTION_COLORS[intent] ?? '#888'
-      cart.addItem({
-        id: `${vault.termId}-${side}`,
-        side,
-        termId: vault.termId,
-        intention: intent,
-        title: item.title,
-        favicon: item.favicon,
-        intentionColor: color,
-      })
-    } else {
-      setPredicatePicker({ side, item })
-    }
-  }, [authenticated, cart])
-
-  /** Called from PredicatePicker when user confirms selection */
-  const handlePredicateConfirm = useCallback((selectedIntentions: string[]) => {
-    if (!predicatePicker) return
-    const { side, item } = predicatePicker
-    const newItems: CartItem[] = selectedIntentions.map((intent) => {
-      const vault = item.intentionVaults[intent]
-      const color = INTENTION_COLORS[intent] ?? '#888'
-      return {
-        id: `${vault.termId}-${side}`,
-        side,
-        termId: side === 'support' ? vault.termId : vault.counterTermId,
-        intention: intent,
-        title: item.title,
-        favicon: item.favicon,
-        intentionColor: color,
-      }
-    })
-    cart.addItems(newItems)
-    setPredicatePicker(null)
-  }, [predicatePicker, cart])
 
   if (!authenticated) {
     return (
@@ -109,6 +50,22 @@ export default function ProfilePage() {
   return (
     <div>
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
+
+      {/* Link wallet banner */}
+      {!address && (
+        <Card className="pp-wallet-banner">
+          <Wallet className="h-5 w-5 text-muted-foreground" />
+          <div className="pp-wallet-banner-text">
+            <p className="text-sm font-semibold">Read-only mode</p>
+            <p className="text-xs text-muted-foreground">Link a wallet to interact, support claims, and build your reputation.</p>
+          </div>
+          <Button size="sm" onClick={() => linkWallet()}>
+            <Wallet className="h-3.5 w-3.5 mr-1" />
+            Link Wallet
+          </Button>
+        </Card>
+      )}
+
       <div className="pp-sections page-content page-enter">
 
         {/* Top Claims */}
@@ -118,21 +75,10 @@ export default function ProfilePage() {
             <TopClaimsSection
               claims={topClaims}
               loading={activityLoading || claimsLoading}
-              onAddValue={handleAddValue}
+              walletAddress={address}
             />
           </section>
         )}
-
-        {/* Last Activity */}
-        <section className="pp-section">
-          <h3 className="pp-section-title">Last Activity</h3>
-          <LastActivitySection
-            items={activityItems}
-            loading={activityLoading}
-            walletAddress={address}
-            onAddValue={handleAddValue}
-          />
-        </section>
 
         {/* Interests */}
         <section className="pp-section">
@@ -146,19 +92,17 @@ export default function ProfilePage() {
           />
         </section>
 
+        {/* Last Activity */}
+        <section className="pp-section">
+          <h3 className="pp-section-title">Last Activity</h3>
+          <LastActivitySection
+            items={activityItems}
+            loading={activityLoading}
+            walletAddress={address}
+          />
+        </section>
+
       </div>
-
-      {/* Predicate Picker modal */}
-      {predicatePicker && (
-        <PredicatePicker
-          isOpen
-          side={predicatePicker.side}
-          item={predicatePicker.item}
-          onConfirm={handlePredicateConfirm}
-          onClose={() => setPredicatePicker(null)}
-        />
-      )}
-
     </div>
   )
 }

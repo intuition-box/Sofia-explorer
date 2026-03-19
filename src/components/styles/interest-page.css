@@ -235,6 +235,12 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.ip-trending-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--foreground) 8%, transparent);
 }
 
 .ip-trending-header {
@@ -261,10 +267,18 @@
   text-overflow: ellipsis;
 }
 
+.ip-trending-pnl {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
 .ip-trending-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .ip-trending-badge {
@@ -275,8 +289,25 @@
 }
 
 .ip-trending-stat {
+  display: flex;
+  align-items: center;
+  gap: 3px;
   font-size: 11px;
   color: var(--muted-foreground);
+}
+
+.ip-trending-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.ip-trending-action-btn {
+  font-size: 11px;
+  height: 26px;
+  gap: 3px;
+  padding: 0 8px;
 }
 
 .ip-trending-link {
@@ -310,10 +341,27 @@
   opacity: 1;
 }
 
+.ip-platform-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ip-platform-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
 .ip-platform-name {
   font-size: 12px;
   font-weight: 600;
   color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ip-platform-status {
@@ -354,56 +402,43 @@
   color: var(--muted-foreground);
 }
 
-/* ── Claims ── */
-.ip-claims-list {
+.ip-platform-skeleton {
+  border: 2px dashed color-mix(in oklab, var(--border) 35%, transparent);
+  border-radius: var(--radius);
+  min-height: 60px;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.ip-skeleton-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: color-mix(in oklab, var(--muted-foreground) 50%, transparent);
+}
+
+/* ── Claims grid ── */
+.ip-claims-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
 .ip-claim-card {
-  padding: 14px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.ip-claim-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--foreground) 8%, transparent);
 }
 
 .ip-claim-title {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   color: var(--foreground);
-}
-
-.ip-claim-bar {
-  height: 6px;
-  border-radius: 3px;
-  background: var(--muted);
-  overflow: hidden;
-}
-
-.ip-claim-bar-fill {
-  height: 100%;
-  background: #22C55E;
-  border-radius: 3px;
-  transition: width 0.3s;
-}
-
-.ip-claim-meta {
-  display: flex;
-  justify-content: space-between;
-}
-
-.ip-claim-stat {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  color: var(--muted-foreground);
-}
-
-.ip-claim-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding-top: 4px;
+  line-height: 1.3;
 }

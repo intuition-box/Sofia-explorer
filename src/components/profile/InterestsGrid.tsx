@@ -35,8 +35,7 @@ export default function InterestsGrid({ selectedDomains, selectedNiches, domainS
         if (!domain) return null
 
         const nicheCount = domain.categories
-          .flatMap((c) => c.niches)
-          .filter((n) => selectedNiches.includes(n.id)).length
+          .filter((c) => selectedNiches.includes(c.id)).length
 
         const score = scoreMap.get(domainId)
 

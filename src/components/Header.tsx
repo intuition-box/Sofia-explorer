@@ -1,7 +1,7 @@
-import { usePrivy, useLogin, useLogout } from '@privy-io/react-auth'
+import { usePrivy, useLogin, useLogout, useLinkAccount } from '@privy-io/react-auth'
 import { Link, useLocation } from 'react-router-dom'
 import { Button } from "./ui/button";
-import { Search, Bell, Home, Wallet, LogOut, Sun, Moon } from "lucide-react";
+import { Search, Bell, Home, Wallet, LogOut, Sun, Moon, User } from "lucide-react";
 import { useTheme } from '../hooks/useTheme'
 import { useEnsNames } from '../hooks/useEnsNames'
 import { useCart } from '../hooks/useCart'
@@ -18,6 +18,7 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
   const { ready, authenticated, user } = usePrivy()
   const { login } = useLogin()
   const { logout } = useLogout()
+  const { linkWallet } = useLinkAccount({ onSuccess: () => window.location.reload() })
   const location = useLocation()
   const { theme, toggleTheme } = useTheme()
   const cart = useCart()
@@ -30,6 +31,11 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
   const displayAddress = walletAddress
     ? walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4)
     : ''
+
+  // Resolve avatar & display name: Google profile > ENS > fallback
+  const googleAccount = user?.google
+  const profileAvatar = googleAccount?.profilePictureUrl || ensAvatar || ''
+  const profileName = googleAccount?.name || ensName || googleAccount?.email || user?.email?.address || displayAddress || 'User'
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b" style={{ zoom: 1.25 }}>
@@ -90,24 +96,40 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
             </Button>
           )}
 
-          {ready && authenticated && walletAddress && (
+          {ready && authenticated && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className={`p-1 h-9 w-9 hdr-profile-btn ${location.pathname === '/profile' ? 'hdr-profile-hidden' : ''}`}>
-                  <img src={ensAvatar} alt={ensName} className="h-7 w-7 rounded-full" referrerPolicy="no-referrer" />
+                <Button variant="ghost" size="icon" className={`p-1 h-9 w-9 hdr-profile-btn ${location.pathname.startsWith('/profile') ? 'hdr-profile-hidden' : ''}`}>
+                  {profileAvatar ? (
+                    <img src={profileAvatar} alt={profileName} className="h-7 w-7 rounded-full" referrerPolicy="no-referrer" />
+                  ) : (
+                    <User className="h-5 w-5" />
+                  )}
                   <span className="sr-only">Profile</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="hdr-dropdown">
                 {/* User info header */}
                 <div className="hdr-user-info">
-                  <img src={ensAvatar} alt={ensName} className="h-10 w-10 rounded-full" referrerPolicy="no-referrer" />
+                  {profileAvatar ? (
+                    <img src={profileAvatar} alt={profileName} className="h-10 w-10 rounded-full" referrerPolicy="no-referrer" />
+                  ) : (
+                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                      <User className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  )}
                   <div className="hdr-user-meta">
-                    <div className="hdr-user-name">{ensName}</div>
-                    <div className="hdr-user-address">{displayAddress}</div>
+                    <div className="hdr-user-name">{profileName}</div>
+                    {displayAddress && <div className="hdr-user-address">{displayAddress}</div>}
                   </div>
                 </div>
                 <div className="hdr-divider" />
+                {!walletAddress && (
+                  <DropdownMenuItem onClick={() => linkWallet()} className="hdr-menu-item">
+                    <Wallet className="mr-2 h-4 w-4" />
+                    Link Wallet
+                  </DropdownMenuItem>
+                )}
                 <Link to="/profile">
                   <DropdownMenuItem className="hdr-menu-item">My Profile</DropdownMenuItem>
                 </Link>

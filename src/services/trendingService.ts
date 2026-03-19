@@ -42,6 +42,8 @@ export function tripleToItem(triple: TrendingTripleRaw, category: IntentCategory
     domain,
     favicon: `https://www.google.com/s2/favicons?domain=${domain}&sz=32`,
     certifiers: triple.all_positions.length,
+    termId: triple.term_id ?? undefined,
+    counterTermId: triple.counter_term_id ?? undefined,
   }
 }
 

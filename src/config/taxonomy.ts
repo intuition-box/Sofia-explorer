@@ -615,6 +615,7 @@ export const SOFIA_DOMAINS: Domain[] = [
       {
         id: "defi",
         label: "DeFi",
+        termId: "0x31d170b3efaa2820d0d6b0c53c7232618ec74495871ed32907a1c9028ce78a8c",
         niches: [
           {
             id: "yield-farming",
@@ -695,6 +696,7 @@ export const SOFIA_DOMAINS: Domain[] = [
       {
         id: "web3-infra-dev",
         label: "Infrastructure & Dev",
+        termId: "0x24a3480abc66ae94bba8bf4b8952ac6784a7e539ed440ac3901cb3142e9108bf",
         niches: [
           {
             id: "smart-contracts",
@@ -742,6 +744,116 @@ export const SOFIA_DOMAINS: Domain[] = [
             label: "Interoperable assets",
           },
           { id: "vr-ar-web3", label: "VR/AR Web3" },
+        ],
+      },
+      {
+        id: "rwa-tokenisation",
+        label: "RWA Tokenisation",
+        termId: "0xdf1b7a70c58270ea101372e5026a6c483b20c8be7bb80684fd5b6c832c510eeb",
+        niches: [
+          { id: "rwa-real-estate", label: "Real estate tokenisation" },
+          { id: "rwa-commodities", label: "Commodities & bonds" },
+          { id: "rwa-compliance", label: "Compliance & regulation" },
+        ],
+      },
+      {
+        id: "stablecoins-payments",
+        label: "Stablecoins & Payments",
+        termId: "0x3192914ddee59330c9b4f453efb940d407578859cb87feb585d4062ac10f89c7",
+        niches: [
+          { id: "stablecoin-design", label: "Stablecoin design" },
+          { id: "cross-border-payments", label: "Cross-border payments" },
+          { id: "cbdc", label: "CBDC & digital currencies" },
+        ],
+      },
+      {
+        id: "cypherpunk-privacy",
+        label: "Cypherpunk & Privacy",
+        termId: "0x6bbbb75ab72b3be504b59c7c5728bbf0212368a5456249843cd11ce1e124a019",
+        niches: [
+          { id: "privacy-protocols", label: "Privacy protocols" },
+          { id: "mixers-zk-privacy", label: "Mixers & ZK privacy" },
+          { id: "encryption-comms", label: "Encrypted communications" },
+        ],
+      },
+      {
+        id: "layer-2s",
+        label: "Layer 2s",
+        termId: "0x77c6ad9f79a11f242cf7a8d6f4a3e5f8e9c35cab04708198a4c2af1ab71da98a",
+        niches: [
+          { id: "optimistic-rollups", label: "Optimistic rollups" },
+          { id: "zk-rollups", label: "ZK rollups" },
+          { id: "l2-bridges", label: "Bridges & interoperability" },
+        ],
+      },
+      {
+        id: "security-web3",
+        label: "Security",
+        termId: "0x44f497066d7ade71154420d3cd075c3a2b02b9f2446301cbf154cdd5f9c5d50f",
+        niches: [
+          { id: "smart-contract-audits", label: "Smart contract audits" },
+          { id: "bug-bounties", label: "Bug bounties" },
+          { id: "security-tooling", label: "Security tooling" },
+        ],
+      },
+      {
+        id: "applied-cryptography",
+        label: "Applied Cryptography",
+        termId: "0xa294407354c71d4ad9fd5088726a36a6e3bebc3be70f2b968cec0d601e9a8a7f",
+        niches: [
+          { id: "mpc", label: "MPC & threshold signatures" },
+          { id: "fhe", label: "Fully homomorphic encryption" },
+          { id: "post-quantum", label: "Post-quantum cryptography" },
+        ],
+      },
+      {
+        id: "zk-tee",
+        label: "Zero Knowledge & TEE",
+        termId: "0xa1ace10f77b5b560038429d8012862db14a5664bcd53f0b55da75f4cb99ac29d",
+        niches: [
+          { id: "zk-circuits", label: "ZK circuits & provers" },
+          { id: "tee-enclaves", label: "TEE & secure enclaves" },
+          { id: "zk-identity", label: "ZK identity & credentials" },
+        ],
+      },
+      {
+        id: "ai-agents-web3",
+        label: "AI Agents & Automation",
+        termId: "0xf3cc343ac2af82d0490e23e39e2e1fc29f279e26aee49bd95914260720e6d671",
+        niches: [
+          { id: "onchain-ai-agents", label: "On-chain AI agents" },
+          { id: "ai-defi-automation", label: "AI-powered DeFi" },
+          { id: "decentralized-ai", label: "Decentralized AI networks" },
+        ],
+      },
+      {
+        id: "ethstaker",
+        label: "EthStaker",
+        termId: "0x60792f8e7c11bf88b026587c24ee338f02f883a306d947a0448b998e966f1d93",
+        niches: [
+          { id: "solo-staking", label: "Solo staking" },
+          { id: "liquid-staking", label: "Liquid staking" },
+          { id: "dvt", label: "DVT & distributed validators" },
+        ],
+      },
+      {
+        id: "web3-research",
+        label: "Research",
+        termId: "0xe164fa08db1c673380211f9e2afb036b4ecc019b96c3a0d2cb82679aa83723dc",
+        niches: [
+          { id: "mechanism-design", label: "Mechanism design" },
+          { id: "token-economics", label: "Token economics" },
+          { id: "consensus-research", label: "Consensus research" },
+        ],
+      },
+      {
+        id: "built-on-ethereum",
+        label: "Built on Ethereum",
+        termId: "0x2dde4c9f1365a17450ca4d651a7c3d3752ccc63ed6e9f4492b8a635c06dbc985",
+        niches: [
+          { id: "evm-ecosystem", label: "EVM ecosystem" },
+          { id: "ethereum-tooling", label: "Ethereum tooling" },
+          { id: "eth-standards", label: "EIPs & standards" },
         ],
       },
     ],
@@ -1973,6 +2085,10 @@ export const NICHE_BY_ID = new Map(
   ALL_NICHES.map((n) => [n.id, n])
 )
 
+export const CATEGORY_BY_ID = new Map(
+  ALL_CATEGORIES.map((c) => [c.id, c])
+)
+
 export function getNichesForDomain(
   domainId: string
 ): typeof ALL_NICHES {
@@ -1993,11 +2109,11 @@ export function getDomainForNiche(
 }
 
 export function getSuggestedPlatforms(
-  nicheIds: string[]
+  categoryIds: string[]
 ): string[] {
   const domainIds = new Set(
-    nicheIds
-      .map((id) => NICHE_BY_ID.get(id)?.domainId)
+    categoryIds
+      .map((id) => CATEGORY_BY_ID.get(id)?.domainId)
       .filter(Boolean)
   )
   return SOFIA_DOMAINS.filter((d) => domainIds.has(d.id))
