@@ -185,6 +185,11 @@
   gap: 8px;
   height: 100%;
   min-width: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.ac-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--foreground) 8%, transparent);
 }
 
 .ac-header {
@@ -368,6 +373,11 @@
   gap: 8px;
   height: 100%;
   min-width: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.tc-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--foreground) 8%, transparent);
 }
 
 .tc-header {

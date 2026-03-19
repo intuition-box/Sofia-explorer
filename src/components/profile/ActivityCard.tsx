@@ -1,8 +1,9 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
-import { Plus, Share2, ExternalLink } from 'lucide-react'
+import { Share2, ExternalLink } from 'lucide-react'
 import IntentionTooltip from '../IntentionTooltip'
+import PositionBoardDialog from './PositionBoardDialog'
 import type { CircleItem } from '@/services/circleService'
 import { INTENTION_COLORS, intentionBadgeStyle } from '@/config/intentions'
 import { timeAgo } from '@/utils/formatting'
@@ -13,11 +14,10 @@ const INTENTION_VERB: Record<string, string> = {}
 interface ActivityCardProps {
   item: CircleItem
   walletAddress?: string
-  onAddValue?: (item: CircleItem) => void
 }
 
-export default function ActivityCard({ item, walletAddress, onAddValue }: ActivityCardProps) {
-  const hasVaults = Object.keys(item.intentionVaults).length > 0
+export default function ActivityCard({ item, walletAddress }: ActivityCardProps) {
+  const [boardOpen, setBoardOpen] = useState(false)
 
   // Get termId from first intention for position board
   const firstIntent = item.intentions.find((i) => item.intentionVaults[i]?.termId)
@@ -47,9 +47,13 @@ export default function ActivityCard({ item, walletAddress, onAddValue }: Activi
         <span className="ac-time">{timeAgo(item.timestamp)}</span>
       </div>
 
-      {/* Mini position board */}
+      {/* Mini position board — click to open full leaderboard */}
       {positions.length > 0 && (
-        <div className="ac-positions">
+        <div
+          className="ac-positions ac-positions--clickable"
+          onClick={() => setBoardOpen(true)}
+          title="View full leaderboard"
+        >
           {positions.map((pos, i) => {
             const isYou = walletAddress && pos.accountId.toLowerCase() === walletAddress.toLowerCase()
             return (
@@ -77,20 +81,19 @@ export default function ActivityCard({ item, walletAddress, onAddValue }: Activi
           )
         })}
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="ac-btn"
-          disabled={!hasVaults}
-          onClick={() => onAddValue?.(item)}
+          className="ac-btn-icon"
+          onClick={handleShare}
         >
-          <Plus className="h-3.5 w-3.5" />
-          Add Value
+          <Share2 className="h-3.5 w-3.5" />
         </Button>
         {item.url && (
           <Button
             variant="ghost"
             size="sm"
             className="ac-btn-icon"
+            style={{ marginLeft: 'auto' }}
             asChild
           >
             <a href={item.url} target="_blank" rel="noopener noreferrer">
@@ -98,15 +101,22 @@ export default function ActivityCard({ item, walletAddress, onAddValue }: Activi
             </a>
           </Button>
         )}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="ac-btn-share"
-          onClick={handleShare}
-        >
-          <Share2 className="h-3.5 w-3.5" />
-        </Button>
       </div>
+
+      {/* Full position board dialog */}
+      {termId && (
+        <PositionBoardDialog
+          open={boardOpen}
+          onOpenChange={setBoardOpen}
+          termId={termId}
+          counterTermId={item.intentionVaults[firstIntent!]?.counterTermId}
+          title={item.title}
+          favicon={item.favicon}
+          intention={firstIntent!}
+          intentionColor={INTENTION_COLORS[firstIntent!] ?? 'var(--foreground)'}
+          walletAddress={walletAddress}
+        />
+      )}
     </Card>
   )
 }

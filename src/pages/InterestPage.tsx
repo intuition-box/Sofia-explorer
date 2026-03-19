@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { usePrivy } from '@privy-io/react-auth'
 import { formatEther } from 'viem'
-import { DOMAIN_BY_ID, getNichesForDomain } from '@/config/taxonomy'
+import { DOMAIN_BY_ID } from '@/config/taxonomy'
 import { getPlatformsByDomain } from '@/config/platformCatalog'
 import { useDomainSelection } from '@/hooks/useDomainSelection'
 import { usePlatformConnections } from '@/hooks/usePlatformConnections'
@@ -12,21 +12,12 @@ import { useDomainClaims } from '@/hooks/useDomainClaims'
 import { useCart } from '@/hooks/useCart'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { ArrowLeft, ExternalLink, ThumbsUp, ThumbsDown, Plus } from 'lucide-react'
+import { ArrowLeft, ThumbsUp, ThumbsDown, Plus } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import NicheDetailList from '@/components/profile/NicheDetailList'
+import TrendingCard from '@/components/TrendingCard'
 import SofiaLoader from '@/components/ui/SofiaLoader'
 import '@/components/styles/interest-page.css'
-
-const CATEGORY_COLORS: Record<string, string> = {
-  trusted: '#6DD4A0',
-  distrusted: '#E87C7C',
-  work: '#7BADE0',
-  learning: '#5CC4D6',
-  fun: '#E4B95A',
-  inspiration: '#A78BDB',
-}
 
 function formatMarketCap(value: bigint): string {
   const num = parseFloat(formatEther(value))
@@ -71,6 +62,7 @@ export default function InterestPage() {
       intentionColor: '#F97316',
     })
   }, [authenticated, cart])
+
 
   if (!domain) {
     return (
@@ -131,44 +123,22 @@ export default function InterestPage() {
           />
         </section>
 
-        {/* Trending */}
+        {/* Trending Platforms */}
         <section className="ip-section">
-          <h3 className="ip-section-title">Trending</h3>
+          <h3 className="ip-section-title">Trending in {domain.label}</h3>
           {trendingLoading ? (
             <div className="ip-loader"><SofiaLoader size={48} /></div>
           ) : trending.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No trending items for this domain yet.</p>
+            <p className="text-sm text-muted-foreground">No trending platforms for this domain yet.</p>
           ) : (
             <div className="ip-trending-grid">
-              {trending.map((item) => {
-                const catColor = CATEGORY_COLORS[item.category] ?? '#888'
-                return (
-                  <Card key={`${item.category}-${item.url}`} className="ip-trending-card">
-                    <div className="ip-trending-header">
-                      <img
-                        src={item.favicon}
-                        alt=""
-                        className="ip-trending-favicon"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                      />
-                      <span className="ip-trending-label">{item.label}</span>
-                    </div>
-                    <div className="ip-trending-meta">
-                      <Badge
-                        variant="secondary"
-                        className="ip-trending-badge"
-                        style={{ color: catColor, backgroundColor: `${catColor}15`, border: `1px solid ${catColor}30` }}
-                      >
-                        {item.category}
-                      </Badge>
-                      <span className="ip-trending-stat">{item.certifiers} certifier{item.certifiers !== 1 ? 's' : ''}</span>
-                    </div>
-                    <a href={item.url} target="_blank" rel="noopener noreferrer" className="ip-trending-link">
-                      {item.domain} <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </Card>
-                )
-              })}
+              {trending.map((platform) => (
+                <TrendingCard
+                  key={platform.platformDomain}
+                  platform={platform}
+                  domainLabel={domain.label}
+                />
+              ))}
             </div>
           )}
         </section>

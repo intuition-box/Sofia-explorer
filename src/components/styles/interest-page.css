@@ -235,6 +235,12 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.ip-trending-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--foreground) 8%, transparent);
 }
 
 .ip-trending-header {
@@ -261,10 +267,18 @@
   text-overflow: ellipsis;
 }
 
+.ip-trending-pnl {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
 .ip-trending-meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .ip-trending-badge {
@@ -275,8 +289,25 @@
 }
 
 .ip-trending-stat {
+  display: flex;
+  align-items: center;
+  gap: 3px;
   font-size: 11px;
   color: var(--muted-foreground);
+}
+
+.ip-trending-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.ip-trending-action-btn {
+  font-size: 11px;
+  height: 26px;
+  gap: 3px;
+  padding: 0 8px;
 }
 
 .ip-trending-link {
