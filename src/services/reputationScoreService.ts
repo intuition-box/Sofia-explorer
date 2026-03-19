@@ -75,12 +75,11 @@ export function computeReputationProfile(
     )
     const platformCount = domainPlatforms.length
 
-    const relevantNiches = domain.categories
-      .flatMap((c) => c.niches)
-      .filter((n) => selectedNiches.includes(n.id))
+    const relevantCategories = domain.categories
+      .filter((c) => selectedNiches.includes(c.id))
 
-    const topNiches = relevantNiches
-      .map((n) => generateNicheScore(domain.id, n.id, platformCount))
+    const topNiches = relevantCategories
+      .map((c) => generateNicheScore(domain.id, c.id, platformCount))
       .sort((a, b) => b.score - a.score)
       .slice(0, 5)
 

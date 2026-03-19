@@ -16,6 +16,7 @@ export interface Niche {
 export interface Category {
   id: string
   label: string
+  termId?: string
   niches: Niche[]
 }
 

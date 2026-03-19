@@ -39,7 +39,8 @@ export default function PositionBoardDialog({
   walletAddress,
 }: PositionBoardDialogProps) {
   // Prefetch data on mount — no need to wait for open
-  const { positions, loading: posLoading } = useClaimPositions(termId, 20)
+  const { positions: supportPositions, loading: supportPosLoading } = useClaimPositions(termId, 100)
+  const { positions: opposePositions, loading: opposePosLoading } = useClaimPositions(counterTermId, 100)
   const { stats, loading: statsLoading, fetchStats } = useVaultTooltip()
 
   useEffect(() => {
@@ -49,7 +50,7 @@ export default function PositionBoardDialog({
   const cart = useCart()
 
   const userRank = walletAddress
-    ? positions.findIndex((p) => p.accountId.toLowerCase() === walletAddress.toLowerCase()) + 1
+    ? supportPositions.findIndex((p) => p.accountId.toLowerCase() === walletAddress.toLowerCase()) + 1
     : 0
 
   // On-chain position
@@ -78,7 +79,7 @@ export default function PositionBoardDialog({
     cart.addItem(item)
   }
 
-  const isLoading = posLoading || (statsLoading && !stats)
+  const isLoading = supportPosLoading || opposePosLoading || (statsLoading && !stats)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -162,40 +163,73 @@ export default function PositionBoardDialog({
               </div>
             )}
 
-            {/* Leaderboard */}
-            <div className="pbd-leaderboard">
-              <div className="pbd-lb-header">
-                <span className="pbd-lb-col-rank">#</span>
-                <span className="pbd-lb-col-user">User</span>
-                <span className="pbd-lb-col-shares">Shares</span>
+            {/* Dual Leaderboards */}
+            <div className="pbd-dual-boards">
+              {/* Support leaderboard */}
+              <div className="pbd-leaderboard">
+                <div className="pbd-lb-section-title" style={{ color: '#22C55E' }}>
+                  <TrendingUp className="h-3.5 w-3.5" /> Support
+                </div>
+                <div className="pbd-lb-header">
+                  <span className="pbd-lb-col-rank">#</span>
+                  <span className="pbd-lb-col-user">User</span>
+                  <span className="pbd-lb-col-shares">Shares</span>
+                </div>
+                {supportPositions.length === 0 ? (
+                  <div className="pbd-lb-empty">No positions yet</div>
+                ) : (
+                  <div className="pbd-lb-rows">
+                    {supportPositions.map((pos, i) => {
+                      const isYou = walletAddress && pos.accountId.toLowerCase() === walletAddress.toLowerCase()
+                      return (
+                        <div key={`${pos.accountId}-${pos.curveId}`} className={`pbd-lb-row ${isYou ? 'pbd-lb-row--you' : ''}`}>
+                          <span className={`pbd-lb-col-rank ${i === 0 ? 'pbd-lb-rank-gold' : ''}`}>{i + 1}</span>
+                          <span className="pbd-lb-col-user">
+                            {pos.label}
+                                                        <span className={`pbd-curve-badge ${pos.curveId === 2 ? 'pbd-curve-badge--exp' : ''}`}>
+                              {pos.curveId === 1 ? 'Linear' : 'Expo'}
+                            </span>
+                          </span>
+                          <span className="pbd-lb-col-shares">{formatEth(pos.shares)}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
 
-              {positions.length === 0 ? (
-                <div className="pbd-lb-empty">No positions yet</div>
-              ) : (
-                <div className="pbd-lb-rows">
-                  {positions.map((pos, i) => {
-                    const isYou = walletAddress && pos.accountId.toLowerCase() === walletAddress.toLowerCase()
-                    return (
-                      <div
-                        key={pos.accountId}
-                        className={`pbd-lb-row ${isYou ? 'pbd-lb-row--you' : ''}`}
-                      >
-                        <span className={`pbd-lb-col-rank ${i === 0 ? 'pbd-lb-rank-gold' : ''}`}>
-                          {i + 1}
-                        </span>
-                        <span className="pbd-lb-col-user">
-                          {pos.label}
-                          {isYou && <span className="pbd-lb-you-tag">You</span>}
-                        </span>
-                        <span className="pbd-lb-col-shares">
-                          {formatEth(pos.shares)}
-                        </span>
-                      </div>
-                    )
-                  })}
+              {/* Oppose leaderboard */}
+              <div className="pbd-leaderboard">
+                <div className="pbd-lb-section-title" style={{ color: '#EF4444' }}>
+                  <TrendingDown className="h-3.5 w-3.5" /> Oppose
                 </div>
-              )}
+                <div className="pbd-lb-header">
+                  <span className="pbd-lb-col-rank">#</span>
+                  <span className="pbd-lb-col-user">User</span>
+                  <span className="pbd-lb-col-shares">Shares</span>
+                </div>
+                {opposePositions.length === 0 ? (
+                  <div className="pbd-lb-empty">No positions yet</div>
+                ) : (
+                  <div className="pbd-lb-rows">
+                    {opposePositions.map((pos, i) => {
+                      const isYou = walletAddress && pos.accountId.toLowerCase() === walletAddress.toLowerCase()
+                      return (
+                        <div key={`${pos.accountId}-${pos.curveId}`} className={`pbd-lb-row ${isYou ? 'pbd-lb-row--you' : ''}`}>
+                          <span className={`pbd-lb-col-rank ${i === 0 ? 'pbd-lb-rank-gold' : ''}`}>{i + 1}</span>
+                          <span className="pbd-lb-col-user">
+                            {pos.label}
+                                                        <span className={`pbd-curve-badge ${pos.curveId === 2 ? 'pbd-curve-badge--exp' : ''}`}>
+                              {pos.curveId === 1 ? 'Linear' : 'Expo'}
+                            </span>
+                          </span>
+                          <span className="pbd-lb-col-shares">{formatEth(pos.shares)}</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Support / Oppose actions */}

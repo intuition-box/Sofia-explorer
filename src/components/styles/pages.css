@@ -14,6 +14,8 @@
 
 /* ── Vote page ── */
 .vp-claim-card { padding: 28px; display: flex; flex-direction: column; gap: 20px; }
+.vp-claim-card--hover { cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.vp-claim-card--hover:hover { transform: scale(1.01); box-shadow: 0 4px 16px color-mix(in oklab, var(--foreground) 8%, transparent); }
 .vp-claim-list-card { padding: 16px; }
 
 .vp-tabs {

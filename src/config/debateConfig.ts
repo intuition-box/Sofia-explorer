@@ -10,6 +10,24 @@
 
 export type ClaimCategory = 'tech' | 'web3' | 'culture' | 'geopolitics' | 'energy'
 
+/** Map each interest domain to the claim category it feeds */
+export const DOMAIN_TO_CLAIM_CATEGORY: Record<string, ClaimCategory> = {
+  'tech-dev': 'tech',
+  'design-creative': 'tech',
+  'science': 'tech',
+  'entrepreneurship': 'tech',
+  'web3-crypto': 'web3',
+  'music-audio': 'culture',
+  'gaming': 'culture',
+  'video-cinema': 'culture',
+  'performing-arts': 'culture',
+  'food-lifestyle': 'culture',
+  'literature': 'culture',
+  'personal-dev': 'culture',
+  'sport-health': 'culture',
+  'nature-environment': 'energy',
+}
+
 export const CLAIM_CATEGORIES: { id: ClaimCategory; label: string; color: string }[] = [
   { id: 'tech', label: 'Tech', color: '#3B82F6' },
   { id: 'web3', label: 'Web3', color: '#8B5CF6' },
@@ -54,7 +72,7 @@ export const SOFIA_CLAIMS: ClaimConfig[] = [
 
 export const INTUITION_FEATURED_CLAIMS: ClaimConfig[] = [
   // ── Tech ──
-  { tripleTermId: "0xea977b59434a8ce095928c41063e0d891254aa69ecb6187461df5e2966d1104c", subject: "TikTok", predicate: "is better than", object: "Instagram", category: "tech" },
+  { tripleTermId: "0xea977b59434a8ce095928c41063e0d891254aa69ecb6187461df5e2966d1104c", subject: "TikTok", predicate: "is better than", object: "Instagram", category: "culture" },
   { tripleTermId: "0x4df4347905a58880b5f2def324d5fc755441d297c1857bd4b1a09ac0912c6a4d", subject: "Privacy", predicate: "is more important than", object: "safety", category: "tech" },
   { tripleTermId: "0x8065d622d20acd7dc0f83ec6e3af39032c9b2aa8f2bb4092ea7324fc3a42d9bd", subject: "AI", predicate: "harms", object: "human cognition", category: "tech" },
   { tripleTermId: "0xfb16f96b190c4808b441a7263e25371978256a027ba0108334be2e57059c0986", subject: "Unchecked AI development", predicate: "threatens", object: "public safety", category: "tech" },

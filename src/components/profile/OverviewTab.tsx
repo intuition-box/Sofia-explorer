@@ -34,14 +34,13 @@ export default function OverviewTab({
     .map((domainId) => {
       const domain = DOMAIN_BY_ID.get(domainId)
       if (!domain) return null
-      const activeNiches = domain.categories
-        .flatMap((c) => c.niches)
-        .filter((n) => selectedNiches.includes(n.id))
-      return { domain, activeNiches, categories: domain.categories }
+      const activeCategories = domain.categories
+        .filter((c) => selectedNiches.includes(c.id))
+      return { domain, activeCategories, categories: domain.categories }
     })
     .filter(Boolean) as Array<{
     domain: { id: string; label: string; color: string }
-    activeNiches: Array<{ id: string; label: string }>
+    activeCategories: Array<{ id: string; label: string }>
     categories: Array<{
       id: string
       label: string
@@ -78,7 +77,7 @@ export default function OverviewTab({
               </Button>
             </div>
             <div className="space-y-2">
-              {nichesByDomain.map(({ domain, activeNiches, categories }) => {
+              {nichesByDomain.map(({ domain, activeCategories, categories }) => {
                 const isExpanded = expandedDomain === domain.id
                 return (
                   <Card key={domain.id} className="overflow-hidden" style={{ borderLeftColor: domain.color, borderLeftWidth: 3 }}>
@@ -88,37 +87,30 @@ export default function OverviewTab({
                     >
                       <span className="font-medium text-base">{domain.label}</span>
                       <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="text-xs">{activeNiches.length} niches</Badge>
+                        <Badge variant="secondary" className="text-xs">{activeCategories.length} categories</Badge>
                         <ChevronRight className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
                       </div>
                     </button>
 
-                    {!isExpanded && activeNiches.length > 0 && (
+                    {!isExpanded && activeCategories.length > 0 && (
                       <div className="px-3 pb-3 flex flex-wrap gap-1">
-                        {activeNiches.map((n) => (
-                          <Badge key={n.id} variant="default" className="text-xs">{n.label}</Badge>
+                        {activeCategories.map((c) => (
+                          <Badge key={c.id} variant="default" className="text-xs">{c.label}</Badge>
                         ))}
                       </div>
                     )}
 
                     {isExpanded && (
-                      <div className="px-3 pb-3 space-y-3">
+                      <div className="px-3 pb-3 flex flex-wrap gap-1">
                         {categories.map((cat) => (
-                          <div key={cat.id}>
-                            <h4 className="text-xs font-medium text-muted-foreground mb-1">{cat.label}</h4>
-                            <div className="flex flex-wrap gap-1">
-                              {cat.niches.map((n) => (
-                                <Badge
-                                  key={n.id}
-                                  variant={selectedNiches.includes(n.id) ? 'default' : 'outline'}
-                                  className="text-xs cursor-pointer"
-                                  onClick={() => onToggleNiche(n.id)}
-                                >
-                                  {n.label}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
+                          <Badge
+                            key={cat.id}
+                            variant={selectedNiches.includes(cat.id) ? 'default' : 'outline'}
+                            className="text-xs cursor-pointer"
+                            onClick={() => onToggleNiche(cat.id)}
+                          >
+                            {cat.label}
+                          </Badge>
                         ))}
                       </div>
                     )}

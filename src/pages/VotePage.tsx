@@ -1,12 +1,16 @@
 import { useMemo, useState } from 'react'
 import { formatEther } from 'viem'
+import { usePrivy } from '@privy-io/react-auth'
 import { Card } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
 import { ThumbsUp, ThumbsDown, ChevronRight, ChevronLeft } from 'lucide-react'
 import SofiaLoader from '../components/ui/SofiaLoader'
 import { useDebateClaims } from '../hooks/useDebateClaims'
+import { usePrefetchClaimDialogs } from '../hooks/useClaimPositions'
+import { useCart } from '../hooks/useCart'
 import { CLAIM_CATEGORIES, type ClaimCategory } from '../config/debateConfig'
+import PositionBoardDialog from '../components/profile/PositionBoardDialog'
 import PageHeader from '../components/PageHeader'
 import { PAGE_COLORS } from '../config/pageColors'
 import '@/components/styles/pages.css'
@@ -21,10 +25,16 @@ function formatMarketCap(value: bigint): string {
 
 export default function VotePage() {
   const { claims, loading, error } = useDebateClaims()
+  const { user } = usePrivy()
+  const walletAddress = user?.wallet?.address
+  const cart = useCart()
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [votes, setVotes] = useState<Record<string, 'support' | 'oppose'>>({})
   const [activeTab, setActiveTab] = useState<ClaimCategory | 'all'>('all')
+  const [dialogOpen, setDialogOpen] = useState(false)
   const pc = PAGE_COLORS['/vote']
+
+  // Prefetch all claim dialog data so modals open instantly
+  usePrefetchClaimDialogs(claims, walletAddress)
 
   const filtered = useMemo(() => {
     if (activeTab === 'all') return claims
@@ -68,13 +78,25 @@ export default function VotePage() {
     claim && totalMarketCap > 0n
       ? Math.round(Number((claim.supportMarketCap * 100n) / totalMarketCap))
       : 50
-  const userVote = claim ? votes[claim.id] : undefined
   const title = claim ? `${claim.subject} ${claim.predicate} ${claim.object}` : ''
   const categoryInfo = claim?.category ? CLAIM_CATEGORIES.find((c) => c.id === claim.category) : undefined
+  const userVote = claim
+    ? (cart.items.find((i) => i.termId === claim.termId)?.side
+      ?? cart.items.find((i) => i.termId === claim.counterTermId)?.side)
+    : undefined
 
   const handleVote = (type: 'support' | 'oppose') => {
     if (!claim) return
-    setVotes((prev) => ({ ...prev, [claim.id]: type }))
+    const termId = type === 'support' ? claim.termId : claim.counterTermId
+    cart.addItem({
+      id: `${termId}-${type}`,
+      side: type,
+      termId,
+      intention: type === 'support' ? 'Support' : 'Oppose',
+      title,
+      favicon: '',
+      intentionColor: type === 'support' ? '#22C55E' : '#EF4444',
+    })
   }
 
   const next = () => setCurrentIndex((i) => Math.min(i + 1, filtered.length - 1))
@@ -130,7 +152,7 @@ export default function VotePage() {
 
           {/* Claim card */}
           {claim && (
-            <Card className="vp-claim-card">
+            <Card className="vp-claim-card vp-claim-card--hover" onClick={() => setDialogOpen(true)}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary">{totalPositions} positions</Badge>
@@ -169,29 +191,46 @@ export default function VotePage() {
                 <Button
                   className="flex-1"
                   variant="outline"
+                  disabled={!!userVote && userVote !== 'support'}
                   style={userVote === 'support' ? { borderColor: '#22C55E', color: '#22C55E', background: 'rgba(34,197,94,0.1)' } : undefined}
-                  onClick={() => handleVote('support')}
+                  onClick={(e) => { e.stopPropagation(); handleVote('support') }}
                 >
                   <ThumbsUp className="h-4 w-4 mr-2" />
-                  Support
+                  {userVote === 'support' ? 'Supported' : 'Support'}
                 </Button>
                 <Button
                   className="flex-1"
                   variant="outline"
+                  disabled={!!userVote && userVote !== 'oppose'}
                   style={userVote === 'oppose' ? { borderColor: '#EF4444', color: '#EF4444', background: 'rgba(239,68,68,0.1)' } : undefined}
-                  onClick={() => handleVote('oppose')}
+                  onClick={(e) => { e.stopPropagation(); handleVote('oppose') }}
                 >
                   <ThumbsDown className="h-4 w-4 mr-2" />
-                  Oppose
+                  {userVote === 'oppose' ? 'Opposed' : 'Oppose'}
                 </Button>
               </div>
 
               {userVote && (
                 <p className="text-xs text-center text-muted-foreground">
-                  You voted to {userVote} this claim.
+                  Added to cart as {userVote}.
                 </p>
               )}
             </Card>
+          )}
+
+          {/* Claim detail dialog */}
+          {claim && (
+            <PositionBoardDialog
+              open={dialogOpen}
+              onOpenChange={setDialogOpen}
+              termId={claim.termId}
+              counterTermId={claim.counterTermId}
+              title={title}
+              favicon=""
+              intention={categoryInfo?.label || 'Claim'}
+              intentionColor={categoryInfo?.color || '#8B5CF6'}
+              walletAddress={walletAddress}
+            />
           )}
         </>
       )}
@@ -204,7 +243,7 @@ export default function VotePage() {
           const pct = cTotal > 0n
             ? Math.round(Number((c.supportMarketCap * 100n) / cTotal))
             : 50
-          const voted = votes[c.id]
+          const voted = cart.items.find((ci) => ci.termId === c.termId)?.side
           const catInfo = c.category ? CLAIM_CATEGORIES.find((cat) => cat.id === c.category) : undefined
           return (
             <Card

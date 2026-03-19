@@ -20,6 +20,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "github",
     color: "#4472C4",
     authType: "oauth2",
+    website: "https://github.com",
     apiBaseUrl: "https://api.github.com",
     scopes: ["read:user", "repo"],
     dataPoints: [
@@ -58,6 +59,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "gitlab",
     color: "#FC6D26",
     authType: "oauth2",
+    website: "https://gitlab.com",
     apiBaseUrl: "https://gitlab.com/api/v4",
     scopes: ["read_api"],
     dataPoints: [
@@ -105,6 +107,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "stackoverflow",
     color: "#F48024",
     authType: "oauth2",
+    website: "https://stackoverflow.com",
     apiBaseUrl: "https://api.stackexchange.com/2.3",
     dataPoints: [
       "reputation",
@@ -165,6 +168,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "kaggle",
     color: "#20BEFF",
     authType: "oauth2",
+    website: "https://kaggle.com",
     apiBaseUrl: "https://www.kaggle.com/api/v1",
     dataPoints: [
       "competitions",
@@ -235,6 +239,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "replit",
     color: "#F26207",
     authType: "oauth2",
+    website: "https://replit.com",
     apiBaseUrl: "https://replit.com/api",
     dataPoints: [
       "projets-crees",
@@ -283,6 +288,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "hashnode",
     color: "#2962FF",
     authType: "oauth2",
+    website: "https://hashnode.com",
     apiBaseUrl: "https://gql.hashnode.com",
     dataPoints: [
       "articles",
@@ -336,6 +342,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "leetcode",
     color: "#FFA116",
     authType: "public",
+    website: "https://leetcode.com",
     apiBaseUrl: "https://leetcode.com/graphql",
     dataPoints: [
       "problemes-resolus",
@@ -358,6 +365,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "hackerrank",
     color: "#00EA64",
     authType: "oauth2",
+    website: "https://hackerrank.com",
     apiBaseUrl: "https://www.hackerrank.com/rest",
     dataPoints: [
       "certifications",
@@ -379,6 +387,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "vercel",
     color: "#000000",
     authType: "oauth2",
+    website: "https://vercel.com",
     apiBaseUrl: "https://api.vercel.com",
     dataPoints: [
       "projets-deployes",
@@ -404,6 +413,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "netlify",
     color: "#00C7B7",
     authType: "oauth2",
+    website: "https://netlify.com",
     apiBaseUrl: "https://api.netlify.com/api/v1",
     dataPoints: [
       "sites-deployes",
@@ -452,6 +462,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "figma",
     color: "#F24E1E",
     authType: "oauth2",
+    website: "https://figma.com",
     apiBaseUrl: "https://api.figma.com/v1",
     scopes: ["files:read"],
     dataPoints: [
@@ -510,6 +521,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "dribbble",
     color: "#EA4C89",
     authType: "oauth2",
+    website: "https://dribbble.com",
     apiBaseUrl: "https://api.dribbble.com/v2",
     dataPoints: [
       "shots-postes",
@@ -536,6 +548,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "deviantart",
     color: "#00E59B",
     authType: "oauth2",
+    website: "https://deviantart.com",
     apiBaseUrl: "https://www.deviantart.com/api/v1/oauth2",
     dataPoints: [
       "deviations",
@@ -564,6 +577,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "sketchfab",
     color: "#1CAAD9",
     authType: "oauth2",
+    website: "https://sketchfab.com",
     apiBaseUrl: "https://api.sketchfab.com/v3",
     dataPoints: [
       "modeles-3d",
@@ -591,6 +605,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "unsplash",
     color: "#000000",
     authType: "oauth2",
+    website: "https://unsplash.com",
     apiBaseUrl: "https://api.unsplash.com",
     dataPoints: [
       "photos-uploadees",
@@ -619,6 +634,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "flickr",
     color: "#0063DC",
     authType: "oauth1",
+    website: "https://flickr.com",
     apiBaseUrl: "https://api.flickr.com/services/rest",
     dataPoints: [
       "photos-publiees",
@@ -646,6 +662,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "500px",
     color: "#0099E5",
     authType: "oauth2",
+    website: "https://500px.com",
     apiBaseUrl: "https://api.500px.com/v1",
     dataPoints: [
       "photos",
@@ -701,6 +718,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "wattpad",
     color: "#FF6122",
     authType: "oauth2",
+    website: "https://wattpad.com",
     apiBaseUrl: "https://api.wattpad.com/v4",
     dataPoints: [
       "histoires-publiees",
@@ -731,6 +749,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "spotify",
     color: "#1DB954",
     authType: "oauth2",
+    website: "https://spotify.com",
     authUrl: "https://accounts.spotify.com/authorize",
     tokenUrl: "https://accounts.spotify.com/api/token",
     apiBaseUrl: "https://api.spotify.com/v1",
@@ -801,6 +820,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "soundcloud",
     color: "#FF5500",
     authType: "oauth2",
+    website: "https://soundcloud.com",
     apiBaseUrl: "https://api.soundcloud.com",
     dataPoints: [
       "tracks-uploadees",
@@ -830,6 +850,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "mixcloud",
     color: "#5000FF",
     authType: "oauth2",
+    website: "https://mixcloud.com",
     apiBaseUrl: "https://api.mixcloud.com",
     dataPoints: [
       "mixes-uploades",
@@ -858,6 +879,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "deezer",
     color: "#00C7F2",
     authType: "oauth2",
+    website: "https://deezer.com",
     apiBaseUrl: "https://api.deezer.com",
     dataPoints: [
       "playlists",
@@ -884,6 +906,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "discogs",
     color: "#333333",
     authType: "oauth1",
+    website: "https://discogs.com",
     apiBaseUrl: "https://api.discogs.com",
     dataPoints: [
       "collection-vinyles",
@@ -1103,6 +1126,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "blizzard",
     color: "#00AEFF",
     authType: "oauth2",
+    website: "https://blizzard.com",
     apiBaseUrl: "https://eu.api.blizzard.com",
     dataPoints: [
       "personnages",
@@ -1173,6 +1197,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "boardgamegeek",
     color: "#FF5100",
     authType: "public",
+    website: "https://boardgamegeek.com",
     apiBaseUrl: "https://boardgamegeek.com/xmlapi2",
     dataPoints: [
       "collection",
@@ -1299,6 +1324,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "ethereum",
     color: "#627EEA",
     authType: "siwe",
+    website: "https://ethereum.org",
     dataPoints: [
       "transactions",
       "protocoles-interagis",
@@ -1515,6 +1541,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "coinbase",
     color: "#0052FF",
     authType: "oauth2",
+    website: "https://coinbase.com",
     apiBaseUrl: "https://api.coinbase.com/v2",
     scopes: ["wallet:user:read"],
     dataPoints: [
@@ -1572,6 +1599,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "strava",
     color: "#FC4C02",
     authType: "oauth2",
+    website: "https://strava.com",
     authUrl: "https://www.strava.com/oauth/authorize",
     tokenUrl: "https://www.strava.com/oauth/token",
     apiBaseUrl: "https://www.strava.com/api/v3",
@@ -1606,6 +1634,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "garmin",
     color: "#007CC3",
     authType: "oauth2",
+    website: "https://garmin.com",
     apiBaseUrl: "https://apis.garmin.com",
     dataPoints: [
       "pas",
@@ -1633,6 +1662,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "polar",
     color: "#D40000",
     authType: "oauth2",
+    website: "https://polar.com",
     apiBaseUrl: "https://www.polaraccesslink.com/v3",
     dataPoints: [
       "entrainements",
@@ -1680,6 +1710,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "komoot",
     color: "#6AA127",
     authType: "oauth2",
+    website: "https://komoot.com",
     apiBaseUrl: "https://api.komoot.de/v007",
     dataPoints: [
       "randonnees",
@@ -1707,6 +1738,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "fitbit",
     color: "#00B0B9",
     authType: "oauth2",
+    website: "https://fitbit.com",
     apiBaseUrl: "https://api.fitbit.com/1.2",
     dataPoints: [
       "pas",
@@ -1737,6 +1769,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "reddit",
     color: "#FF4500",
     authType: "oauth2",
+    website: "https://reddit.com",
     authUrl: "https://www.reddit.com/api/v1/authorize",
     tokenUrl: "https://www.reddit.com/api/v1/access_token",
     apiBaseUrl: "https://oauth.reddit.com",
@@ -1777,6 +1810,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "discord",
     color: "#5865F2",
     authType: "oauth2",
+    website: "https://discord.com",
     authUrl: "https://discord.com/api/oauth2/authorize",
     tokenUrl: "https://discord.com/api/oauth2/token",
     apiBaseUrl: "https://discord.com/api/v10",
@@ -1863,6 +1897,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "tumblr",
     color: "#001935",
     authType: "oauth1",
+    website: "https://tumblr.com",
     apiBaseUrl: "https://api.tumblr.com/v2",
     dataPoints: [
       "posts",
@@ -1889,6 +1924,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "pinterest",
     color: "#E60023",
     authType: "oauth2",
+    website: "https://pinterest.com",
     apiBaseUrl: "https://api.pinterest.com/v5",
     dataPoints: [
       "boards",
@@ -1919,6 +1955,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "youtube",
     color: "#FF0000",
     authType: "oauth2",
+    website: "https://youtube.com",
     authUrl: "https://accounts.google.com/o/oauth2/v2/auth",
     tokenUrl: "https://oauth2.googleapis.com/token",
     apiBaseUrl: "https://www.googleapis.com/youtube/v3",
@@ -1989,6 +2026,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "vimeo",
     color: "#1AB7EA",
     authType: "oauth2",
+    website: "https://vimeo.com",
     apiBaseUrl: "https://api.vimeo.com",
     dataPoints: [
       "videos-uploadees",
@@ -2016,6 +2054,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "dailymotion",
     color: "#00AAFF",
     authType: "oauth2",
+    website: "https://dailymotion.com",
     apiBaseUrl: "https://api.dailymotion.com",
     dataPoints: [
       "videos-publiees",
@@ -2259,6 +2298,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "producthunt",
     color: "#DA552F",
     authType: "oauth2",
+    website: "https://producthunt.com",
     apiBaseUrl: "https://api.producthunt.com/v2/api/graphql",
     dataPoints: [
       "produits-lances",
@@ -2313,6 +2353,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "todoist",
     color: "#E44332",
     authType: "oauth2",
+    website: "https://todoist.com",
     apiBaseUrl: "https://api.todoist.com/rest/v2",
     dataPoints: [
       "taches-completees",
@@ -2369,6 +2410,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "untappd",
     color: "#FFC000",
     authType: "oauth2",
+    website: "https://untappd.com",
     apiBaseUrl: "https://api.untappd.com/v4",
     dataPoints: [
       "bieres-checkees",
@@ -2392,6 +2434,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "vivino",
     color: "#A61F35",
     authType: "oauth2",
+    website: "https://vivino.com",
     dataPoints: [
       "vins-notes",
       "cave",
@@ -2438,6 +2481,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "yelp",
     color: "#D32323",
     authType: "oauth2",
+    website: "https://yelp.com",
     apiBaseUrl: "https://api.yelp.com/v3",
     dataPoints: [
       "reviews-postees",
@@ -2466,6 +2510,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "librarything",
     color: "#251A15",
     authType: "oauth2",
+    website: "https://librarything.com",
     apiBaseUrl: "https://www.librarything.com/services/rest",
     dataPoints: [
       "catalogue-livres",
@@ -2518,6 +2563,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "feedly",
     color: "#2BB24C",
     authType: "oauth2",
+    website: "https://feedly.com",
     apiBaseUrl: "https://cloud.feedly.com/v3",
     dataPoints: [
       "flux-rss",
@@ -2565,28 +2611,6 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     integrationPhase: 2,
     notes:
       "Signal biologiste amateur irrefutable.",
-    isPublicApi: true,
-    isFreeAccess: true,
-  },
-  {
-    id: "ebird",
-    name: "eBird",
-    icon: "ebird",
-    color: "#4C8C2B",
-    authType: "oauth2",
-    website: "https://ebird.org",
-    apiBaseUrl: "https://api.ebird.org/v2",
-    dataPoints: [
-      "observations-oiseaux",
-      "listes",
-      "especes",
-      "zones",
-    ],
-    targetDomains: ["nature-environment"],
-    targetNiches: ["birdwatching"],
-    signalConfidence: "very_high",
-    integrationPhase: 2,
-    notes: "Niche ultra-precise. Signal ornithologiste.",
     isPublicApi: true,
     isFreeAccess: true,
   },
@@ -2675,6 +2699,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "meetup",
     color: "#F64060",
     authType: "oauth2",
+    website: "https://meetup.com",
     apiBaseUrl: "https://api.meetup.com",
     dataPoints: [
       "groupes-rejoints",
@@ -2704,6 +2729,7 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     icon: "eventbrite",
     color: "#F05537",
     authType: "oauth2",
+    website: "https://eventbrite.com",
     apiBaseUrl: "https://www.eventbriteapi.com/v3",
     dataPoints: [
       "evenements-crees",
@@ -3269,27 +3295,6 @@ export const PLATFORM_CATALOG: PlatformConfig[] = [
     notes: "API riche. Signal collaboration et communauté.",
     isPublicApi: true,
     isFreeAccess: true,
-  },
-  {
-    id: "zoom",
-    name: "Zoom",
-    icon: "zoom",
-    color: "#2D8CFF",
-    authType: "oauth2",
-    website: "https://zoom.us",
-    apiBaseUrl: "https://api.zoom.us/v2",
-    dataPoints: ["meetings", "webinars", "participants"],
-    targetDomains: ["entrepreneurship", "personal-dev"],
-    targetNiches: [
-      "speaking-keynotes",
-      "executive-coaching",
-      "life-coaching",
-    ],
-    signalConfidence: "medium",
-    integrationPhase: 5,
-    notes: "API Server-to-Server. Signal events et consulting.",
-    isPublicApi: false,
-    isFreeAccess: false,
   },
 
   // =========================================================================

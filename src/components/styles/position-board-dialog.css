@@ -1,6 +1,6 @@
 /* ── PositionBoardDialog ── */
 .pbd-content {
-  max-width: 480px;
+  max-width: 580px;
   max-height: 80vh;
   display: flex;
   flex-direction: column;
@@ -67,6 +67,13 @@
   margin-left: auto;
 }
 
+.pbd-metric-price {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  margin-left: auto;
+}
+
 .pbd-metric--pnl,
 .pbd-metric--rank {
   grid-column: span 1;
@@ -89,6 +96,28 @@
   color: var(--muted-foreground);
   font-size: 11px;
   padding: 8px;
+}
+
+/* ── Dual boards layout ── */
+.pbd-dual-boards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.pbd-lb-section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 8px 12px;
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 30%, transparent);
 }
 
 /* ── Leaderboard ── */
@@ -119,6 +148,10 @@
 .pbd-lb-rows {
   overflow-y: auto;
   max-height: 320px;
+  scrollbar-width: none;
+}
+.pbd-lb-rows::-webkit-scrollbar {
+  display: none;
 }
 
 .pbd-lb-row {
@@ -182,6 +215,20 @@
   background: color-mix(in oklab, var(--primary) 10%, transparent);
   flex-shrink: 0;
 }
+
+.pbd-curve-badge {
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  color: var(--muted-foreground);
+  background: color-mix(in oklab, var(--muted) 60%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 40%, transparent);
+}
+.pbd-curve-badge--exp {}
 
 .pbd-lb-col-shares {
   min-width: 60px;

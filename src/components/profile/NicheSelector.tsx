@@ -34,8 +34,7 @@ export default function NicheSelector({
         <div className="space-y-6 pr-4">
           {domains.map((domain) => {
             const domainNicheCount = domain.categories
-              .flatMap((c) => c.niches)
-              .filter((n) => selectedNiches.includes(n.id)).length
+              .filter((c) => selectedNiches.includes(c.id)).length
 
             return (
               <Card key={domain.id} className="ns-card">
@@ -46,26 +45,21 @@ export default function NicheSelector({
                   )}
                 </div>
 
-                {domain.categories.map((category, catIdx) => (
-                  <div key={category.id}>
-                    {catIdx > 0 && <div className="ns-divider" />}
-                    <p className="text-xs font-medium text-muted-foreground ns-cat-label">
-                      {category.label}
-                    </p>
-                    <div className="flex flex-wrap ns-niche-grid">
-                      {category.niches.map((niche) => (
-                        <Badge
-                          key={niche.id}
-                          variant={selectedNiches.includes(niche.id) ? 'default' : 'outline'}
-                          className="cursor-pointer text-xs"
-                          onClick={() => onToggleNiche(niche.id)}
-                        >
-                          {niche.label}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                <div className="ns-cat-grid">
+                  {domain.categories.map((category) => {
+                    const isSelected = selectedNiches.includes(category.id)
+                    return (
+                      <Card
+                        key={category.id}
+                        className={`ns-cat-card ${isSelected ? 'ns-cat-selected' : ''}`}
+                        style={isSelected ? { borderColor: domain.color, background: `${domain.color}12` } : undefined}
+                        onClick={() => onToggleNiche(category.id)}
+                      >
+                        <span className="ns-cat-name">{category.label}</span>
+                      </Card>
+                    )
+                  })}
+                </div>
               </Card>
             )
           })}
