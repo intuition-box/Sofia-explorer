@@ -17,5 +17,12 @@ export default defineConfig({
   server: {
     port: 5173,
     open: true,
+    proxy: {
+      '/v1/graphql': {
+        target: 'https://mainnet.intuition.sh',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
 })

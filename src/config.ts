@@ -2,7 +2,7 @@ import type { Address } from 'viem'
 
 // ── Network ──
 export const RPC_URL = 'https://rpc.intuition.systems'
-export const GRAPHQL_URL = 'https://mainnet.intuition.sh/v1/graphql'
+export const GRAPHQL_URL = import.meta.env.DEV ? '/v1/graphql' : 'https://mainnet.intuition.sh/v1/graphql'
 export const EXPLORER_URL = 'https://explorer.intuition.systems'
 
 // ── Sofia Proxy Contract ──

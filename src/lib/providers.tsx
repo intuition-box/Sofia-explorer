@@ -1,8 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { PrivyProvider } from '@privy-io/react-auth'
 import { BrowserRouter } from 'react-router-dom'
-import { PRIVY_APP_ID } from '../config'
+import { configureClient } from '@0xsofia/dashboard-graphql'
+import { PRIVY_APP_ID, GRAPHQL_URL } from '../config'
 import { CartProvider } from '../hooks/useCart'
+
+// Use proxied URL in dev to avoid CORS
+configureClient({ apiUrl: GRAPHQL_URL })
 
 const queryClient = new QueryClient({
   defaultOptions: {

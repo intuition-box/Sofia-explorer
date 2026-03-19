@@ -44,12 +44,12 @@
 }
 
 .lp-logo img {
-  width: 48px;
-  height: 48px;
+  width: 72px;
+  height: 72px;
 }
 
 .lp-logo h1 {
-  font-size: 32px;
+  font-size: 48px;
   font-weight: 900;
   letter-spacing: -0.02em;
   color: var(--foreground);

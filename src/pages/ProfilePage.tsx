@@ -5,9 +5,11 @@ import { usePlatformConnections } from '../hooks/usePlatformConnections'
 import { useReputationScores } from '../hooks/useReputationScores'
 import { useUserActivity } from '../hooks/useUserActivity'
 import { useTopClaims } from '../hooks/useTopClaims'
+import { useEthccData } from '../hooks/useEthccData'
 import LastActivitySection from '../components/profile/LastActivitySection'
 import InterestsGrid from '../components/profile/InterestsGrid'
 import TopClaimsSection from '../components/profile/TopClaimsSection'
+import EthccConnectCard from '../components/profile/EthccConnectCard'
 import { Card } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Wallet } from 'lucide-react'
@@ -28,6 +30,7 @@ export default function ProfilePage() {
   const domainScores = scores?.domains ?? []
   const { items: activityItems, loading: activityLoading } = useUserActivity(address || undefined)
   const { claims: topClaims, loading: claimsLoading } = useTopClaims(activityItems, address || undefined)
+  const { ethccWallet, signals: ethccSignals, loading: ethccLoading, setWallet, clearWallet } = useEthccData()
 
   if (!authenticated) {
     return (
@@ -79,6 +82,17 @@ export default function ProfilePage() {
             />
           </section>
         )}
+
+        {/* EthCC Wallet */}
+        <section className="pp-section">
+          <EthccConnectCard
+            ethccWallet={ethccWallet}
+            signals={ethccSignals}
+            loading={ethccLoading}
+            onConnect={setWallet}
+            onDisconnect={clearWallet}
+          />
+        </section>
 
         {/* Interests */}
         <section className="pp-section">
