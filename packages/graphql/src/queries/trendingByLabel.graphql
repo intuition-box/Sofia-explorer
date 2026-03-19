@@ -1,6 +1,6 @@
-query GetTrendingByPredicate($predicateId: String!, $limit: Int!) {
+query GetTrendingByPredicateLabel($predicateLabel: String!, $limit: Int!) {
   triples(
-    where: { predicate_id: { _eq: $predicateId } }
+    where: { predicate: { label: { _eq: $predicateLabel } } }
     order_by: [{ positions_aggregate: { count: desc } }, { created_at: desc }]
     limit: $limit
   ) {

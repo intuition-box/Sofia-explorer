@@ -8,6 +8,15 @@
 .lb-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; }
 .lb-title { font-size: 16px; font-weight: 600; }
 .lb-tab-group { display: flex; gap: 4px; }
+.lb-tab-group button[data-active="true"] {
+  background: #FCD34D;
+  color: #1a1a1a;
+  border-color: #FCD34D;
+}
+.lb-tab-group button[data-active="true"]:hover {
+  background: #FBBF24;
+  border-color: #FBBF24;
+}
 .lb-table { width: 100%; border-collapse: collapse; white-space: nowrap; }
 .lb-border-row { border-bottom: 1px solid var(--border); }
 

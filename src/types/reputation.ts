@@ -57,6 +57,7 @@ export interface PlatformConfig {
   tokenUrl?: string
   scopes?: string[]
   apiBaseUrl?: string
+  website?: string
   dataPoints: string[]
   targetDomains: string[]
   targetNiches: string[]

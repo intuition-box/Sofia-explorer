@@ -341,10 +341,27 @@
   opacity: 1;
 }
 
+.ip-platform-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ip-platform-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
 .ip-platform-name {
   font-size: 12px;
   font-weight: 600;
   color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ip-platform-status {

@@ -71,7 +71,7 @@ export default function CartDrawer({ items, isOpen, onClose, onRemove, onClear, 
                       >
                         {item.intention}
                       </span>
-                      <span className={`text-[10px] font-bold ${item.side === 'support' ? 'text-emerald-500' : 'text-red-500'}`}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: item.side === 'support' ? '#10B981' : '#EF4444' }}>
                         {item.side === 'support' ? '▲ Support' : '▼ Oppose'}
                       </span>
                     </div>

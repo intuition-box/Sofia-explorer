@@ -31,70 +31,72 @@ export default function TrendingCard({ platform, domainLabel }: TrendingCardProp
   }, [platform, domainLabel])
 
   return (
-    <Card className="ip-trending-card" onClick={() => platform.termId && setBoardOpen(true)}>
-      <div className="ip-trending-header">
-        <img
-          src={platform.favicon}
-          alt=""
-          className="ip-trending-favicon"
-          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-        />
-        <span className="ip-trending-label">{platform.platformName}</span>
-        {platform.userPnlPct != null && (
-          <span
-            className="ip-trending-pnl"
-            style={{ color: platform.userPnlPct >= 0 ? '#10B981' : '#EF4444' }}
-          >
-            {platform.userPnlPct >= 0 ? '+' : ''}{platform.userPnlPct}%
-          </span>
-        )}
-      </div>
-      <div className="ip-trending-meta">
-        {platform.intentions.map(({ category, count, color }) => (
-          <Badge
-            key={category}
-            variant="secondary"
-            className="ip-trending-badge"
-            style={{ color, backgroundColor: `${color}15`, border: `1px solid ${color}30` }}
-          >
-            {category} {count}
-          </Badge>
-        ))}
-        <span className="ip-trending-stat"><Users className="h-3 w-3" /> {platform.totalCertifiers}</span>
-      </div>
-
-      {/* Mini position board */}
-      {positions.length > 0 && (
-        <div className="ac-positions">
-          {positions.map((pos, i) => {
-            const isYou = walletAddress && pos.accountId.toLowerCase() === walletAddress.toLowerCase()
-            return (
-              <div key={pos.accountId} className={`ac-pos-row ${isYou ? 'ac-pos-row--you' : ''}`}>
-                <span className="ac-pos-rank">#{i + 1}</span>
-                <span className="ac-pos-label">{pos.label}</span>
-                {isYou && <span className="ac-pos-you">You</span>}
-              </div>
-            )
-          })}
+    <>
+      <Card className="ip-trending-card" onClick={() => platform.termId && setBoardOpen(true)}>
+        <div className="ip-trending-header">
+          <img
+            src={platform.favicon}
+            alt=""
+            className="ip-trending-favicon"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+          />
+          <span className="ip-trending-label">{platform.platformName}</span>
+          {platform.userPnlPct != null && (
+            <span
+              className="ip-trending-pnl"
+              style={{ color: platform.userPnlPct >= 0 ? '#10B981' : '#EF4444' }}
+            >
+              {platform.userPnlPct >= 0 ? '+' : ''}{platform.userPnlPct}%
+            </span>
+          )}
         </div>
-      )}
+        <div className="ip-trending-meta">
+          {platform.intentions.map(({ category, count, color }) => (
+            <Badge
+              key={category}
+              variant="secondary"
+              className="ip-trending-badge"
+              style={{ color, backgroundColor: `${color}15`, border: `1px solid ${color}30` }}
+            >
+              {category} {count}
+            </Badge>
+          ))}
+          <span className="ip-trending-stat"><Users className="h-3 w-3" /> {platform.totalCertifiers}</span>
+        </div>
 
-      <div className="ip-trending-actions" onClick={(e) => e.stopPropagation()}>
-        <a href={`https://${platform.platformDomain}`} target="_blank" rel="noopener noreferrer" className="ip-trending-link">
-          <ExternalLink className="h-3 w-3" />
-        </a>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="ip-trending-action-btn"
-          style={{ marginLeft: 'auto', width: 26, padding: 0 }}
-          onClick={handleShare}
-        >
-          <Share2 className="h-3.5 w-3.5" />
-        </Button>
-      </div>
+        {/* Mini position board */}
+        {positions.length > 0 && (
+          <div className="ac-positions">
+            {positions.map((pos, i) => {
+              const isYou = walletAddress && pos.accountId.toLowerCase() === walletAddress.toLowerCase()
+              return (
+                <div key={pos.accountId} className={`ac-pos-row ${isYou ? 'ac-pos-row--you' : ''}`}>
+                  <span className="ac-pos-rank">#{i + 1}</span>
+                  <span className="ac-pos-label">{pos.label}</span>
+                  {isYou && <span className="ac-pos-you">You</span>}
+                </div>
+              )
+            })}
+          </div>
+        )}
 
-      {/* Full position board dialog */}
+        <div className="ip-trending-actions" onClick={(e) => e.stopPropagation()}>
+          <a href={`https://${platform.platformDomain}`} target="_blank" rel="noopener noreferrer" className="ip-trending-link">
+            <ExternalLink className="h-3 w-3" />
+          </a>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ip-trending-action-btn"
+            style={{ marginLeft: 'auto', width: 26, padding: 0 }}
+            onClick={handleShare}
+          >
+            <Share2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </Card>
+
+      {/* Dialog outside card to avoid click conflicts */}
       {platform.termId && (
         <PositionBoardDialog
           open={boardOpen}
@@ -108,6 +110,6 @@ export default function TrendingCard({ platform, domainLabel }: TrendingCardProp
           walletAddress={walletAddress}
         />
       )}
-    </Card>
+    </>
   )
 }

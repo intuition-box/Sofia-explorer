@@ -153,11 +153,23 @@ export default function InterestPage() {
               <Plus className="ip-platform-add-icon" />
               <span className="ip-platform-add-label">Connect</span>
             </Card>
-            {platforms.slice(0, 11).map((p) => {
+            {[...platforms].sort((a, b) => {
+              const ac = getStatus(a.id) === 'connected' ? 0 : 1
+              const bc = getStatus(b.id) === 'connected' ? 0 : 1
+              return ac - bc
+            }).slice(0, 11).map((p) => {
               const connected = getStatus(p.id) === 'connected'
               return (
                 <Card key={p.id} className={`ip-platform-card ${connected ? 'ip-platform-connected' : ''}`}>
-                  <span className="ip-platform-name">{p.label}</span>
+                  <div className="ip-platform-header">
+                    <img
+                      src={`/favicons/${p.id}.png`}
+                      alt=""
+                      className="ip-platform-icon"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                    />
+                    <span className="ip-platform-name">{p.name}</span>
+                  </div>
                   <span className={`ip-platform-status ${connected ? 'ip-platform-on' : ''}`}>
                     {connected ? 'Connected' : 'Not connected'}
                   </span>

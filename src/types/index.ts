@@ -58,7 +58,7 @@ export interface VaultStats {
 
 // ── Trending ──
 
-export type IntentCategory = 'trusted' | 'distrusted' | 'work' | 'learning' | 'fun' | 'inspiration'
+export type IntentCategory = 'trusted' | 'distrusted' | 'work' | 'learning' | 'fun' | 'inspiration' | 'music' | 'buying'
 
 export interface TrendingItemLive {
   category: IntentCategory
@@ -67,6 +67,22 @@ export interface TrendingItemLive {
   domain: string
   favicon: string
   certifiers: number
+  termId?: string
+  counterTermId?: string
+}
+
+export interface TrendingPlatform {
+  platformDomain: string
+  platformName: string
+  favicon: string
+  totalCertifiers: number
+  intentions: { category: IntentCategory; count: number; color: string }[]
+  /** termId of the atom — used for Buy */
+  termId?: string
+  /** counterTermId of "I trusts [atom]" triple — used for Sell */
+  counterTermId?: string
+  /** User P&L percentage on this atom (null if no position) */
+  userPnlPct?: number | null
 }
 
 export interface Reward {
