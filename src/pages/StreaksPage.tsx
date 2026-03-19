@@ -29,7 +29,7 @@ function formatShares(shares: string): string {
 }
 
 const PODIUM_ORDER = [1, 0, 2] as const
-const PODIUM_BADGES = ['', '👑', '🥈', '🥉']
+const PODIUM_BADGES = ['', '#1', '#2', '#3']
 const PODIUM_CLASSES = ['', 'streak-pedestal--1st', 'streak-pedestal--2nd', 'streak-pedestal--3rd']
 const PODIUM_AVATAR_SIZES = ['', 'h-[72px] w-[72px]', 'h-14 w-14', 'h-14 w-14']
 const PODIUM_RINGS = ['', 'ring-2 ring-yellow-500/70', 'ring-2 ring-gray-400/50', 'ring-2 ring-amber-700/50']

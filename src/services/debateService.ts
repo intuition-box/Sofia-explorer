@@ -2,6 +2,7 @@ import { useGetClaimsByTermIdsQuery } from '@0xsofia/dashboard-graphql'
 import {
   INTUITION_FEATURED_CLAIMS,
   SOFIA_CLAIMS,
+  type ClaimCategory,
 } from '../config/debateConfig'
 
 // ── Types ───────────────────────────────────────────────────────────
@@ -17,6 +18,7 @@ export interface DebateClaim {
   opposeMarketCap: bigint
   supportCount: number
   opposeCount: number
+  category?: ClaimCategory
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────
@@ -79,6 +81,7 @@ export async function fetchDebateClaims(): Promise<DebateClaim[]> {
       opposeMarketCap: oppose.marketCap,
       supportCount: support.positionCount,
       opposeCount: oppose.positionCount,
+      category: config?.category,
     }
   })
 }

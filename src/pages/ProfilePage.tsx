@@ -80,16 +80,6 @@ export default function ProfilePage() {
           </section>
         )}
 
-        {/* Last Activity */}
-        <section className="pp-section">
-          <h3 className="pp-section-title">Last Activity</h3>
-          <LastActivitySection
-            items={activityItems}
-            loading={activityLoading}
-            walletAddress={address}
-          />
-        </section>
-
         {/* Interests */}
         <section className="pp-section">
           <h3 className="pp-section-title">My Interests</h3>
@@ -99,6 +89,16 @@ export default function ProfilePage() {
             domainScores={domainScores}
             onAddDomain={() => navigate('/profile/domains')}
             onRemoveDomain={toggleDomain}
+          />
+        </section>
+
+        {/* Last Activity */}
+        <section className="pp-section">
+          <h3 className="pp-section-title">Last Activity</h3>
+          <LastActivitySection
+            items={activityItems}
+            loading={activityLoading}
+            walletAddress={address}
           />
         </section>
 

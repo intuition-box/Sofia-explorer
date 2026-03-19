@@ -97,10 +97,11 @@
   50% { opacity: 0.6; transform: scale(1.1); }
 }
 
-/* Medal / Crown badge — inside pedestal block */
+/* Rank label inside pedestal block */
 .streak-badge {
-  font-size: 24px;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+  font-size: 18px;
+  font-weight: 800;
+  color: rgba(0, 0, 0, 0.25);
   line-height: 1;
 }
 
