@@ -6,7 +6,7 @@ export interface PageColorConfig {
 }
 
 export const PAGE_COLORS: Record<string, PageColorConfig> = {
-  '/': {
+  '/feed': {
     color: '#ffc6b0',
     title: 'Home',
     subtitle: 'Your browsing reputation dashboard',

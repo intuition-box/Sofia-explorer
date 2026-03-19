@@ -43,7 +43,7 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
         {/* Left side - Logo and Search */}
         <div className="flex items-center space-x-4 flex-1 min-w-0">
           <div className="flex-shrink-0">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to="/feed" className="flex items-center gap-2">
               <img src={theme === 'dark' ? '/logo.png' : '/logo_invert.png'} alt="Sofia" className="h-6 w-6" />
               <h1 className="text-xl font-bold">Sofia</h1>
             </Link>
@@ -72,8 +72,8 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
             )}
           </div>
 
-          <Link to="/">
-            <Button variant={location.pathname === '/' ? 'secondary' : 'ghost'} size="icon" className="h-9 w-9">
+          <Link to="/feed">
+            <Button variant={location.pathname === '/feed' ? 'secondary' : 'ghost'} size="icon" className="h-9 w-9">
               <Home className="h-5 w-5" />
               <span className="sr-only">Dashboard</span>
             </Button>

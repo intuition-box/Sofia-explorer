@@ -7,8 +7,20 @@ import { useDomainSelection } from '../hooks/useDomainSelection'
 import { SEASON_END } from '../config'
 import './styles/sidebar.css'
 
+const ETHCC_DATE = new Date('2026-03-30T09:00:00+02:00')
+
 function getTimeLeft() {
   const diff = SEASON_END.getTime() - Date.now()
+  if (diff <= 0) return { days: 0, hours: 0, minutes: 0 }
+  return {
+    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((diff / (1000 * 60)) % 60),
+  }
+}
+
+function getEthccTimeLeft() {
+  const diff = ETHCC_DATE.getTime() - Date.now()
   if (diff <= 0) return { days: 0, hours: 0, minutes: 0 }
   return {
     days: Math.floor(diff / (1000 * 60 * 60 * 24)),
@@ -30,14 +42,18 @@ export function Sidebar() {
   const { authenticated } = usePrivy()
   const { selectedDomains } = useDomainSelection()
   const [timeLeft, setTimeLeft] = useState(getTimeLeft)
+  const [ethccLeft, setEthccLeft] = useState(getEthccTimeLeft)
 
   useEffect(() => {
-    const timer = setInterval(() => setTimeLeft(getTimeLeft()), 60_000)
+    const timer = setInterval(() => {
+      setTimeLeft(getTimeLeft())
+      setEthccLeft(getEthccTimeLeft())
+    }, 60_000)
     return () => clearInterval(timer)
   }, [])
 
   const navItems = [
-    { to: '/', icon: Home, label: 'Home', public: true },
+    { to: '/feed', icon: Home, label: 'Home', public: true },
     { to: '/profile', icon: User, label: 'My Profile', public: false },
   ]
 
@@ -134,7 +150,7 @@ export function Sidebar() {
             </h3>
             <div className="space-y-1">
               {selectedDomains.slice(0, 6).map((domainId) => (
-                <Link key={domainId} to={`/?space=${domainId}`}>
+                <Link key={domainId} to={`/feed?space=${domainId}`}>
                   <Button
                     variant="ghost"
                     className="w-full justify-start h-9 px-2 text-foreground hover:bg-muted hover:text-foreground"
@@ -147,6 +163,25 @@ export function Sidebar() {
             </div>
           </div>
         )}
+
+        {/* EthCC Countdown */}
+        <a
+          href="https://ethcc.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-lg border sb-countdown sb-ethcc"
+        >
+          <p className="sb-countdown-label">EthCC 9 starts in</p>
+          <p className="sb-countdown-time">
+            {ethccLeft.days}d : {pad(ethccLeft.hours)}h : {pad(ethccLeft.minutes)}m
+          </p>
+          <p className="sb-countdown-hint">
+            Cannes, March 30 – April 2 2026
+          </p>
+          <Button size="sm" className="sb-countdown-btn sb-ethcc-btn">
+            Join EthCC
+          </Button>
+        </a>
 
         {/* Season Countdown */}
         <div className="rounded-lg border sb-countdown">
