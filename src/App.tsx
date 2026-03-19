@@ -8,6 +8,7 @@ import CartDrawer from './components/CartDrawer'
 import ProfileDrawer from './components/ProfileDrawer'
 import WeightModal from './components/WeightModal'
 import { useCart } from './hooks/useCart'
+import LandingPage from './pages/LandingPage'
 import DashboardPage from './pages/DashboardPage'
 import LeaderboardPage from './pages/LeaderboardPage'
 import ProfilePage from './pages/ProfilePage'
@@ -26,13 +27,14 @@ import './components/styles/layout.css'
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { ready, authenticated } = usePrivy()
   if (!ready) return null
-  if (!authenticated) return <Navigate to="/" replace />
+  if (!authenticated) return <Navigate to="/feed" replace />
   return <>{children}</>
 }
 
 export default function App() {
   const location = useLocation()
   const isCallback = location.pathname === '/auth/callback'
+  const isLanding = location.pathname === '/'
   const cart = useCart()
   const isProfilePage = location.pathname.startsWith('/profile')
   const [cartOpen, setCartOpen] = useState(false)
@@ -53,6 +55,10 @@ export default function App() {
 
   if (isCallback) {
     return <OAuthCallbackPage />
+  }
+
+  if (isLanding) {
+    return <LandingPage />
   }
 
   return (
@@ -85,7 +91,7 @@ export default function App() {
       <main className={isProfilePage ? 'main-content main-content--profile' : 'main-content'} style={{ zoom: 1.25 }}>
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<DashboardPage />} />
+          <Route path="/feed" element={<DashboardPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
           <Route path="/auth/callback" element={<OAuthCallbackPage />} />
 
