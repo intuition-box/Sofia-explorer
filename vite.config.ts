@@ -23,6 +23,12 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
       },
+      '/eth-rpc': {
+        target: 'https://cloudflare-eth.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/eth-rpc/, ''),
+      },
     },
   },
 })

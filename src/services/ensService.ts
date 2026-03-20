@@ -5,10 +5,11 @@ import { createAvatar } from '@dicebear/core'
 import { glass } from '@dicebear/collection'
 import { useGetAccountLabelsQuery } from '@0xsofia/dashboard-graphql'
 
-// ENS client — use Cloudflare's CORS-friendly RPC for browser ENS resolution
+// ENS client — proxy through Vite in dev to avoid CORS, direct in prod
+const ENS_RPC_URL = import.meta.env.DEV ? '/eth-rpc' : 'https://cloudflare-eth.com'
 const ensClient = createPublicClient({
   chain: mainnet,
-  transport: http('https://cloudflare-eth.com'),
+  transport: http(ENS_RPC_URL),
 })
 
 // Global caches persist as module-level singletons
@@ -58,23 +59,55 @@ export async function resolveViaGraphQL(addresses: string[]): Promise<void> {
   }
 }
 
+const ENS_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/ensdomains/ens'
+
 export async function resolveViaEns(address: string): Promise<void> {
   const key = address.toLowerCase()
 
+  // 1. The Graph ENS subgraph — most reliable, indexes all domains
+  try {
+    const res = await fetch(ENS_SUBGRAPH_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: `{ domains(where: { resolvedAddress: "${key}" }) { name } }`,
+      }),
+    })
+    if (res.ok) {
+      const json = await res.json()
+      const name = json.data?.domains?.[0]?.name
+      if (name) {
+        labelCache.set(key, name)
+        return
+      }
+    }
+  } catch {}
+
+  // 2. ENSTATE API — fast, also provides avatar
+  try {
+    const res = await fetch(`https://enstate.rs/a/${key}`)
+    if (res.ok) {
+      const data = await res.json()
+      if (data.name) {
+        labelCache.set(key, data.name)
+        if (data.avatar) avatarCache.set(key, data.avatar)
+        return
+      }
+    }
+  } catch {}
+
+  // 3. On-chain reverse lookup (fallback)
   try {
     const name = await ensClient.getEnsName({
       address: key as `0x${string}`,
     })
-    // Only update if we got a result — never overwrite a good GraphQL label with null
     if (name) {
       labelCache.set(key, name)
     } else {
-      // RPC responded successfully with no ENS name — cache null
       labelCache.set(key, null)
     }
-  } catch (err) {
-    // Network/rate-limit error — do NOT cache null so it gets retried
-    console.warn('[ensService] ENS lookup failed for', key, err)
+  } catch {
+    labelCache.set(key, null)
   }
 }
 

@@ -7,7 +7,7 @@ import { formatEth } from '@/services/vaultTooltipService'
 import IntentionTooltip from '../IntentionTooltip'
 import PositionBoardDialog from './PositionBoardDialog'
 import { TopClaimSkeleton } from './ProfileSkeletons'
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 
 interface TopClaimsSectionProps {
   claims: TopClaim[]
@@ -15,31 +15,43 @@ interface TopClaimsSectionProps {
   walletAddress?: string
 }
 
+/** Map predicate label to intention display name */
+function predicateToIntention(predLabel: string): string {
+  const lower = predLabel.toLowerCase()
+  if (lower.includes('work')) return 'Work'
+  if (lower.includes('learning')) return 'Learning'
+  if (lower.includes('fun')) return 'Fun'
+  if (lower.includes('inspiration')) return 'Inspiration'
+  if (lower.includes('buying')) return 'Buying'
+  if (lower.includes('music')) return 'Music'
+  if (lower === 'trusts') return 'Trusted'
+  if (lower === 'distrust') return 'Distrust'
+  return predLabel
+}
+
 function TopClaimCard({ claim, walletAddress }: { claim: TopClaim; walletAddress?: string }) {
-  const color = INTENTION_COLORS[claim.intention] ?? '#888'
+  const intention = predicateToIntention(claim.predicateLabel)
+  const color = INTENTION_COLORS[intention] ?? '#888'
   const totalMcap = formatEth(String(claim.totalMarketCap))
   const posCount = claim.stats.supportCount + claim.stats.opposeCount
   const [boardOpen, setBoardOpen] = useState(false)
-  const counterTermId = claim.item.intentionVaults[claim.intention]?.counterTermId
-
-  const handleShare = useCallback(() => {
-    const text = `${claim.item.title} — ${claim.intention}`
-    const url = claim.item.url || ''
-    const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
-    window.open(tweetUrl, '_blank', 'noopener,noreferrer')
-  }, [claim])
+  const favicon = claim.objectUrl
+    ? `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(claim.objectUrl)}&size=64`
+    : undefined
 
   return (
     <>
       <Card className="tc-card" style={{ cursor: 'pointer' }} onClick={() => setBoardOpen(true)}>
         <div className="tc-header">
-          <img
-            src={claim.item.favicon}
-            alt=""
-            className="tc-favicon"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-          />
-          <span className="tc-title">{claim.item.title}</span>
+          {favicon && (
+            <img
+              src={favicon}
+              alt=""
+              className="tc-favicon"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+            />
+          )}
+          <span className="tc-title">{claim.objectLabel}</span>
         </div>
 
         <div className="tc-stats-row">
@@ -65,29 +77,33 @@ function TopClaimCard({ claim, walletAddress }: { claim: TopClaim; walletAddress
         <div className="tc-actions">
           <IntentionTooltip termId={claim.termId} color={color}>
             <span className="tc-badge" style={intentionBadgeStyle(color)}>
-              {claim.intention}
+              {intention}
             </span>
           </IntentionTooltip>
           <Button
             variant="ghost"
             size="sm"
             className="ac-btn-icon"
-            onClick={(e) => { e.stopPropagation(); handleShare() }}
+            onClick={(e) => {
+              e.stopPropagation()
+              const text = `${claim.objectLabel} — ${intention}`
+              const url = claim.objectUrl || ''
+              const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`
+              window.open(tweetUrl, '_blank', 'noopener,noreferrer')
+            }}
           >
             <Share2 className="h-3.5 w-3.5" />
           </Button>
         </div>
       </Card>
 
-      {/* Dialog — data prefetched on mount */}
       <PositionBoardDialog
         open={boardOpen}
         onOpenChange={setBoardOpen}
         termId={claim.termId}
-        counterTermId={counterTermId}
-        title={claim.item.title}
-        favicon={claim.item.favicon}
-        intention={claim.intention}
+        title={claim.objectLabel}
+        favicon={favicon}
+        intention={intention}
         intentionColor={color}
         walletAddress={walletAddress}
       />

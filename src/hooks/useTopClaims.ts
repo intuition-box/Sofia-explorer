@@ -1,6 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import type { CircleItem } from '@/services/circleService'
-import { fetchVaultStats, type VaultStats } from '@/services/vaultTooltipService'
+import {
+  useGetUserActivityQuery,
+  useGetBatchTripleVaultStatsQuery,
+} from '@0xsofia/dashboard-graphql'
+import { SOFIA_PROXY_ADDRESS } from '@/config'
+import { extractSide, type VaultStats, statsCache } from '@/services/vaultTooltipService'
 import { INTUITION_FEATURED_CLAIMS, SOFIA_CLAIMS } from '@/config/debateConfig'
 
 /** term_ids of debate claims — exclude from Top Claims */
@@ -9,53 +13,84 @@ const DEBATE_TERM_IDS = new Set(
 )
 
 export interface TopClaim {
-  item: CircleItem
-  intention: string
   termId: string
+  objectLabel: string
+  objectUrl?: string
+  predicateLabel: string
   stats: VaultStats
   totalMarketCap: bigint
 }
 
-async function resolveTopClaims(items: CircleItem[], walletAddress: string): Promise<TopClaim[]> {
-  // Dedupe by termId — one entry per unique claim
-  const seen = new Set<string>()
-  const candidates: { item: CircleItem; intention: string; termId: string }[] = []
+async function resolveTopClaims(walletAddress: string): Promise<TopClaim[]> {
+  // 1. Fetch user's activity filtered by Sofia proxy (server-side)
+  const activityData = await useGetUserActivityQuery.fetcher({
+    proxy: SOFIA_PROXY_ADDRESS.toLowerCase(),
+    receiver: walletAddress.toLowerCase(),
+    limit: 200,
+    offset: 0,
+  })()
 
-  for (const item of items) {
-    // Skip quest items (Daily Certification, Daily Voter, etc.)
-    if (item.intentions.some((i) => i.startsWith('quest:'))) continue
-    for (const intent of item.intentions) {
-      const vault = item.intentionVaults[intent]
-      if (!vault?.termId || seen.has(vault.termId) || DEBATE_TERM_IDS.has(vault.termId)) continue
-      seen.add(vault.termId)
-      candidates.push({ item, intention: intent, termId: vault.termId })
-    }
+  // 2. Extract unique triple term_ids from events
+  const seen = new Set<string>()
+  const tripleTermIds: string[] = []
+
+  for (const event of activityData.events ?? []) {
+    const termId = event.triple?.term_id
+    if (!termId) continue
+    if (DEBATE_TERM_IDS.has(termId)) continue
+    if (seen.has(termId)) continue
+    seen.add(termId)
+    tripleTermIds.push(termId)
+    if (tripleTermIds.length >= 10) break
   }
 
-  // Fetch vault stats in parallel (max 10)
-  const top = candidates.slice(0, 10)
-  const results = await Promise.allSettled(
-    top.map(async (c) => {
-      const stats = await fetchVaultStats(c.termId, walletAddress)
-      if (!stats) return null
-      const totalMarketCap = BigInt(stats.supportMarketCap) + BigInt(stats.opposeMarketCap)
-      return { ...c, stats, totalMarketCap }
-    }),
-  )
+  if (tripleTermIds.length === 0) return []
 
-  return results
-    .filter((r): r is PromiseFulfilledResult<TopClaim | null> => r.status === 'fulfilled')
-    .map((r) => r.value)
-    .filter((v): v is TopClaim => v !== null && v.totalMarketCap > 0n)
+  // 3. Batch fetch vault stats — ONE query
+  const statsData = await useGetBatchTripleVaultStatsQuery.fetcher({
+    termIds: tripleTermIds,
+    address: walletAddress,
+  })()
+
+  // 4. Process results
+  const claims: TopClaim[] = []
+  for (const triple of statsData.triples ?? []) {
+    const support = extractSide(triple.term?.vaults)
+    const oppose = extractSide(triple.counter_term?.vaults)
+    const totalMarketCap = BigInt(support.marketCap) + BigInt(oppose.marketCap)
+    if (totalMarketCap <= 0n) continue
+
+    const stats: VaultStats = {
+      supportMarketCap: support.marketCap,
+      opposeMarketCap: oppose.marketCap,
+      supportCount: support.count,
+      opposeCount: oppose.count,
+      userPnlPct: support.userPnlPct ?? oppose.userPnlPct,
+    }
+
+    // Cache for tooltip reuse
+    statsCache.set(triple.term_id, stats)
+
+    claims.push({
+      termId: triple.term_id,
+      objectLabel: triple.object?.label ?? '',
+      objectUrl: triple.object?.value?.thing?.url ?? undefined,
+      predicateLabel: triple.predicate?.label ?? '',
+      stats,
+      totalMarketCap,
+    })
+  }
+
+  return claims
     .sort((a, b) => (b.totalMarketCap > a.totalMarketCap ? 1 : -1))
     .slice(0, 4)
 }
 
-export function useTopClaims(items: CircleItem[], walletAddress: string | undefined) {
+export function useTopClaims(walletAddress: string | undefined) {
   const { data, isLoading } = useQuery<TopClaim[]>({
-    queryKey: ['topClaims', walletAddress, items.length],
-    queryFn: () => resolveTopClaims(items, walletAddress!),
-    enabled: !!walletAddress && items.length > 0,
+    queryKey: ['topClaims', walletAddress],
+    queryFn: () => resolveTopClaims(walletAddress!),
+    enabled: !!walletAddress,
     staleTime: 120_000,
   })
 

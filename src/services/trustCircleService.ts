@@ -73,5 +73,28 @@ export async function fetchTrustCircle(walletAddress: string): Promise<TrustCirc
 
   // Sort by trust amount descending
   accounts.sort((a, b) => b.trustAmount - a.trustAmount)
+
+  // Resolve missing avatars for ENS/box names
+  const needsAvatar = accounts.filter((a) => !a.image && (a.label.endsWith('.eth') || a.label.endsWith('.box')))
+  if (needsAvatar.length > 0) {
+    await Promise.allSettled(
+      needsAvatar.map(async (a) => {
+        // 1. Try ENS metadata service (official, reliable)
+        if (a.label.endsWith('.eth')) {
+          a.image = `https://metadata.ens.domains/mainnet/avatar/${a.label}`
+          return
+        }
+        // 2. ENSTATE for .box and others
+        try {
+          const res = await fetch(`https://enstate.rs/n/${a.label}`)
+          if (res.ok) {
+            const data = await res.json()
+            if (data.avatar) a.image = data.avatar
+          }
+        } catch {}
+      }),
+    )
+  }
+
   return accounts
 }

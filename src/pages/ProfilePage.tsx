@@ -29,7 +29,7 @@ export default function ProfilePage() {
   const scores = useReputationScores(getStatus, selectedDomains, selectedNiches)
   const domainScores = scores?.domains ?? []
   const { items: activityItems, loading: activityLoading } = useUserActivity(address || undefined)
-  const { claims: topClaims, loading: claimsLoading } = useTopClaims(activityItems, address || undefined)
+  const { claims: topClaims, loading: claimsLoading } = useTopClaims(address || undefined)
   const { ethccWallet, signals: ethccSignals, loading: ethccLoading, setWallet, clearWallet } = useEthccData()
 
   if (!authenticated) {
@@ -71,18 +71,6 @@ export default function ProfilePage() {
 
       <div className="pp-sections page-content page-enter">
 
-        {/* Top Claims */}
-        {(activityLoading || claimsLoading || topClaims.length > 0) && (
-          <section className="pp-section">
-            <h3 className="pp-section-title">Top Claims</h3>
-            <TopClaimsSection
-              claims={topClaims}
-              loading={activityLoading || claimsLoading}
-              walletAddress={address}
-            />
-          </section>
-        )}
-
         {/* EthCC Wallet */}
         <section className="pp-section">
           <EthccConnectCard
@@ -93,6 +81,18 @@ export default function ProfilePage() {
             onDisconnect={clearWallet}
           />
         </section>
+
+        {/* Top Claims */}
+        {(claimsLoading || topClaims.length > 0) && (
+          <section className="pp-section">
+            <h3 className="pp-section-title">Top Claims</h3>
+            <TopClaimsSection
+              claims={topClaims}
+              loading={claimsLoading}
+              walletAddress={address}
+            />
+          </section>
+        )}
 
         {/* Interests */}
         <section className="pp-section">

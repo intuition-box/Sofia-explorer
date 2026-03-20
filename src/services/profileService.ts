@@ -7,8 +7,10 @@
 
 import {
   useGetUserPositionsQuery,
+  useGetUserSignalsCountQuery,
   type GetUserPositionsQuery,
 } from '@0xsofia/dashboard-graphql'
+import { SUBJECT_IDS } from '../config'
 
 // ── Types ──
 
@@ -76,6 +78,13 @@ export async function fetchUserProfile(
     })
     .filter((v: string | undefined): v is string => !!v)
 
+  // Signals count — same logic as the extension (terms_aggregate with subject "I")
+  const signalsData = await useGetUserSignalsCountQuery.fetcher({
+    accountId: walletAddress,
+    subjectId: SUBJECT_IDS.I,
+  })()
+  const signalsCount = signalsData.signalsCount.aggregate?.count ?? 0
+
   // Total staked value
   const totalStaked = data.positions.reduce((sum: number, p: PositionRaw) => {
     const shares = parseFloat(p.shares) || 0
@@ -87,7 +96,7 @@ export async function fetchUserProfile(
   return {
     positions,
     totalPositions: data.total.aggregate?.count ?? 0,
-    totalCertifications: certifications.length,
+    totalCertifications: signalsCount,
     totalAtomPositions: atomPositions.length,
     totalStaked: roundedStaked,
     verifiedPlatforms: [...new Set(verifiedPlatforms)] as string[],
