@@ -3,61 +3,23 @@ import { PLATFORM_CATALOG } from '@/config/platformCatalog'
 import type {
   ConnectionStatus,
   DomainScore,
-  NicheScore,
-  ScoreBreakdown,
   UserReputationProfile,
+  EthccSofiaSignals,
 } from '@/types/reputation'
 
-export function pseudoRandom(seed: string): number {
-  let hash = 0
-  for (let i = 0; i < seed.length; i++) {
-    hash = ((hash << 5) - hash + seed.charCodeAt(i)) | 0
-  }
-  return Math.abs(hash % 100) / 100
-}
+// ── Points per signal type ──
 
-export function generateBreakdown(seed: string, base: number): ScoreBreakdown {
-  const r = pseudoRandom
-  return {
-    creation: Math.round(base * r(seed + 'c') * 30),
-    regularity: Math.round(base * r(seed + 'r') * 25),
-    community: Math.round(base * r(seed + 'm') * 20),
-    monetization: Math.round(base * r(seed + '$') * 15),
-    anciennete: Math.round(base * r(seed + 'a') * 10),
-  }
-}
+const POINTS_PER_PLATFORM = 10   // Connected platform in this domain
+const POINTS_PER_ETHCC_TOPIC = 3 // EthCC topic vote matching this domain (bonus)
+const POINTS_PER_ETHCC_TRACK = 3 // EthCC track interest matching this domain (bonus)
 
-export function generateNicheScore(
-  domainId: string,
-  nicheId: string,
-  platformCount: number,
-): NicheScore {
-  const seed = domainId + nicheId
-  const base = Math.min(platformCount * 0.3, 1)
-  const breakdown = generateBreakdown(seed, base)
-  const score = Math.min(
-    100,
-    breakdown.creation +
-      breakdown.regularity +
-      breakdown.community +
-      breakdown.monetization +
-      breakdown.anciennete,
-  )
-  return {
-    nicheId,
-    domainId,
-    score,
-    confidence: Math.min(1, platformCount * 0.25),
-    breakdown,
-    sources: [],
-    lastCalculated: Date.now(),
-  }
-}
+// ── Score computation ──
 
 export function computeReputationProfile(
   getStatus: (platformId: string) => ConnectionStatus,
   selectedDomains: string[],
   selectedNiches: string[],
+  ethccSignals?: EthccSofiaSignals | null,
 ): UserReputationProfile | null {
   const connectedPlatforms = PLATFORM_CATALOG.filter(
     (p) => getStatus(p.id) === 'connected',
@@ -70,31 +32,31 @@ export function computeReputationProfile(
   const domainScores: DomainScore[] = SOFIA_DOMAINS.filter(
     (d) => selectedDomains.includes(d.id),
   ).map((domain) => {
+    // Platforms connected in this domain
     const domainPlatforms = connectedPlatforms.filter((p) =>
       p.targetDomains.includes(domain.id),
     )
     const platformCount = domainPlatforms.length
+    const platformPoints = platformCount * POINTS_PER_PLATFORM
 
-    const relevantCategories = domain.categories
-      .filter((c) => selectedNiches.includes(c.id))
+    // EthCC bonus for this domain
+    let ethccBonus = 0
+    if (ethccSignals) {
+      const domainSignal = ethccSignals.domainSignals[domain.id]
+      if (domainSignal) {
+        ethccBonus =
+          domainSignal.topicCount * POINTS_PER_ETHCC_TOPIC +
+          domainSignal.trackCount * POINTS_PER_ETHCC_TRACK
+      }
+    }
 
-    const topNiches = relevantCategories
-      .map((c) => generateNicheScore(domain.id, c.id, platformCount))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 5)
-
-    const score =
-      topNiches.length > 0
-        ? Math.round(
-            topNiches.reduce((s, n) => s + n.score, 0) / topNiches.length,
-          )
-        : 0
+    const score = platformPoints + ethccBonus
 
     return {
       domainId: domain.id,
       score,
-      confidence: Math.min(1, platformCount * 0.2),
-      topNiches,
+      confidence: platformCount > 0 ? Math.min(1, platformCount * 0.2) : 0,
+      topNiches: [],
       platformCount,
       lastCalculated: Date.now(),
     }

@@ -26,11 +26,11 @@ export default function ProfilePage() {
   const { selectedDomains, selectedNiches, toggleDomain } = useDomainSelection()
   const navigate = useNavigate()
   const { getStatus } = usePlatformConnections()
-  const scores = useReputationScores(getStatus, selectedDomains, selectedNiches)
+  const { ethccWallet, signals: ethccSignals, loading: ethccLoading, setWallet, clearWallet } = useEthccData()
+  const scores = useReputationScores(getStatus, selectedDomains, selectedNiches, ethccSignals)
   const domainScores = scores?.domains ?? []
   const { items: activityItems, loading: activityLoading } = useUserActivity(address || undefined)
   const { claims: topClaims, loading: claimsLoading } = useTopClaims(address || undefined)
-  const { ethccWallet, signals: ethccSignals, loading: ethccLoading, setWallet, clearWallet } = useEthccData()
 
   if (!authenticated) {
     return (

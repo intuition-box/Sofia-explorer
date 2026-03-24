@@ -1,16 +1,17 @@
 import { useMemo } from 'react'
 import { DOMAIN_BY_ID } from '@/config/taxonomy'
 import { computeReputationProfile } from '@/services/reputationScoreService'
-import type { ConnectionStatus, UserReputationProfile } from '@/types/reputation'
+import type { ConnectionStatus, UserReputationProfile, EthccSofiaSignals } from '@/types/reputation'
 
 export function useReputationScores(
   getStatus: (platformId: string) => ConnectionStatus,
   selectedDomains: string[],
   selectedNiches: string[],
+  ethccSignals?: EthccSofiaSignals | null,
 ): UserReputationProfile | null {
   return useMemo(
-    () => computeReputationProfile(getStatus, selectedDomains, selectedNiches),
-    [getStatus, selectedDomains, selectedNiches],
+    () => computeReputationProfile(getStatus, selectedDomains, selectedNiches, ethccSignals),
+    [getStatus, selectedDomains, selectedNiches, ethccSignals],
   )
 }
 
