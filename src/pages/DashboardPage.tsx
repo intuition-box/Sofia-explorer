@@ -23,11 +23,11 @@ import { PAGE_COLORS } from '../config/pageColors'
 import { INTENTION_COLORS } from '../config/intentions'
 import '@/components/styles/pages.css'
 
-/** Build a Set of platform IDs that belong to a given Sofia domain */
-function getPlatformIdsForDomain(domainId: string): Set<string> {
+/** Build a Set of platform IDs that belong to a given Sofia topic */
+function getPlatformIdsForTopic(topicId: string): Set<string> {
   const ids = new Set<string>()
   for (const p of PLATFORM_CATALOG) {
-    if (p.targetDomains.includes(domainId)) {
+    if (p.targetTopics.includes(topicId)) {
       ids.add(p.id)
     }
   }
@@ -35,7 +35,7 @@ function getPlatformIdsForDomain(domainId: string): Set<string> {
 }
 
 /** Check if a feed item's hostname matches any platform in a set */
-function itemMatchesDomain(item: CircleItem, platformIds: Set<string>): boolean {
+function itemMatchesTopic(item: CircleItem, platformIds: Set<string>): boolean {
   const host = item.domain.toLowerCase()
   for (const pid of platformIds) {
     if (host.includes(pid)) return true
@@ -113,7 +113,7 @@ export default function DashboardPage() {
   const spaceParam = searchParams.get('space') || ''
 
   const spacePlatformIds = useMemo(
-    () => (spaceParam ? getPlatformIdsForDomain(spaceParam) : null),
+    () => (spaceParam ? getPlatformIdsForTopic(spaceParam) : null),
     [spaceParam],
   )
 
@@ -146,7 +146,7 @@ export default function DashboardPage() {
 
   // Apply space filter then intention filter
   const spaceFiltered = spacePlatformIds
-    ? sourceItems.filter((item) => itemMatchesDomain(item, spacePlatformIds))
+    ? sourceItems.filter((item) => itemMatchesTopic(item, spacePlatformIds))
     : sourceItems
 
   const filteredItems = intentFilter === 'All'

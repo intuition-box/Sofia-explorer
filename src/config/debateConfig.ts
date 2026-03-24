@@ -10,8 +10,8 @@
 
 export type ClaimCategory = 'tech' | 'web3' | 'culture' | 'geopolitics' | 'energy'
 
-/** Map each interest domain to the claim category it feeds */
-export const DOMAIN_TO_CLAIM_CATEGORY: Record<string, ClaimCategory> = {
+/** Map each interest topic to the claim category it feeds */
+export const TOPIC_TO_CLAIM_CATEGORY: Record<string, ClaimCategory> = {
   'tech-dev': 'tech',
   'design-creative': 'tech',
   'science': 'tech',

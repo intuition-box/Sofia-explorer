@@ -2,13 +2,13 @@
  * Signal Matrix & Scoring Formulas
  * Converted from docs/prompt/sofia_signal_matrix.xlsx
  *
- * Contains per-platform scoring formulas, domain scoring models,
+ * Contains per-platform scoring formulas, topic scoring models,
  * and global scoring principles/constants.
  */
 
 import type {
   SignalFormula,
-  DomainScoringModel,
+  TopicScoringModel,
 } from "../types/reputation"
 
 // === SIGNAL FORMULAS PER PLATFORM ===
@@ -713,9 +713,9 @@ export const SIGNAL_FORMULAS: SignalFormula[] = [
   },
 ]
 
-// === DOMAIN SCORING MODELS ===
+// === TOPIC SCORING MODELS ===
 
-export const DOMAIN_SCORING_MODELS: Record<string, DomainScoringModel> = {
+export const TOPIC_SCORING_MODELS: Record<string, TopicScoringModel> = {
   "tech-dev": {
     maxScore: 100,
     regularityMultiplier: 1.5,

@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { usePrivy } from '@privy-io/react-auth'
 import { Button } from "./ui/button";
 import { Home, User, Trophy, Flame, Vote, BarChart3, Globe, Lock } from "lucide-react";
-import { useDomainSelection } from '../hooks/useDomainSelection'
+import { useTopicSelection } from '../hooks/useDomainSelection'
 import { SEASON_END } from '../config'
 import './styles/sidebar.css'
 
@@ -30,7 +30,7 @@ function getEthccTimeLeft() {
 }
 const pad = (n: number) => String(n).padStart(2, '0')
 
-const DOMAIN_ICONS: Record<string, string> = {
+const TOPIC_ICONS: Record<string, string> = {
   'tech-dev': '💻', 'design-creative': '🎨', 'music-audio': '🎵', gaming: '🎮',
   'web3-crypto': '⛓️', science: '🔬', 'sport-health': '🏋️', 'video-cinema': '📹',
   entrepreneurship: '🚀', 'performing-arts': '🎭', 'nature-environment': '🌿',
@@ -40,7 +40,7 @@ const DOMAIN_ICONS: Record<string, string> = {
 export function Sidebar() {
   const location = useLocation()
   const { authenticated } = usePrivy()
-  const { selectedDomains } = useDomainSelection()
+  const { selectedTopics } = useTopicSelection()
   const [timeLeft, setTimeLeft] = useState(getTimeLeft)
   const [ethccLeft, setEthccLeft] = useState(getEthccTimeLeft)
 
@@ -143,20 +143,20 @@ export function Sidebar() {
         </div>
 
         {/* Quick Spaces */}
-        {authenticated && selectedDomains.length > 0 && (
+        {authenticated && selectedTopics.length > 0 && (
           <div>
             <h3 className="mb-3 px-2 text-sm font-medium text-foreground">
               My Interests
             </h3>
             <div className="space-y-1">
-              {selectedDomains.slice(0, 6).map((domainId) => (
-                <Link key={domainId} to={`/feed?space=${domainId}`}>
+              {selectedTopics.slice(0, 6).map((topicId) => (
+                <Link key={topicId} to={`/feed?space=${topicId}`}>
                   <Button
                     variant="ghost"
                     className="w-full justify-start h-9 px-2 text-foreground hover:bg-muted hover:text-foreground"
                   >
-                    <span className="mr-3 text-sm">{DOMAIN_ICONS[domainId] || '📌'}</span>
-                    <span className="truncate text-sm">{domainId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</span>
+                    <span className="mr-3 text-sm">{TOPIC_ICONS[topicId] || '📌'}</span>
+                    <span className="truncate text-sm">{topicId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</span>
                   </Button>
                 </Link>
               ))}

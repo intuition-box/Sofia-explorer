@@ -2,7 +2,7 @@
  * EthCC Wallet Service
  *
  * Fetches on-chain EthCC positions (topic votes + track interests)
- * and maps them to Sofia domain/category signals.
+ * and maps them to Sofia topic/category signals.
  */
 
 import { useGetEthccPositionsQuery } from '@0xsofia/dashboard-graphql'
@@ -16,7 +16,7 @@ import type {
   EthccTopicVote,
   EthccTrackInterest,
   EthccSofiaSignals,
-  DomainEthccSignal,
+  TopicEthccSignal,
 } from '../types/reputation'
 
 const STORAGE_KEY = 'sofia_ethcc_wallet'
@@ -94,7 +94,7 @@ export async function fetchEthccSignals(
       topicVotes.push({
         topicSlug: slug,
         shares,
-        domainId: m.domainId,
+        topicId: m.topicId,
         categoryId: m.categoryId,
       })
     }
@@ -110,16 +110,16 @@ export async function fetchEthccSignals(
     trackInterests.push({
       trackName,
       shares,
-      domainId: mapping.domainId,
+      topicId: mapping.topicId,
       categoryId: mapping.categoryId,
     })
   }
 
-  // Aggregate per domain
-  const domainSignals: Record<string, DomainEthccSignal> = {}
+  // Aggregate per topic
+  const topicSignals: Record<string, TopicEthccSignal> = {}
 
   for (const tv of topicVotes) {
-    const ds = domainSignals[tv.domainId] ??= {
+    const ds = topicSignals[tv.topicId] ??= {
       topicCount: 0,
       trackCount: 0,
       totalShares: '0',
@@ -133,7 +133,7 @@ export async function fetchEthccSignals(
   }
 
   for (const ti of trackInterests) {
-    const ds = domainSignals[ti.domainId] ??= {
+    const ds = topicSignals[ti.topicId] ??= {
       topicCount: 0,
       trackCount: 0,
       totalShares: '0',
@@ -146,5 +146,5 @@ export async function fetchEthccSignals(
     }
   }
 
-  return { topicVotes, trackInterests, domainSignals }
+  return { topicVotes, trackInterests, topicSignals }
 }

@@ -2,11 +2,11 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchDomainClaims } from '../services/domainDebateService'
 import type { DebateClaim } from '../services/debateService'
 
-export function useDomainClaims(domainId: string | undefined) {
+export function useDomainClaims(topicId: string | undefined) {
   const { data, isLoading, error } = useQuery<DebateClaim[]>({
-    queryKey: ['domainClaims', domainId],
-    queryFn: () => fetchDomainClaims(domainId!),
-    enabled: !!domainId,
+    queryKey: ['domainClaims', topicId],
+    queryFn: () => fetchDomainClaims(topicId!),
+    enabled: !!topicId,
     staleTime: 120_000,
   })
 

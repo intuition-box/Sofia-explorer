@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { usePrivy } from '@privy-io/react-auth'
 import { formatEther } from 'viem'
-import { DOMAIN_BY_ID } from '@/config/taxonomy'
-import { getPlatformsByDomain } from '@/config/platformCatalog'
-import { useDomainSelection } from '@/hooks/useDomainSelection'
+import { TOPIC_BY_ID } from '@/config/taxonomy'
+import { getPlatformsByTopic } from '@/config/platformCatalog'
+import { useTopicSelection } from '@/hooks/useDomainSelection'
 import { usePlatformConnections } from '@/hooks/usePlatformConnections'
 import { useReputationScores } from '@/hooks/useReputationScores'
 import { useDomainTrending } from '@/hooks/useDomainTrending'
@@ -31,18 +31,18 @@ function formatMarketCap(value: bigint): string {
 }
 
 export default function InterestPage() {
-  const { domainId } = useParams<{ domainId: string }>()
+  const { topicId } = useParams<{ topicId: string }>()
   const navigate = useNavigate()
   const { user } = usePrivy()
-  const domain = domainId ? DOMAIN_BY_ID.get(domainId) : undefined
+  const topic = topicId ? TOPIC_BY_ID.get(topicId) : undefined
 
-  const { selectedDomains, selectedNiches, toggleNiche } = useDomainSelection()
+  const { selectedTopics, selectedCategories, toggleCategory } = useTopicSelection()
   const { getStatus } = usePlatformConnections()
-  const scores = useReputationScores(getStatus, selectedDomains, selectedNiches)
-  const domainScore = scores?.domains.find((d) => d.domainId === domainId)
+  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories)
+  const topicScore = scores?.topics.find((d) => d.topicId === topicId)
 
-  const { items: trending, loading: trendingLoading } = useDomainTrending(domainId)
-  const { claims, loading: claimsLoading } = useDomainClaims(domainId)
+  const { items: trending, loading: trendingLoading } = useDomainTrending(topicId)
+  const { claims, loading: claimsLoading } = useDomainClaims(topicId)
   const cart = useCart()
   const walletAddress = user?.wallet?.address
   const [dialogClaim, setDialogClaim] = useState<typeof claims[number] | null>(null)
@@ -50,17 +50,17 @@ export default function InterestPage() {
   // Prefetch all claim dialog data so modals open instantly
   usePrefetchClaimDialogs(claims, walletAddress)
 
-  const platforms = domainId ? getPlatformsByDomain(domainId) : []
+  const platforms = topicId ? getPlatformsByTopic(topicId) : []
   const connectedPlatforms = platforms.filter((p) => getStatus(p.id) === 'connected')
 
-  const nicheCount = domain
-    ? domain.categories.filter((c) => selectedNiches.includes(c.id)).length
+  const nicheCount = topic
+    ? topic.categories.filter((c) => selectedCategories.includes(c.id)).length
     : 0
 
-  if (!domain) {
+  if (!topic) {
     return (
       <div className="page-content page-enter">
-        <p className="text-sm text-muted-foreground">Domain not found.</p>
+        <p className="text-sm text-muted-foreground">Topic not found.</p>
         <Button variant="ghost" className="mt-4" onClick={() => navigate('/profile')}>
           <ArrowLeft className="h-4 w-4 mr-2" /> Back to Profile
         </Button>
@@ -68,12 +68,12 @@ export default function InterestPage() {
     )
   }
 
-  const color = domain.color
+  const color = topic.color
   const glow = `${color}66`
 
   return (
     <div>
-      <PageHeader color={color} glow={glow} title={domain.label} subtitle="Interest overview" />
+      <PageHeader color={color} glow={glow} title={topic.label} subtitle="Interest overview" />
       <div className="ip-sections page-content page-enter">
 
         {/* Back */}
@@ -86,12 +86,12 @@ export default function InterestPage() {
           <h3 className="ip-section-title">Stats</h3>
           <div className="ip-stats-grid">
             <Card className="ip-stat-card">
-              <span className="ip-stat-value" style={{ color }}>{domainScore?.score ?? 0}</span>
+              <span className="ip-stat-value" style={{ color }}>{topicScore?.score ?? 0}</span>
               <span className="ip-stat-label">Score</span>
             </Card>
             <Card className="ip-stat-card">
               <span className="ip-stat-value">{nicheCount}</span>
-              <span className="ip-stat-label">Niches</span>
+              <span className="ip-stat-label">Categories</span>
             </Card>
             <Card className="ip-stat-card">
               <span className="ip-stat-value">{connectedPlatforms.length}</span>
@@ -104,32 +104,32 @@ export default function InterestPage() {
           </div>
         </section>
 
-        {/* Niches */}
+        {/* Categories */}
         <section className="ip-section">
-          <h3 className="ip-section-title">Niches ({nicheCount})</h3>
+          <h3 className="ip-section-title">Categories ({nicheCount})</h3>
           <NicheDetailList
-            domainId={domainId!}
-            domainColor={color}
-            selectedNiches={selectedNiches}
-            nicheScores={domainScore?.topNiches ?? []}
-            onToggleNiche={toggleNiche}
+            topicId={topicId!}
+            topicColor={color}
+            selectedCategories={selectedCategories}
+            nicheScores={topicScore?.topNiches ?? []}
+            onToggleCategory={toggleCategory}
           />
         </section>
 
         {/* Trending Platforms */}
         <section className="ip-section">
-          <h3 className="ip-section-title">Trending in {domain.label}</h3>
+          <h3 className="ip-section-title">Trending in {topic.label}</h3>
           {trendingLoading ? (
             <div className="ip-loader"><SofiaLoader size={48} /></div>
           ) : trending.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No trending platforms for this domain yet.</p>
+            <p className="text-sm text-muted-foreground">No trending platforms for this topic yet.</p>
           ) : (
             <div className="ip-trending-grid">
               {trending.map((platform) => (
                 <TrendingCard
                   key={platform.platformDomain}
                   platform={platform}
-                  domainLabel={domain.label}
+                  domainLabel={topic.label}
                 />
               ))}
             </div>
@@ -154,7 +154,7 @@ export default function InterestPage() {
                 <span className="ip-platform-status ip-platform-on">Connected</span>
               </Card>
             ))}
-            <Card className="ip-platform-add" onClick={() => navigate(`/profile/interest/${domainId}/platforms`)}>
+            <Card className="ip-platform-add" onClick={() => navigate(`/profile/interest/${topicId}/platforms`)}>
               <Plus className="ip-platform-add-icon" />
               <span className="ip-platform-add-label">Connect</span>
             </Card>
@@ -172,7 +172,7 @@ export default function InterestPage() {
           {claimsLoading ? (
             <div className="ip-loader"><SofiaLoader size={48} /></div>
           ) : claims.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No claims for this domain yet.</p>
+            <p className="text-sm text-muted-foreground">No claims for this topic yet.</p>
           ) : (
             <div className="ip-claims-grid">
               {claims.map((c) => {
@@ -264,7 +264,7 @@ export default function InterestPage() {
               title={`${dialogClaim.subject} ${dialogClaim.predicate} ${dialogClaim.object}`}
               favicon=""
               intention="Claim"
-              intentionColor={domain?.color || '#8B5CF6'}
+              intentionColor={topic?.color || '#8B5CF6'}
               walletAddress={walletAddress}
             />
           )}

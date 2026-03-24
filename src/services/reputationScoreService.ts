@@ -1,59 +1,59 @@
-import { SOFIA_DOMAINS } from '@/config/taxonomy'
+import { SOFIA_TOPICS } from '@/config/taxonomy'
 import { PLATFORM_CATALOG } from '@/config/platformCatalog'
 import type {
   ConnectionStatus,
-  DomainScore,
+  TopicScore,
   UserReputationProfile,
   EthccSofiaSignals,
 } from '@/types/reputation'
 
 // ── Points per signal type ──
 
-const POINTS_PER_PLATFORM = 10   // Connected platform in this domain
-const POINTS_PER_ETHCC_TOPIC = 3 // EthCC topic vote matching this domain (bonus)
-const POINTS_PER_ETHCC_TRACK = 3 // EthCC track interest matching this domain (bonus)
+const POINTS_PER_PLATFORM = 10   // Connected platform in this topic
+const POINTS_PER_ETHCC_TOPIC = 3 // EthCC topic vote matching this topic (bonus)
+const POINTS_PER_ETHCC_TRACK = 3 // EthCC track interest matching this topic (bonus)
 
 // ── Score computation ──
 
 export function computeReputationProfile(
   getStatus: (platformId: string) => ConnectionStatus,
-  selectedDomains: string[],
-  selectedNiches: string[],
+  selectedTopics: string[],
+  selectedCategories: string[],
   ethccSignals?: EthccSofiaSignals | null,
 ): UserReputationProfile | null {
   const connectedPlatforms = PLATFORM_CATALOG.filter(
     (p) => getStatus(p.id) === 'connected',
   )
 
-  if (connectedPlatforms.length === 0 && selectedDomains.length === 0) {
+  if (connectedPlatforms.length === 0 && selectedTopics.length === 0) {
     return null
   }
 
-  const domainScores: DomainScore[] = SOFIA_DOMAINS.filter(
-    (d) => selectedDomains.includes(d.id),
-  ).map((domain) => {
-    // Platforms connected in this domain
-    const domainPlatforms = connectedPlatforms.filter((p) =>
-      p.targetDomains.includes(domain.id),
+  const topicScores: TopicScore[] = SOFIA_TOPICS.filter(
+    (d) => selectedTopics.includes(d.id),
+  ).map((topic) => {
+    // Platforms connected in this topic
+    const topicPlatforms = connectedPlatforms.filter((p) =>
+      p.targetTopics.includes(topic.id),
     )
-    const platformCount = domainPlatforms.length
+    const platformCount = topicPlatforms.length
     const platformPoints = platformCount * POINTS_PER_PLATFORM
 
-    // EthCC bonus for this domain
+    // EthCC bonus for this topic
     let ethccBonus = 0
     if (ethccSignals) {
-      const domainSignal = ethccSignals.domainSignals[domain.id]
-      if (domainSignal) {
+      const topicSignal = ethccSignals.topicSignals[topic.id]
+      if (topicSignal) {
         ethccBonus =
-          domainSignal.topicCount * POINTS_PER_ETHCC_TOPIC +
-          domainSignal.trackCount * POINTS_PER_ETHCC_TRACK
+          topicSignal.topicCount * POINTS_PER_ETHCC_TOPIC +
+          topicSignal.trackCount * POINTS_PER_ETHCC_TRACK
       }
     }
 
     const score = platformPoints + ethccBonus
 
     return {
-      domainId: domain.id,
+      topicId: topic.id,
       score,
       confidence: platformCount > 0 ? Math.min(1, platformCount * 0.2) : 0,
       topNiches: [],
@@ -64,7 +64,7 @@ export function computeReputationProfile(
 
   return {
     walletAddress: '',
-    domains: domainScores,
+    topics: topicScores,
     globalConfidence: connectedPlatforms.length > 0
       ? Math.min(1, connectedPlatforms.length * 0.1)
       : 0,

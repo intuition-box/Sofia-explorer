@@ -2,17 +2,17 @@ import { useState, useCallback } from 'react'
 import { getSuggestedPlatforms } from '../config/taxonomy'
 import { useSyncExternalStore } from 'react'
 
-const STORAGE_KEY = 'sofia_domain_selection'
-const SYNC_EVENT = 'sofia_domain_selection_sync'
+const STORAGE_KEY = 'sofia_topic_selection'
+const SYNC_EVENT = 'sofia_topic_selection_sync'
 
-interface DomainSelectionState {
-  selectedDomains: string[]
-  selectedNiches: string[]
+interface TopicSelectionState {
+  selectedTopics: string[]
+  selectedCategories: string[]
 }
 
-const DEFAULT_STATE: DomainSelectionState = { selectedDomains: [], selectedNiches: [] }
+const DEFAULT_STATE: TopicSelectionState = { selectedTopics: [], selectedCategories: [] }
 
-function getSnapshot(): DomainSelectionState {
+function getSnapshot(): TopicSelectionState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) return JSON.parse(raw)
@@ -20,7 +20,7 @@ function getSnapshot(): DomainSelectionState {
   return DEFAULT_STATE
 }
 
-function save(state: DomainSelectionState) {
+function save(state: TopicSelectionState) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   window.dispatchEvent(new Event(SYNC_EVENT))
 }
@@ -34,7 +34,7 @@ function subscribe(callback: () => void) {
 let cachedJson = ''
 let cachedState = DEFAULT_STATE
 
-function getSnapshotStable(): DomainSelectionState {
+function getSnapshotStable(): TopicSelectionState {
   const raw = localStorage.getItem(STORAGE_KEY) || ''
   if (raw !== cachedJson) {
     cachedJson = raw
@@ -47,38 +47,38 @@ function getSnapshotStable(): DomainSelectionState {
   return cachedState
 }
 
-export function useDomainSelection() {
+export function useTopicSelection() {
   const state = useSyncExternalStore(subscribe, getSnapshotStable)
 
-  const toggleDomain = useCallback((domainId: string) => {
+  const toggleTopic = useCallback((topicId: string) => {
     const current = getSnapshot()
-    const isSelected = current.selectedDomains.includes(domainId)
+    const isSelected = current.selectedTopics.includes(topicId)
     save({
-      selectedDomains: isSelected
-        ? current.selectedDomains.filter((d) => d !== domainId)
-        : [...current.selectedDomains, domainId],
-      selectedNiches: current.selectedNiches,
+      selectedTopics: isSelected
+        ? current.selectedTopics.filter((d) => d !== topicId)
+        : [...current.selectedTopics, topicId],
+      selectedCategories: current.selectedCategories,
     })
   }, [])
 
-  const toggleNiche = useCallback((nicheId: string) => {
+  const toggleCategory = useCallback((categoryId: string) => {
     const current = getSnapshot()
-    const isSelected = current.selectedNiches.includes(nicheId)
+    const isSelected = current.selectedCategories.includes(categoryId)
     save({
-      selectedDomains: current.selectedDomains,
-      selectedNiches: isSelected
-        ? current.selectedNiches.filter((n) => n !== nicheId)
-        : [...current.selectedNiches, nicheId],
+      selectedTopics: current.selectedTopics,
+      selectedCategories: isSelected
+        ? current.selectedCategories.filter((n) => n !== categoryId)
+        : [...current.selectedCategories, categoryId],
     })
   }, [])
 
-  const suggestedPlatforms = getSuggestedPlatforms(state.selectedNiches)
+  const suggestedPlatforms = getSuggestedPlatforms(state.selectedCategories)
 
   return {
-    selectedDomains: state.selectedDomains,
-    selectedNiches: state.selectedNiches,
+    selectedTopics: state.selectedTopics,
+    selectedCategories: state.selectedCategories,
     suggestedPlatforms,
-    toggleDomain,
-    toggleNiche,
+    toggleTopic,
+    toggleCategory,
   }
 }

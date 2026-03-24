@@ -1,37 +1,37 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { DOMAIN_BY_ID } from '@/config/taxonomy'
-import { useDomainSelection } from '@/hooks/useDomainSelection'
+import { TOPIC_BY_ID } from '@/config/taxonomy'
+import { useTopicSelection } from '@/hooks/useDomainSelection'
 import NicheSelector from '@/components/profile/NicheSelector'
 import PageHeader from '@/components/PageHeader'
 import '@/components/styles/pages.css'
 
 export default function DomainNicheSelectionPage() {
-  const { domainId } = useParams<{ domainId: string }>()
+  const { topicId } = useParams<{ topicId: string }>()
   const navigate = useNavigate()
-  const domain = domainId ? DOMAIN_BY_ID.get(domainId) : undefined
-  const { selectedNiches, toggleNiche } = useDomainSelection()
+  const topic = topicId ? TOPIC_BY_ID.get(topicId) : undefined
+  const { selectedCategories, toggleCategory } = useTopicSelection()
 
-  if (!domain) {
+  if (!topic) {
     return (
       <div className="page-content page-enter">
-        <p className="text-sm text-muted-foreground">Domain not found.</p>
+        <p className="text-sm text-muted-foreground">Topic not found.</p>
       </div>
     )
   }
 
-  const color = domain.color
+  const color = topic.color
   const glow = `${color}66`
 
   return (
     <div>
-      <PageHeader color={color} glow={glow} title={`${domain.label} Niches`} subtitle="Select your areas of expertise" />
+      <PageHeader color={color} glow={glow} title={`${topic.label} Categories`} subtitle="Select your areas of expertise" />
       <div className="page-content page-enter">
         <NicheSelector
-          selectedDomains={[domainId!]}
-          selectedNiches={selectedNiches}
-          onToggleNiche={toggleNiche}
-          onBack={() => navigate(`/profile/interest/${domainId}`)}
-          onContinue={() => navigate(`/profile/interest/${domainId}`)}
+          selectedTopics={[topicId!]}
+          selectedCategories={selectedCategories}
+          onToggleCategory={toggleCategory}
+          onBack={() => navigate(`/profile/interest/${topicId}`)}
+          onContinue={() => navigate(`/profile/interest/${topicId}`)}
         />
       </div>
     </div>

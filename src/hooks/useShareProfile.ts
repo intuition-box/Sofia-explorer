@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react'
-import type { DomainScore } from '@/types/reputation'
+import type { TopicScore } from '@/types/reputation'
 import {
   type ShareProfileParams,
   buildOgImageUrl,
@@ -10,14 +10,14 @@ import {
 
 interface UseShareProfileParams {
   walletAddress: string
-  domainScores: DomainScore[]
+  topicScores: TopicScore[]
   connectedCount: number
   totalCertifications: number
 }
 
 export function useShareProfile({
   walletAddress,
-  domainScores,
+  topicScores,
   connectedCount,
   totalCertifications,
 }: UseShareProfileParams) {
@@ -28,8 +28,8 @@ export function useShareProfile({
   const [copied, setCopied] = useState(false)
 
   const serviceParams: ShareProfileParams = useMemo(
-    () => ({ walletAddress, domainScores, connectedCount, totalCertifications }),
-    [walletAddress, domainScores, connectedCount, totalCertifications],
+    () => ({ walletAddress, topicScores, connectedCount, totalCertifications }),
+    [walletAddress, topicScores, connectedCount, totalCertifications],
   )
 
   const ogImageUrl = useMemo(

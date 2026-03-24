@@ -3,7 +3,7 @@ import {
   type GetTrendingByPredicateQuery,
 } from '@0xsofia/dashboard-graphql'
 import { GRAPHQL_URL } from '@/config'
-import { getPlatformsByDomain } from '@/config/platformCatalog'
+import { getPlatformsByTopic } from '@/config/platformCatalog'
 import { extractDomain } from '@/utils/formatting'
 import { isValidTriple, tripleToItem } from './trendingService'
 import { INTENTION_COLORS } from '@/config/intentions'
@@ -102,8 +102,8 @@ function getDomainFromTriple(triple: TrendingTripleRaw): string {
   return normalizeDomain(extractDomain(url))
 }
 
-function buildPlatformDomains(domainId: string) {
-  const platforms = getPlatformsByDomain(domainId)
+function buildPlatformDomains(topicId: string) {
+  const platforms = getPlatformsByTopic(topicId)
   const platformDomains = new Set<string>()
   const domainToName = new Map<string, string>()
 
@@ -126,8 +126,8 @@ function buildPlatformDomains(domainId: string) {
 /**
  * Fetch trending platforms aggregated by domain
  */
-export async function fetchTrendingByDomain(domainId: string): Promise<TrendingPlatform[]> {
-  const { platformDomains, domainToName } = buildPlatformDomains(domainId)
+export async function fetchTrendingByDomain(topicId: string): Promise<TrendingPlatform[]> {
+  const { platformDomains, domainToName } = buildPlatformDomains(topicId)
 
   // Fetch all categories in parallel using label-based query
   const promises = ALL_CATEGORIES.map(async ({ type, label }) => {

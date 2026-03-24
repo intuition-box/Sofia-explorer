@@ -2,7 +2,7 @@
  * EthCC Manager → Sofia Explorer mapping
  *
  * Maps EthCC on-chain topic votes and track interests
- * to Sofia domain/category IDs for reputation scoring.
+ * to Sofia topic/category IDs for reputation scoring.
  */
 
 // ── Topic Atom IDs (100 topics from EthCC Manager) ──
@@ -78,46 +78,46 @@ export const ETHCC_TRACK_ATOM_IDS: Record<string, string> = {
   'Zero Tech & TEE': '0xa1ace10f77b5b560038429d8012862db14a5664bcd53f0b55da75f4cb99ac29d',
 }
 
-// ── Topic prefix → Sofia domain/category mapping ──
+// ── Topic prefix → Sofia topic/category mapping ──
 
 export interface SofiaMapping {
-  domainId: string
+  topicId: string
   categoryId: string
 }
 
 export const ETHCC_TOPIC_TO_SOFIA: Record<string, SofiaMapping[]> = {
-  'defi': [{ domainId: 'web3-crypto', categoryId: 'defi' }],
-  'nfts': [{ domainId: 'web3-crypto', categoryId: 'nft-art' }],
-  'l2': [{ domainId: 'web3-crypto', categoryId: 'layer-2s' }],
-  'privacy': [{ domainId: 'web3-crypto', categoryId: 'cypherpunk-privacy' }],
+  'defi': [{ topicId: 'web3-crypto', categoryId: 'defi' }],
+  'nfts': [{ topicId: 'web3-crypto', categoryId: 'nft-art' }],
+  'l2': [{ topicId: 'web3-crypto', categoryId: 'layer-2s' }],
+  'privacy': [{ topicId: 'web3-crypto', categoryId: 'cypherpunk-privacy' }],
   'ai': [
-    { domainId: 'web3-crypto', categoryId: 'ai-agents-web3' },
-    { domainId: 'tech-dev', categoryId: 'ai-ml' },
+    { topicId: 'web3-crypto', categoryId: 'ai-agents-web3' },
+    { topicId: 'tech-dev', categoryId: 'ai-ml' },
   ],
-  'eth': [{ domainId: 'web3-crypto', categoryId: 'built-on-ethereum' }],
-  'infra': [{ domainId: 'web3-crypto', categoryId: 'web3-infra-dev' }],
-  'cross': [{ domainId: 'web3-crypto', categoryId: 'layer-2s' }],
-  'culture': [{ domainId: 'web3-crypto', categoryId: 'dao-governance' }],
-  'data': [{ domainId: 'web3-crypto', categoryId: 'trading-speculation' }],
+  'eth': [{ topicId: 'web3-crypto', categoryId: 'built-on-ethereum' }],
+  'infra': [{ topicId: 'web3-crypto', categoryId: 'web3-infra-dev' }],
+  'cross': [{ topicId: 'web3-crypto', categoryId: 'layer-2s' }],
+  'culture': [{ topicId: 'web3-crypto', categoryId: 'dao-governance' }],
+  'data': [{ topicId: 'web3-crypto', categoryId: 'trading-speculation' }],
 }
 
-// ── Track → Sofia domain/category mapping ──
+// ── Track → Sofia topic/category mapping ──
 
 export const ETHCC_TRACK_TO_SOFIA: Record<string, SofiaMapping> = {
-  'AI Agents and Automation': { domainId: 'web3-crypto', categoryId: 'ai-agents-web3' },
-  'Applied cryptography': { domainId: 'web3-crypto', categoryId: 'cypherpunk-privacy' },
-  'Built on Ethereum': { domainId: 'web3-crypto', categoryId: 'built-on-ethereum' },
-  'Core Protocol': { domainId: 'web3-crypto', categoryId: 'web3-infra-dev' },
-  'Cypherpunk & Privacy': { domainId: 'web3-crypto', categoryId: 'cypherpunk-privacy' },
-  'DeFi': { domainId: 'web3-crypto', categoryId: 'defi' },
-  'EthStaker': { domainId: 'web3-crypto', categoryId: 'built-on-ethereum' },
-  'Layer 2s': { domainId: 'web3-crypto', categoryId: 'layer-2s' },
-  'Product & Marketers': { domainId: 'entrepreneurship', categoryId: 'product-management' },
-  'RWA Tokenisation': { domainId: 'web3-crypto', categoryId: 'defi' },
-  'Research': { domainId: 'science', categoryId: 'academic-research' },
-  'Security': { domainId: 'web3-crypto', categoryId: 'web3-infra-dev' },
-  'Stablecoins & Global Payments': { domainId: 'web3-crypto', categoryId: 'defi' },
-  'Zero Tech & TEE': { domainId: 'web3-crypto', categoryId: 'cypherpunk-privacy' },
+  'AI Agents and Automation': { topicId: 'web3-crypto', categoryId: 'ai-agents-web3' },
+  'Applied cryptography': { topicId: 'web3-crypto', categoryId: 'cypherpunk-privacy' },
+  'Built on Ethereum': { topicId: 'web3-crypto', categoryId: 'built-on-ethereum' },
+  'Core Protocol': { topicId: 'web3-crypto', categoryId: 'web3-infra-dev' },
+  'Cypherpunk & Privacy': { topicId: 'web3-crypto', categoryId: 'cypherpunk-privacy' },
+  'DeFi': { topicId: 'web3-crypto', categoryId: 'defi' },
+  'EthStaker': { topicId: 'web3-crypto', categoryId: 'built-on-ethereum' },
+  'Layer 2s': { topicId: 'web3-crypto', categoryId: 'layer-2s' },
+  'Product & Marketers': { topicId: 'entrepreneurship', categoryId: 'product-management' },
+  'RWA Tokenisation': { topicId: 'web3-crypto', categoryId: 'defi' },
+  'Research': { topicId: 'science', categoryId: 'academic-research' },
+  'Security': { topicId: 'web3-crypto', categoryId: 'web3-infra-dev' },
+  'Stablecoins & Global Payments': { topicId: 'web3-crypto', categoryId: 'defi' },
+  'Zero Tech & TEE': { topicId: 'web3-crypto', categoryId: 'cypherpunk-privacy' },
 }
 
 // ── Helper: resolve topic slug to Sofia mappings ──

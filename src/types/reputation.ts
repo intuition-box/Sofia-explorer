@@ -20,7 +20,7 @@ export interface Category {
   niches: Niche[]
 }
 
-export interface Domain {
+export interface Topic {
   id: string
   label: string
   icon: string
@@ -60,7 +60,7 @@ export interface PlatformConfig {
   apiBaseUrl?: string
   website?: string
   dataPoints: string[]
-  targetDomains: string[]
+  targetTopics: string[]
   targetNiches: string[]
   signalConfidence: SignalConfidence
   integrationPhase: IntegrationPhase
@@ -114,7 +114,7 @@ export interface ScoreBreakdown {
 
 export interface NicheScore {
   nicheId: string
-  domainId: string
+  topicId: string
   score: number
   confidence: number
   breakdown: ScoreBreakdown
@@ -122,8 +122,8 @@ export interface NicheScore {
   lastCalculated: number
 }
 
-export interface DomainScore {
-  domainId: string
+export interface TopicScore {
+  topicId: string
   score: number
   confidence: number
   topNiches: NicheScore[]
@@ -133,7 +133,7 @@ export interface DomainScore {
 
 export interface UserReputationProfile {
   walletAddress: string
-  domains: DomainScore[]
+  topics: TopicScore[]
   globalConfidence: number
   totalPlatforms: number
   ensName?: string
@@ -145,18 +145,18 @@ export interface UserReputationProfile {
 export interface EthccTopicVote {
   topicSlug: string
   shares: string
-  domainId: string
+  topicId: string
   categoryId: string
 }
 
 export interface EthccTrackInterest {
   trackName: string
   shares: string
-  domainId: string
+  topicId: string
   categoryId: string
 }
 
-export interface DomainEthccSignal {
+export interface TopicEthccSignal {
   topicCount: number
   trackCount: number
   totalShares: string
@@ -166,12 +166,12 @@ export interface DomainEthccSignal {
 export interface EthccSofiaSignals {
   topicVotes: EthccTopicVote[]
   trackInterests: EthccTrackInterest[]
-  domainSignals: Record<string, DomainEthccSignal>
+  topicSignals: Record<string, TopicEthccSignal>
 }
 
-// === DOMAIN SCORING MODEL ===
+// === TOPIC SCORING MODEL ===
 
-export interface DomainScoringModel {
+export interface TopicScoringModel {
   maxScore: number
   regularityMultiplier: number
   qualityMultiplier: number
@@ -181,8 +181,8 @@ export interface DomainScoringModel {
 // === ONBOARDING ===
 
 export interface UserInterestSelection {
-  selectedDomains: string[]
-  selectedNiches: string[]
+  selectedTopics: string[]
+  selectedCategories: string[]
   suggestedPlatforms: string[]
   connectedPlatforms: string[]
   completedAt?: number

@@ -1,29 +1,24 @@
 /**
- * Create Platform Atoms on Intuition (atoms only, no triples)
+ * Create Category Atoms on Intuition (88 sub-categories)
  *
- * For each of the 142 platforms:
- *   1. Pins the favicon PNG to IPFS (via Pinata)
- *   2. Pins metadata to IPFS (via Intuition pinThing) with name, description, image, url
- *   3. Creates the atom on-chain
+ * Categories sit between Topics and Niches in Sofia's taxonomy:
+ *   Topic "Web3 & Crypto" → Category "DeFi" → Niches (yield farming, lending, ...)
  *
- * Requires:
- *   PRIVATE_KEY=0x...     Wallet private key (not needed for --dry-run)
- *   PINATA_JWT=...        Pinata API JWT for image pinning (https://app.pinata.cloud/developers/api-keys)
+ * Each category description is auto-generated from its niches.
  *
  * Usage:
- *   PRIVATE_KEY=0x... PINATA_JWT=... node scripts/create-platform-atoms.mjs
+ *   PRIVATE_KEY=0x... node scripts/create-category-atoms.mjs
  *
  * Options:
- *   --dry-run     Pin images + metadata to IPFS only, don't send transactions
+ *   --dry-run     Pin to IPFS only, don't send transactions
  *   --estimate    Show costs without executing
- *   --skip-pin    Skip all IPFS pinning (use cached pins)
- *   --batch=N     Batch size for createAtoms (default: 20)
+ *   --skip-pin    Skip IPFS pinning (use cached pins)
+ *   --batch=N     Batch size (default: 20)
  */
 
 import { createPublicClient, createWalletClient, http, stringToHex, formatEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { basename } from 'path'
 
 // ── Config ──
 
@@ -31,10 +26,7 @@ const RPC_URL = 'https://rpc.intuition.systems'
 const GRAPHQL_URL = 'https://mainnet.intuition.sh/v1/graphql'
 const SOFIA_FEE_PROXY = '0x26F81d723Ad1648194FAA4b7E235105Fd1212c6c'
 const CURVE_ID = 1n
-const CACHE_FILE = 'scripts/.platform-cache.json'
-const FAVICONS_DIR = 'public/favicons'
-const PINATA_UPLOAD_URL = 'https://api.pinata.cloud/pinning/pinFileToIPFS'
-const IPFS_GATEWAY = 'https://gateway.pinata.cloud/ipfs'
+const CACHE_FILE = 'scripts/.category-cache.json'
 
 // ── Chain definition ──
 
@@ -89,90 +81,82 @@ const PROXY_ABI = [
   },
 ]
 
-// ── Parse platform catalog ──
+// ── Parse taxonomy.ts to extract categories with niches ──
 
-function parsePlatforms() {
-  const content = readFileSync('src/config/platformCatalog.ts', 'utf8')
-  const platforms = []
-  const idRegex = /id:\s*"([^"]+)"/g
-  let match
+function parseCategories() {
+  const content = readFileSync('src/config/taxonomy.ts', 'utf8')
+  const categories = []
 
-  while ((match = idRegex.exec(content)) !== null) {
-    const id = match[1]
-    const pos = match.index
-    const block = content.substring(pos, pos + 1000)
+  const topicRegex = /id:\s*"([^"]+)",\s*\n\s*label:\s*"([^"]+)",\s*\n\s*icon:/g
+  let topicMatch
+  const topicPositions = []
 
-    const nameMatch = block.match(/name:\s*"([^"]+)"/)
-    const websiteMatch = block.match(/website:\s*"([^"]+)"/)
-    const apiMatch = block.match(/apiBaseUrl:\s*"([^"]+)"/)
-    const dataPointsMatch = block.match(/dataPoints:\s*\[([\s\S]*?)\]/)
+  while ((topicMatch = topicRegex.exec(content)) !== null) {
+    topicPositions.push({
+      id: topicMatch[1],
+      label: topicMatch[2],
+      pos: topicMatch.index,
+    })
+  }
 
-    const name = nameMatch?.[1]
-    if (!name) continue
+  for (let i = 0; i < topicPositions.length; i++) {
+    const topic = topicPositions[i]
+    const start = topic.pos
+    const end = i + 1 < topicPositions.length ? topicPositions[i + 1].pos : content.length
+    const topicBlock = content.substring(start, end)
 
-    let website = websiteMatch?.[1]
-    if (!website && apiMatch) {
-      try { website = `https://${new URL(apiMatch[1]).hostname}` } catch {}
+    const catRegex = /{\s*\n\s*id:\s*"([^"]+)",\s*\n\s*label:\s*"([^"]+)",/g
+    let catMatch
+
+    while ((catMatch = catRegex.exec(topicBlock)) !== null) {
+      const catId = catMatch[1]
+      const catLabel = catMatch[2]
+      if (catId === topic.id) continue
+
+      const afterCat = topicBlock.substring(catMatch.index, catMatch.index + 1200)
+      // Only match categories (have niches: property), not niches themselves
+      const nichesPos = afterCat.indexOf('niches:')
+      const closingBracket = afterCat.indexOf(']')
+      if (nichesPos === -1 || (closingBracket !== -1 && closingBracket < nichesPos)) continue
+
+      // Extract niche labels
+      const nichesSection = afterCat.match(/niches:\s*\[([\s\S]*?)\]\s*,?\s*}/)?.[1]
+      const nicheLabels = []
+      if (nichesSection) {
+        const labelRegex = /label:\s*"([^"]+)"/g
+        let labelMatch
+        while ((labelMatch = labelRegex.exec(nichesSection)) !== null) {
+          nicheLabels.push(labelMatch[1])
+        }
+      }
+
+      categories.push({
+        id: catId,
+        label: catLabel,
+        topicId: topic.id,
+        topicLabel: topic.label,
+        nicheLabels,
+      })
     }
-    if (!website) website = `https://${id}.com`
-
-    // Extract dataPoints as clean list
-    const dataPoints = dataPointsMatch?.[1]
-      ?.match(/"([^"]+)"/g)
-      ?.map((d) => d.replace(/"/g, '').replace(/-/g, ' ')) || []
-
-    // Check if local favicon exists
-    const faviconPath = `${FAVICONS_DIR}/${id}.png`
-    const hasFavicon = existsSync(faviconPath)
-
-    platforms.push({ id, name, website, dataPoints, hasFavicon, faviconPath })
-  }
-  return platforms
-}
-
-// ── Build description from platform data ──
-
-function buildDescription(platform) {
-  const { name, dataPoints } = platform
-  if (dataPoints.length === 0) return name
-
-  // Capitalize first letter of each data point, clean up
-  const signals = dataPoints
-    .map((dp) => dp.replace(/^activite /, '').replace(/^donnees /, ''))
-    .slice(0, 6) // max 6 signals
-    .join(', ')
-
-  return `${name}. Signals: ${signals}.`
-}
-
-// ── Pin image to IPFS via Pinata ──
-
-async function pinImageToIPFS(filePath, fileName, pinataJwt) {
-  const fileBuffer = readFileSync(filePath)
-  const blob = new Blob([fileBuffer], { type: 'image/png' })
-
-  const formData = new FormData()
-  formData.append('file', blob, fileName)
-  formData.append('pinataMetadata', JSON.stringify({ name: fileName }))
-
-  const res = await fetch(PINATA_UPLOAD_URL, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${pinataJwt}` },
-    body: formData,
-  })
-
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`Pinata upload failed (${res.status}): ${text}`)
   }
 
-  const json = await res.json()
-  return `ipfs://${json.IpfsHash}`
+  return categories
 }
 
-// ── Pin metadata to IPFS via Intuition ──
+// ── Build description from category + niches ──
 
-async function pinThing({ name, description, image, url }) {
+function buildDescription(cat) {
+  const niches = cat.nicheLabels
+    .map((n) => n.replace(/\s*\(.*?\)\s*/g, '').trim()) // remove parenthetical
+    .slice(0, 5)
+
+  if (niches.length === 0) return `${cat.label} — part of ${cat.topicLabel}.`
+  return `${cat.label}: ${niches.join(', ')}.`
+}
+
+// ── IPFS Pinning ──
+
+async function pinThing({ name, description }) {
   const query = `mutation PinThing($name: String!, $description: String, $image: String, $url: String) {
     pinThing(thing: { name: $name, description: $description, image: $image, url: $url }) {
       uri
@@ -184,7 +168,7 @@ async function pinThing({ name, description, image, url }) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       query,
-      variables: { name, description: description || '', image: image || '', url: url || '' },
+      variables: { name, description: description || '', image: '', url: '' },
     }),
   })
 
@@ -201,7 +185,7 @@ function loadCache() {
   if (existsSync(CACHE_FILE)) {
     return JSON.parse(readFileSync(CACHE_FILE, 'utf8'))
   }
-  return { imagePins: {}, pins: {}, atomIds: {} }
+  return { pins: {}, atomIds: {} }
 }
 
 function saveCache(cache) {
@@ -218,90 +202,64 @@ async function main() {
   const batchSize = parseInt(args.find((a) => a.startsWith('--batch='))?.split('=')[1] || '20')
 
   const privateKey = process.env.PRIVATE_KEY
-  const pinataJwt = process.env.PINATA_JWT
-
   if (!privateKey && !dryRun && !estimateOnly) {
     console.error('ERROR: Set PRIVATE_KEY environment variable (0x...)')
     process.exit(1)
   }
 
-  if (!pinataJwt && !skipPin) {
-    console.error('ERROR: Set PINATA_JWT environment variable for image pinning')
-    console.error('Get a free key at https://app.pinata.cloud/developers/api-keys')
-    console.error('Or use --skip-pin to skip image pinning (uses cached pins)')
-    process.exit(1)
-  }
-
   const cache = loadCache()
-  const platforms = parsePlatforms()
+  const categories = parseCategories()
 
-  console.log(`\n=== Sofia Platform Atom Creator ===`)
-  console.log(`Platforms: ${platforms.length}`)
-  console.log(`With favicon: ${platforms.filter((p) => p.hasFavicon).length}`)
+  console.log(`\n=== Sofia Category Atom Creator ===`)
+  console.log(`Categories: ${categories.length}`)
   console.log(`Batch size: ${batchSize}`)
   console.log(`Dry run: ${dryRun}\n`)
 
-  // ── Step 1: Pin favicons to IPFS via Pinata ──
+  // Preview all categories with descriptions
+  const byTopic = new Map()
+  for (const cat of categories) {
+    if (!byTopic.has(cat.topicLabel)) byTopic.set(cat.topicLabel, [])
+    byTopic.get(cat.topicLabel).push(cat)
+  }
+  for (const [topic, cats] of byTopic) {
+    console.log(`  ${topic}:`)
+    for (const cat of cats) {
+      console.log(`    ${cat.label}`)
+      console.log(`      → "${buildDescription(cat)}"`)
+    }
+  }
+  console.log()
+
+  // ── Step 1: Pin categories to IPFS ──
 
   if (!skipPin) {
-    console.log('── Step 1: Pin favicons to IPFS (Pinata) ──\n')
+    console.log('── Step 1: Pin to IPFS ──\n')
 
-    for (const p of platforms) {
-      if (cache.imagePins[p.id]) {
-        console.log(`  CACHED ${p.name} → ${cache.imagePins[p.id]}`)
-        continue
-      }
-
-      if (!p.hasFavicon) {
-        console.log(`  SKIP ${p.name} (no favicon at ${p.faviconPath})`)
-        continue
-      }
-
-      try {
-        const ipfsUri = await pinImageToIPFS(p.faviconPath, `${p.id}.png`, pinataJwt)
-        cache.imagePins[p.id] = ipfsUri
-        console.log(`  PINNED ${p.name} → ${ipfsUri}`)
-        saveCache(cache)
-      } catch (e) {
-        console.error(`  FAIL ${p.name}: ${e.message}`)
-      }
-    }
-
-    console.log(`\nFavicons pinned: ${Object.keys(cache.imagePins).length}`)
-
-    // ── Step 2: Pin platform metadata to IPFS (Intuition) ──
-
-    console.log('\n── Step 2: Pin platform metadata to IPFS ──\n')
-
-    for (const p of platforms) {
-      const key = `platform:${p.id}`
+    for (const cat of categories) {
+      const key = `cat:${cat.id}`
       if (cache.pins[key]) {
-        console.log(`  CACHED ${p.name}`)
+        console.log(`  CACHED ${cat.label}`)
         continue
       }
 
-      const description = buildDescription(p)
-      const imageUri = cache.imagePins[p.id] || ''
+      const description = buildDescription(cat)
 
       try {
         const uri = await pinThing({
-          name: p.name,
+          name: cat.label,
           description,
-          image: imageUri,
-          url: p.website,
         })
         cache.pins[key] = uri
-        console.log(`  PINNED ${p.name}`)
-        console.log(`         desc: "${description}"`)
-        console.log(`         img:  ${imageUri || '(none)'}`)
-        console.log(`         uri:  ${uri}`)
+        console.log(`  PINNED ${cat.label}`)
+        console.log(`         "${description}"`)
+        console.log(`         → ${uri}`)
         saveCache(cache)
       } catch (e) {
-        console.error(`  FAIL ${p.name}: ${e.message}`)
+        console.error(`  FAIL ${cat.label}: ${e.message}`)
       }
     }
 
-    console.log(`\nMetadata pinned: ${Object.keys(cache.pins).length}`)
+    console.log(`\nPinned: ${Object.keys(cache.pins).length} total`)
   }
 
   if (dryRun) {
@@ -339,9 +297,7 @@ async function main() {
 
   // ── Cost estimate ──
 
-  const totalAtoms = platforms.length
-  const atomsMultiVault = atomCost * BigInt(totalAtoms)
-
+  const atomsMultiVault = atomCost * BigInt(categories.length)
   const atomsTotalCost = await publicClient.readContract({
     address: SOFIA_FEE_PROXY,
     abi: PROXY_ABI,
@@ -350,7 +306,7 @@ async function main() {
   })
 
   console.log(`\n── Cost Estimate ──`)
-  console.log(`  Atoms: ${totalAtoms} × ${formatEther(atomCost)} = ${formatEther(atomsTotalCost)} TRUST`)
+  console.log(`  Atoms: ${categories.length} × ${formatEther(atomCost)} = ${formatEther(atomsTotalCost)} TRUST`)
   console.log(`  Balance: ${formatEther(balance)} TRUST`)
 
   if (balance < atomsTotalCost) {
@@ -364,18 +320,16 @@ async function main() {
     return
   }
 
-  // ── Step 3: Create platform atoms on-chain ──
+  // ── Step 2: Create category atoms ──
 
-  console.log('\n── Step 3: Create Platform Atoms ──\n')
+  console.log('\n── Step 2: Create Category Atoms ──\n')
 
-  const allItems = platforms.map((p) => ({ key: `platform:${p.id}`, name: p.name }))
-  const toCreate = allItems.filter((item) => cache.pins[item.key] && !cache.atomIds[item.key])
-
-  console.log(`To create: ${toCreate.length} atoms (${allItems.length - toCreate.length} already done)`)
+  const toCreate = categories.filter((c) => cache.pins[`cat:${c.id}`] && !cache.atomIds[c.id])
+  console.log(`To create: ${toCreate.length} atoms (${categories.length - toCreate.length} already done)`)
 
   for (let i = 0; i < toCreate.length; i += batchSize) {
     const batch = toCreate.slice(i, i + batchSize)
-    const encodedDataArray = batch.map((item) => stringToHex(cache.pins[item.key]))
+    const encodedDataArray = batch.map((c) => stringToHex(cache.pins[`cat:${c.id}`]))
     const depositsArray = batch.map(() => 0n)
 
     const multiVaultCost = atomCost * BigInt(batch.length)
@@ -387,7 +341,7 @@ async function main() {
     })
 
     console.log(`\n  Batch ${Math.floor(i / batchSize) + 1}: ${batch.length} atoms, cost: ${formatEther(totalCost)} TRUST`)
-    batch.forEach((item) => console.log(`    - ${item.name}`))
+    batch.forEach((c) => console.log(`    - ${c.label} (${c.topicLabel})`))
 
     try {
       const { result } = await publicClient.simulateContract({
@@ -418,17 +372,17 @@ async function main() {
       }
 
       for (let j = 0; j < batch.length; j++) {
-        cache.atomIds[batch[j].key] = atomIds[j]
-        console.log(`  CREATED ${batch[j].name} → ${atomIds[j]}`)
+        cache.atomIds[batch[j].id] = atomIds[j]
+        console.log(`  CREATED ${batch[j].label} → ${atomIds[j]}`)
       }
       saveCache(cache)
     } catch (e) {
       const msg = e.message || ''
       if (msg.includes('AtomExists')) {
         console.log(`  Some atoms exist, falling back to individual creation...`)
-        for (const item of batch) {
-          if (cache.atomIds[item.key]) continue
-          const encoded = stringToHex(cache.pins[item.key])
+        for (const cat of batch) {
+          if (cache.atomIds[cat.id]) continue
+          const encoded = stringToHex(cache.pins[`cat:${cat.id}`])
 
           try {
             const atomId = await publicClient.readContract({
@@ -464,23 +418,23 @@ async function main() {
               })
 
               await publicClient.waitForTransactionReceipt({ hash: txHash })
-              cache.atomIds[item.key] = result[0]
-              console.log(`    CREATED ${item.name} → ${result[0]}`)
+              cache.atomIds[cat.id] = result[0]
+              console.log(`    CREATED ${cat.label} → ${result[0]}`)
             } catch (singleErr) {
               if (singleErr.message?.includes('AtomExists')) {
-                cache.atomIds[item.key] = atomId
-                console.log(`    EXISTS ${item.name} → ${atomId}`)
+                cache.atomIds[cat.id] = atomId
+                console.log(`    EXISTS ${cat.label} → ${atomId}`)
               } else {
-                console.error(`    FAIL ${item.name}: ${singleErr.message}`)
+                console.error(`    FAIL ${cat.label}: ${singleErr.message}`)
               }
             }
             saveCache(cache)
           } catch (calcErr) {
-            console.error(`    FAIL ${item.name}: ${calcErr.message}`)
+            console.error(`    FAIL ${cat.label}: ${calcErr.message}`)
           }
         }
       } else {
-        console.error(`  BATCH FAIL: ${msg}`)
+        console.error(`  BATCH FAIL: ${msg.slice(0, 200)}`)
       }
     }
   }
@@ -488,9 +442,7 @@ async function main() {
   // ── Summary ──
 
   console.log('\n=== Summary ===')
-  console.log(`Favicons pinned: ${Object.keys(cache.imagePins).length}`)
-  console.log(`Metadata pinned: ${Object.keys(cache.pins).length}`)
-  console.log(`Platform atoms created: ${Object.keys(cache.atomIds).length}`)
+  console.log(`Category atoms created: ${Object.keys(cache.atomIds).length}`)
   console.log(`Cache saved to: ${CACHE_FILE}`)
 }
 

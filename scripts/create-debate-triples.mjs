@@ -1,8 +1,8 @@
 /**
- * Create Debate Triples — "X is better than Y" + "has tag" domain
+ * Create Debate Triples — "X is better than Y" + "has tag" topic
  *
- * Creates comparative claims on-chain for each domain's top platforms,
- * then tags each claim with its domain category.
+ * Creates comparative claims on-chain for each topic's top platforms,
+ * then tags each claim with its topic category.
  *
  * Usage:
  *   PRIVATE_KEY=0x... pnpm node scripts/create-debate-triples.mjs
@@ -26,37 +26,37 @@ const HAS_TAG_PREDICATE = '0x7ec36d201c842dc787b45cb5bb753bea4cf849be3908fb1b0a7
 const CURVE_ID = 1n
 const CACHE_FILE = 'scripts/.debate-cache.json'
 
-// ── Debate pairs: top 2 platforms per domain ──
+// ── Debate pairs: top 2 platforms per topic ──
 
 const DEBATE_PAIRS = [
   // ── Tech & Dev ──
-  { domain: 'tech-dev',           domainLabel: 'Tech & Dev',                a: 'GitHub',       b: 'GitLab',         category: 'tech' },
+  { topic: 'tech-dev',           topicLabel: 'Tech & Dev',                a: 'GitHub',       b: 'GitLab',         category: 'tech' },
   // ── Design & Visual Arts ──
-  { domain: 'design-creative',    domainLabel: 'Design & Visual Arts',      a: 'Figma',        b: 'Dribbble',       category: 'tech' },
+  { topic: 'design-creative',    topicLabel: 'Design & Visual Arts',      a: 'Figma',        b: 'Dribbble',       category: 'tech' },
   // ── Music & Audio ──
-  { domain: 'music-audio',        domainLabel: 'Music & Audio',             a: 'Spotify',      b: 'Apple Music',    category: 'culture' },
+  { topic: 'music-audio',        topicLabel: 'Music & Audio',             a: 'Spotify',      b: 'Apple Music',    category: 'culture' },
   // ── Gaming ──
-  { domain: 'gaming',             domainLabel: 'Gaming',                    a: 'Steam',        b: 'Epic Games',     category: 'culture' },
+  { topic: 'gaming',             topicLabel: 'Gaming',                    a: 'Steam',        b: 'Epic Games',     category: 'culture' },
   // ── Web3 & Crypto ──
-  { domain: 'web3-crypto',        domainLabel: 'Web3 & Crypto',             a: 'Uniswap',      b: 'Aave',           category: 'web3' },
+  { topic: 'web3-crypto',        topicLabel: 'Web3 & Crypto',             a: 'Uniswap',      b: 'Aave',           category: 'web3' },
   // ── Science & Knowledge ──
-  { domain: 'science',            domainLabel: 'Science & Knowledge',       a: 'Google Scholar', b: 'Wikipedia',     category: 'tech' },
+  { topic: 'science',            topicLabel: 'Science & Knowledge',       a: 'Google Scholar', b: 'Wikipedia',     category: 'tech' },
   // ── Sport & Health ──
-  { domain: 'sport-health',       domainLabel: 'Sport & Health',            a: 'Strava',       b: 'Nike Run Club',  category: 'culture' },
+  { topic: 'sport-health',       topicLabel: 'Sport & Health',            a: 'Strava',       b: 'Nike Run Club',  category: 'culture' },
   // ── Video & Cinema ──
-  { domain: 'video-cinema',       domainLabel: 'Video & Cinema',            a: 'Netflix',      b: 'Disney+',        category: 'culture' },
+  { topic: 'video-cinema',       topicLabel: 'Video & Cinema',            a: 'Netflix',      b: 'Disney+',        category: 'culture' },
   // ── Entrepreneurship & Business ──
-  { domain: 'entrepreneurship',   domainLabel: 'Entrepreneurship & Business', a: 'LinkedIn',   b: 'Product Hunt',   category: 'tech' },
+  { topic: 'entrepreneurship',   topicLabel: 'Entrepreneurship & Business', a: 'LinkedIn',   b: 'Product Hunt',   category: 'tech' },
   // ── Performing Arts ──
-  { domain: 'performing-arts',    domainLabel: 'Performing Arts',           a: 'Instagram',    b: 'TikTok',         category: 'culture' },
+  { topic: 'performing-arts',    topicLabel: 'Performing Arts',           a: 'Instagram',    b: 'TikTok',         category: 'culture' },
   // ── Nature & Environment ──
-  { domain: 'nature-environment', domainLabel: 'Nature & Environment',      a: 'AllTrails',    b: 'iNaturalist',    category: 'energy' },
+  { topic: 'nature-environment', topicLabel: 'Nature & Environment',      a: 'AllTrails',    b: 'iNaturalist',    category: 'energy' },
   // ── Food, Fashion & Lifestyle ──
-  { domain: 'food-lifestyle',     domainLabel: 'Food, Fashion & Lifestyle', a: 'Pinterest',    b: 'Yelp',           category: 'culture' },
+  { topic: 'food-lifestyle',     topicLabel: 'Food, Fashion & Lifestyle', a: 'Pinterest',    b: 'Yelp',           category: 'culture' },
   // ── Literature & Writing ──
-  { domain: 'literature',         domainLabel: 'Literature & Writing',      a: 'Medium',       b: 'Goodreads',      category: 'culture' },
+  { topic: 'literature',         topicLabel: 'Literature & Writing',      a: 'Medium',       b: 'Goodreads',      category: 'culture' },
   // ── Personal Development ──
-  { domain: 'personal-dev',       domainLabel: 'Personal Development',      a: 'Coursera',     b: 'Udemy',          category: 'culture' },
+  { topic: 'personal-dev',       topicLabel: 'Personal Development',      a: 'Coursera',     b: 'Udemy',          category: 'culture' },
 ]
 
 // ── Chain definition ──
@@ -170,7 +170,7 @@ async function main() {
   for (const pair of DEBATE_PAIRS) {
     labelsToResolve.add(pair.a)
     labelsToResolve.add(pair.b)
-    labelsToResolve.add(pair.domainLabel)
+    labelsToResolve.add(pair.topicLabel)
   }
 
   for (const label of labelsToResolve) {
@@ -194,7 +194,7 @@ async function main() {
   for (const pair of DEBATE_PAIRS) {
     if (!cache.atoms[pair.a]) missing.push(pair.a)
     if (!cache.atoms[pair.b]) missing.push(pair.b)
-    if (!cache.atoms[pair.domainLabel]) missing.push(pair.domainLabel)
+    if (!cache.atoms[pair.topicLabel]) missing.push(pair.topicLabel)
   }
 
   if (missing.length > 0) {
@@ -334,24 +334,24 @@ async function main() {
     }
   }
 
-  // ── Step 3: Create "has tag" triples (claim → domain) ──
+  // ── Step 3: Create "has tag" triples (claim → topic) ──
 
   console.log('\n── Step 3: Create "has tag" Triples ──\n')
 
   for (const pair of DEBATE_PAIRS) {
     const claimKey = `${pair.a}:${pair.b}`
-    const tagKey = `tag:${claimKey}:${pair.domain}`
+    const tagKey = `tag:${claimKey}:${pair.topic}`
 
     if (cache.tagTriples[tagKey]) {
-      console.log(`  CACHED tag ${pair.a}/${pair.b} → ${pair.domainLabel}`)
+      console.log(`  CACHED tag ${pair.a}/${pair.b} → ${pair.topicLabel}`)
       continue
     }
 
     const claimTermId = cache.claimTriples[claimKey]
-    const domainAtomId = cache.atoms[pair.domainLabel]
+    const topicAtomId = cache.atoms[pair.topicLabel]
 
-    if (!claimTermId || !domainAtomId) {
-      console.log(`  SKIP tag ${pair.a}/${pair.b} → ${pair.domainLabel} (missing claim or domain atom)`)
+    if (!claimTermId || !topicAtomId) {
+      console.log(`  SKIP tag ${pair.a}/${pair.b} → ${pair.topicLabel} (missing claim or topic atom)`)
       continue
     }
 
@@ -367,7 +367,7 @@ async function main() {
         address: SOFIA_FEE_PROXY,
         abi: PROXY_ABI,
         functionName: 'createTriples',
-        args: [account.address, [claimTermId], [HAS_TAG_PREDICATE], [domainAtomId], [0n], CURVE_ID],
+        args: [account.address, [claimTermId], [HAS_TAG_PREDICATE], [topicAtomId], [0n], CURVE_ID],
         value: singleCost,
         account,
       })
@@ -376,7 +376,7 @@ async function main() {
         address: SOFIA_FEE_PROXY,
         abi: PROXY_ABI,
         functionName: 'createTriples',
-        args: [account.address, [claimTermId], [HAS_TAG_PREDICATE], [domainAtomId], [0n], CURVE_ID],
+        args: [account.address, [claimTermId], [HAS_TAG_PREDICATE], [topicAtomId], [0n], CURVE_ID],
         value: singleCost,
       })
 
@@ -385,18 +385,18 @@ async function main() {
 
       if (receipt.status === 'success') {
         cache.tagTriples[tagKey] = result[0]
-        console.log(`  TAGGED "${pair.a} vs ${pair.b}" → ${pair.domainLabel}`)
+        console.log(`  TAGGED "${pair.a} vs ${pair.b}" → ${pair.topicLabel}`)
         saveCache(cache)
       } else {
-        console.error(`  TX FAILED for tag ${pair.a}/${pair.b} → ${pair.domainLabel}`)
+        console.error(`  TX FAILED for tag ${pair.a}/${pair.b} → ${pair.topicLabel}`)
       }
     } catch (e) {
       if (e.message?.includes('TripleExists')) {
-        console.log(`  EXISTS tag ${pair.a}/${pair.b} → ${pair.domainLabel}`)
+        console.log(`  EXISTS tag ${pair.a}/${pair.b} → ${pair.topicLabel}`)
         cache.tagTriples[tagKey] = 'existing'
         saveCache(cache)
       } else {
-        console.error(`  FAIL tag ${pair.a}/${pair.b} → ${pair.domainLabel}: ${e.message?.slice(0, 200)}`)
+        console.error(`  FAIL tag ${pair.a}/${pair.b} → ${pair.topicLabel}: ${e.message?.slice(0, 200)}`)
       }
     }
   }

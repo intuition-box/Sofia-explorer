@@ -1,4 +1,4 @@
-import { SOFIA_DOMAINS } from '../../config/taxonomy'
+import { SOFIA_TOPICS } from '../../config/taxonomy'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { Card } from '../ui/card'
@@ -6,54 +6,54 @@ import { ScrollArea } from '../ui/scroll-area'
 import { ArrowLeft } from 'lucide-react'
 import '../styles/niche-selector.css'
 
-interface NicheSelectorProps {
-  selectedDomains: string[]
-  selectedNiches: string[]
-  onToggleNiche: (nicheId: string) => void
+interface CategorySelectorProps {
+  selectedTopics: string[]
+  selectedCategories: string[]
+  onToggleCategory: (nicheId: string) => void
   onBack: () => void
   onContinue: () => void
 }
 
 export default function NicheSelector({
-  selectedDomains,
-  selectedNiches,
-  onToggleNiche,
+  selectedTopics,
+  selectedCategories,
+  onToggleCategory,
   onBack,
   onContinue,
-}: NicheSelectorProps) {
-  const domains = SOFIA_DOMAINS.filter((d) => selectedDomains.includes(d.id))
+}: CategorySelectorProps) {
+  const topics = SOFIA_TOPICS.filter((d) => selectedTopics.includes(d.id))
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold">Select your niches</h2>
-        <Badge variant="secondary">{selectedNiches.length} selected</Badge>
+        <h2 className="text-lg font-bold">Select your categories</h2>
+        <Badge variant="secondary">{selectedCategories.length} selected</Badge>
       </div>
 
       <ScrollArea className="h-[60vh]">
         <div className="space-y-6 pr-4">
-          {domains.map((domain) => {
-            const domainNicheCount = domain.categories
-              .filter((c) => selectedNiches.includes(c.id)).length
+          {topics.map((topic) => {
+            const topicCategoryCount = topic.categories
+              .filter((c) => selectedCategories.includes(c.id)).length
 
             return (
-              <Card key={domain.id} className="ns-card">
+              <Card key={topic.id} className="ns-card">
                 <div className="ns-header">
-                  <h3 className="font-semibold ns-title">{domain.label}</h3>
-                  {domainNicheCount > 0 && (
-                    <Badge variant="default" className="text-xs">{domainNicheCount}</Badge>
+                  <h3 className="font-semibold ns-title">{topic.label}</h3>
+                  {topicCategoryCount > 0 && (
+                    <Badge variant="default" className="text-xs">{topicCategoryCount}</Badge>
                   )}
                 </div>
 
                 <div className="ns-cat-grid">
-                  {domain.categories.map((category) => {
-                    const isSelected = selectedNiches.includes(category.id)
+                  {topic.categories.map((category) => {
+                    const isSelected = selectedCategories.includes(category.id)
                     return (
                       <Card
                         key={category.id}
                         className={`ns-cat-card ${isSelected ? 'ns-cat-selected' : ''}`}
-                        style={isSelected ? { borderColor: domain.color, background: `${domain.color}12` } : undefined}
-                        onClick={() => onToggleNiche(category.id)}
+                        style={isSelected ? { borderColor: topic.color, background: `${topic.color}12` } : undefined}
+                        onClick={() => onToggleCategory(category.id)}
                       >
                         <span className="ns-cat-name">{category.label}</span>
                       </Card>

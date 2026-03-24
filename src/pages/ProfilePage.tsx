@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { usePrivy, useLogin, useLinkAccount } from '@privy-io/react-auth'
-import { useDomainSelection } from '../hooks/useDomainSelection'
+import { useTopicSelection } from '../hooks/useDomainSelection'
 import { usePlatformConnections } from '../hooks/usePlatformConnections'
 import { useReputationScores } from '../hooks/useReputationScores'
 import { useUserActivity } from '../hooks/useUserActivity'
@@ -23,12 +23,12 @@ export default function ProfilePage() {
   const { login } = useLogin()
   const { linkWallet } = useLinkAccount({ onSuccess: () => window.location.reload() })
   const address = user?.wallet?.address ?? ''
-  const { selectedDomains, selectedNiches, toggleDomain } = useDomainSelection()
+  const { selectedTopics, selectedCategories, toggleTopic } = useTopicSelection()
   const navigate = useNavigate()
   const { getStatus } = usePlatformConnections()
   const { ethccWallet, signals: ethccSignals, loading: ethccLoading, setWallet, clearWallet } = useEthccData()
-  const scores = useReputationScores(getStatus, selectedDomains, selectedNiches, ethccSignals)
-  const domainScores = scores?.domains ?? []
+  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, ethccSignals)
+  const topicScores = scores?.topics ?? []
   const { items: activityItems, loading: activityLoading } = useUserActivity(address || undefined)
   const { claims: topClaims, loading: claimsLoading } = useTopClaims(address || undefined)
 
@@ -98,11 +98,11 @@ export default function ProfilePage() {
         <section className="pp-section">
           <h3 className="pp-section-title">My Interests</h3>
           <InterestsGrid
-            selectedDomains={selectedDomains}
-            selectedNiches={selectedNiches}
-            domainScores={domainScores}
-            onAddDomain={() => navigate('/profile/domains')}
-            onRemoveDomain={toggleDomain}
+            selectedTopics={selectedTopics}
+            selectedCategories={selectedCategories}
+            topicScores={topicScores}
+            onAddTopic={() => navigate('/profile/topics')}
+            onRemoveTopic={toggleTopic}
           />
         </section>
 

@@ -73,7 +73,7 @@ export function usePlatformConnections() {
       }
 
       // ── Web3 public (Analyze) — auto-connect via wallet address ──
-      if (strategy === 'username' && platform?.targetDomains.includes('web3-crypto')) {
+      if (strategy === 'username' && platform?.targetTopics.includes('web3-crypto')) {
         const walletAddress = user?.wallet?.address
         if (!walletAddress) return
         updateConnection(platformId, {

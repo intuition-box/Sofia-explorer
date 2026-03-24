@@ -32,7 +32,7 @@ export default function EthccConnectCard({
 
   const topicCount = signals?.topicVotes.length ?? 0
   const trackCount = signals?.trackInterests.length ?? 0
-  const domainCount = Object.keys(signals?.domainSignals ?? {}).length
+  const signalTopicCount = Object.keys(signals?.topicSignals ?? {}).length
 
   return (
     <div className="ec-card">
@@ -80,7 +80,7 @@ export default function EthccConnectCard({
           <div className="ec-stats">
             <span><span className="ec-stat-value">{topicCount}</span> topics</span>
             <span><span className="ec-stat-value">{trackCount}</span> tracks</span>
-            <span><span className="ec-stat-value">{domainCount}</span> domains</span>
+            <span><span className="ec-stat-value">{signalTopicCount}</span> topics</span>
           </div>
           <button className="ec-disconnect" onClick={onDisconnect}>
             <Unlink size={12} style={{ marginRight: 4, display: 'inline' }} />

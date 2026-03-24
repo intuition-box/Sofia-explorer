@@ -1,24 +1,24 @@
 import { useNavigate } from 'react-router-dom'
 import { Plus, X } from 'lucide-react'
-import { DOMAIN_BY_ID } from '@/config/taxonomy'
-import type { DomainScore } from '@/types/reputation'
+import { TOPIC_BY_ID } from '@/config/taxonomy'
+import type { TopicScore } from '@/types/reputation'
 import { Card } from '../ui/card'
 
 interface InterestsGridProps {
-  selectedDomains: string[]
-  selectedNiches: string[]
-  domainScores: DomainScore[]
-  onAddDomain?: () => void
-  onRemoveDomain?: (domainId: string) => void
+  selectedTopics: string[]
+  selectedCategories: string[]
+  topicScores: TopicScore[]
+  onAddTopic?: () => void
+  onRemoveTopic?: (topicId: string) => void
 }
 
-export default function InterestsGrid({ selectedDomains, selectedNiches, domainScores, onAddDomain, onRemoveDomain }: InterestsGridProps) {
+export default function InterestsGrid({ selectedTopics, selectedCategories, topicScores, onAddTopic, onRemoveTopic }: InterestsGridProps) {
   const navigate = useNavigate()
 
-  if (selectedDomains.length === 0) {
+  if (selectedTopics.length === 0) {
     return (
       <div className="ig-grid">
-        <Card className="ig-add-card" onClick={onAddDomain}>
+        <Card className="ig-add-card" onClick={onAddTopic}>
           <Plus className="ig-add-icon" />
           <span className="ig-add-label">Add Interest</span>
         </Card>
@@ -26,37 +26,37 @@ export default function InterestsGrid({ selectedDomains, selectedNiches, domainS
     )
   }
 
-  const scoreMap = new Map(domainScores.map((d) => [d.domainId, d]))
+  const scoreMap = new Map(topicScores.map((d) => [d.topicId, d]))
 
   return (
     <div className="ig-grid">
-      {selectedDomains.map((domainId) => {
-        const domain = DOMAIN_BY_ID.get(domainId)
-        if (!domain) return null
+      {selectedTopics.map((topicId) => {
+        const topic = TOPIC_BY_ID.get(topicId)
+        if (!topic) return null
 
-        const nicheCount = domain.categories
-          .filter((c) => selectedNiches.includes(c.id)).length
+        const categoryCount = topic.categories
+          .filter((c) => selectedCategories.includes(c.id)).length
 
-        const score = scoreMap.get(domainId)
+        const score = scoreMap.get(topicId)
 
         return (
           <Card
-            key={domainId}
+            key={topicId}
             className="ig-card"
-            style={{ borderTop: `3px solid ${domain.color}` }}
-            onClick={() => navigate(`/profile/interest/${domainId}`)}
+            style={{ borderTop: `3px solid ${topic.color}` }}
+            onClick={() => navigate(`/profile/interest/${topicId}`)}
           >
             <div className="ig-card-header">
-              <div className="ig-card-icon" style={{ background: `${domain.color}20`, color: domain.color }}>
-                {domain.label.slice(0, 2).toUpperCase()}
+              <div className="ig-card-icon" style={{ background: `${topic.color}20`, color: topic.color }}>
+                {topic.label.slice(0, 2).toUpperCase()}
               </div>
               <div className="ig-card-meta">
-                <span className="ig-card-label">{domain.label}</span>
-                <span className="ig-card-niches">{nicheCount} niche{nicheCount !== 1 ? 's' : ''}</span>
+                <span className="ig-card-label">{topic.label}</span>
+                <span className="ig-card-niches">{categoryCount} categor{categoryCount !== 1 ? 'ies' : 'y'}</span>
               </div>
               <button
                 className="ig-card-remove"
-                onClick={(e) => { e.stopPropagation(); onRemoveDomain?.(domainId) }}
+                onClick={(e) => { e.stopPropagation(); onRemoveTopic?.(topicId) }}
               >
                 <X className="h-3 w-3" />
               </button>
@@ -72,8 +72,8 @@ export default function InterestsGrid({ selectedDomains, selectedNiches, domainS
         )
       })}
 
-      {/* Add domain card */}
-      <Card className="ig-add-card" onClick={onAddDomain}>
+      {/* Add topic card */}
+      <Card className="ig-add-card" onClick={onAddTopic}>
         <Plus className="ig-add-icon" />
         <span className="ig-add-label">Add Interest</span>
       </Card>

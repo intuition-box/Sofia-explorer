@@ -1,7 +1,7 @@
 import { usePrivy } from '@privy-io/react-auth'
 import { useEnsNames } from '../hooks/useEnsNames'
 import { useDiscoveryScore } from '../hooks/useDiscoveryScore'
-import { useDomainSelection } from '../hooks/useDomainSelection'
+import { useTopicSelection } from '../hooks/useDomainSelection'
 import { usePlatformConnections } from '../hooks/usePlatformConnections'
 import { useReputationScores } from '../hooks/useReputationScores'
 import { useShareProfile } from '../hooks/useShareProfile'
@@ -22,10 +22,10 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
   const address = user?.wallet?.address ?? ''
   const { getDisplay, getAvatar } = useEnsNames(address ? [address as Address] : [])
   const { stats } = useDiscoveryScore(address || undefined)
-  const { selectedDomains, selectedNiches } = useDomainSelection()
+  const { selectedTopics, selectedCategories } = useTopicSelection()
   const { getStatus, connectedCount } = usePlatformConnections()
-  const scores = useReputationScores(getStatus, selectedDomains, selectedNiches)
-  const domainScores = scores?.domains ?? []
+  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories)
+  const topicScores = scores?.topics ?? []
   const { accounts: trustCircle, loading: trustLoading } = useTrustCircle(address || undefined)
 
   const {
@@ -41,7 +41,7 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
     copied,
   } = useShareProfile({
     walletAddress: address,
-    domainScores,
+    topicScores,
     connectedCount,
     totalCertifications: stats?.totalCertifications ?? 0,
   })
@@ -54,8 +54,8 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
   const initials = (displayName || address).slice(0, 2).toUpperCase()
 
   const statItems = [
-    { label: 'Domains', value: selectedDomains.length },
-    { label: 'Categories', value: selectedNiches.length },
+    { label: 'Topics', value: selectedTopics.length },
+    { label: 'Categories', value: selectedCategories.length },
     { label: 'Platforms', value: connectedCount },
     { label: 'Signals', value: stats?.totalCertifications ?? 0 },
   ]

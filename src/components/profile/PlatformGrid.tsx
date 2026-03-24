@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { PLATFORM_CATALOG } from '../../config/platformCatalog'
-import { getSuggestedPlatforms, DOMAIN_BY_ID } from '../../config/taxonomy'
+import { getSuggestedPlatforms, TOPIC_BY_ID } from '../../config/taxonomy'
 import type { ConnectionStatus, PlatformConnection, AuthType } from '../../types/reputation'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
@@ -11,13 +11,13 @@ import { getCertifyUrl } from '../../utils/sofiaDetect'
 import '../styles/platform-grid.css'
 
 /** Determine button label + icon based on auth type and web3 domain */
-function getConnectInfo(authType: AuthType, targetDomains: string[]): { label: string; icon: 'oauth' | 'wallet' | 'username' | 'none' } | null {
+function getConnectInfo(authType: AuthType, targetTopics: string[]): { label: string; icon: 'oauth' | 'wallet' | 'username' | 'none' } | null {
   if (authType === 'none') return null
   if (authType === 'siwe') return { label: 'Link Wallet', icon: 'wallet' }
   if (authType === 'siwf') return { label: 'Link Farcaster', icon: 'wallet' }
   if (authType === 'public') {
     // Web3 public platforms — scan on-chain via wallet
-    if (targetDomains.includes('web3-crypto')) return { label: 'Analyze', icon: 'wallet' }
+    if (targetTopics.includes('web3-crypto')) return { label: 'Analyze', icon: 'wallet' }
     return { label: 'Add Username', icon: 'username' }
   }
   // oauth2, oauth1, api_key
@@ -25,7 +25,7 @@ function getConnectInfo(authType: AuthType, targetDomains: string[]): { label: s
 }
 
 interface PlatformGridProps {
-  selectedNiches: string[]
+  selectedCategories: string[]
   getStatus: (platformId: string) => ConnectionStatus
   getConnection: (platformId: string) => PlatformConnection | undefined
   onConnect: (platformId: string) => Promise<void>
@@ -34,7 +34,7 @@ interface PlatformGridProps {
   onVerifyChallenge: (platformId: string) => Promise<void>
   onBack: () => void
   platforms?: typeof PLATFORM_CATALOG
-  currentDomain?: string
+  currentTopic?: string
 }
 
 const STATUS_LABELS: Record<ConnectionStatus, string> = {
@@ -47,7 +47,7 @@ const STATUS_LABELS: Record<ConnectionStatus, string> = {
 }
 
 export default function PlatformGrid({
-  selectedNiches,
+  selectedCategories,
   getStatus,
   getConnection,
   onConnect,
@@ -56,12 +56,12 @@ export default function PlatformGrid({
   onVerifyChallenge,
   onBack,
   platforms: platformsProp,
-  currentDomain,
+  currentTopic,
 }: PlatformGridProps) {
   const [search, setSearch] = useState('')
   const [usernameInputs, setUsernameInputs] = useState<Record<string, string>>({})
   const [showUsernameFor, setShowUsernameFor] = useState<string | null>(null)
-  const suggested = getSuggestedPlatforms(selectedNiches)
+  const suggested = getSuggestedPlatforms(selectedCategories)
   const catalog = platformsProp ?? PLATFORM_CATALOG
 
   const filtered = catalog.filter(
@@ -79,16 +79,16 @@ export default function PlatformGrid({
     return aSuggested - bSuggested
   })
 
-  // Group by domain
+  // Group by topic
   const grouped = useMemo(() => {
     const groups = new Map<string, typeof sorted>()
     for (const p of sorted) {
-      const domainId = (currentDomain && p.targetDomains?.includes(currentDomain))
-        ? currentDomain
+      const topicId = (currentTopic && p.targetDomains?.includes(currentTopic))
+        ? currentTopic
         : p.targetDomains?.[0] || 'other'
-      const existing = groups.get(domainId) || []
+      const existing = groups.get(topicId) || []
       existing.push(p)
-      groups.set(domainId, existing)
+      groups.set(topicId, existing)
     }
     return groups
   }, [sorted])
@@ -112,12 +112,12 @@ export default function PlatformGrid({
         />
       </div>
 
-      {[...grouped.entries()].map(([domainId, platforms]) => {
-        const domain = DOMAIN_BY_ID.get(domainId)
-        const label = domain?.label || domainId
+      {[...grouped.entries()].map(([topicId, platforms]) => {
+        const topic = TOPIC_BY_ID.get(topicId)
+        const label = topic?.label || topicId
 
         return (
-          <div key={domainId}>
+          <div key={topicId}>
             <div className="pg-domain-header">
               <h3 className="font-semibold pg-domain-title">
                 {label} <span className="text-muted-foreground pg-domain-count">({platforms.length})</span>
@@ -199,7 +199,7 @@ export default function PlatformGrid({
                     {/* Actions */}
                     <div className="pg-actions">
                       {(() => {
-                        const info = getConnectInfo(platform.authType, platform.targetDomains)
+                        const info = getConnectInfo(platform.authType, platform.targetTopics)
                         if (!info) return null
 
                         const isPending = status === 'pending_verification'

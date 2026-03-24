@@ -97,11 +97,11 @@ export default function App() {
 
           {/* Protected routes */}
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-          <Route path="/profile/interest/:domainId" element={<ProtectedRoute><InterestPage /></ProtectedRoute>} />
-          <Route path="/profile/interest/:domainId/platforms" element={<ProtectedRoute><PlatformConnectionPage /></ProtectedRoute>} />
-          <Route path="/profile/interest/:domainId/niches" element={<ProtectedRoute><DomainNicheSelectionPage /></ProtectedRoute>} />
-          <Route path="/profile/domains" element={<ProtectedRoute><DomainSelectionPage /></ProtectedRoute>} />
-          <Route path="/profile/niches" element={<ProtectedRoute><NicheSelectionPage /></ProtectedRoute>} />
+          <Route path="/profile/interest/:topicId" element={<ProtectedRoute><InterestPage /></ProtectedRoute>} />
+          <Route path="/profile/interest/:topicId/platforms" element={<ProtectedRoute><PlatformConnectionPage /></ProtectedRoute>} />
+          <Route path="/profile/interest/:topicId/categories" element={<ProtectedRoute><DomainNicheSelectionPage /></ProtectedRoute>} />
+          <Route path="/profile/topics" element={<ProtectedRoute><DomainSelectionPage /></ProtectedRoute>} />
+          <Route path="/profile/categories" element={<ProtectedRoute><NicheSelectionPage /></ProtectedRoute>} />
           <Route path="/platforms" element={<ProtectedRoute><AllPlatformsPage /></ProtectedRoute>} />
           <Route path="/scores" element={<ProtectedRoute><ScoresPage /></ProtectedRoute>} />
           <Route path="/streaks" element={<ProtectedRoute><StreaksPage /></ProtectedRoute>} />

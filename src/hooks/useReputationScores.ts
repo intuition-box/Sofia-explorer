@@ -1,20 +1,20 @@
 import { useMemo } from 'react'
-import { DOMAIN_BY_ID } from '@/config/taxonomy'
+import { TOPIC_BY_ID } from '@/config/taxonomy'
 import { computeReputationProfile } from '@/services/reputationScoreService'
 import type { ConnectionStatus, UserReputationProfile, EthccSofiaSignals } from '@/types/reputation'
 
 export function useReputationScores(
   getStatus: (platformId: string) => ConnectionStatus,
-  selectedDomains: string[],
-  selectedNiches: string[],
+  selectedTopics: string[],
+  selectedCategories: string[],
   ethccSignals?: EthccSofiaSignals | null,
 ): UserReputationProfile | null {
   return useMemo(
-    () => computeReputationProfile(getStatus, selectedDomains, selectedNiches, ethccSignals),
-    [getStatus, selectedDomains, selectedNiches, ethccSignals],
+    () => computeReputationProfile(getStatus, selectedTopics, selectedCategories, ethccSignals),
+    [getStatus, selectedTopics, selectedCategories, ethccSignals],
   )
 }
 
-export function useDomainLabel(domainId: string): string {
-  return DOMAIN_BY_ID.get(domainId)?.label ?? domainId
+export function useTopicLabel(topicId: string): string {
+  return TOPIC_BY_ID.get(topicId)?.label ?? topicId
 }

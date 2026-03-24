@@ -4,7 +4,7 @@ import { Star, Activity } from "lucide-react";
 import TrendingPages from './TrendingPages';
 import './styles/layout.css'
 
-const DOMAIN_ICONS: Record<string, string> = {
+const TOPIC_ICONS: Record<string, string> = {
   'tech-dev': '💻', 'design-creative': '🎨', 'music-audio': '🎵', gaming: '🎮',
   'web3-crypto': '⛓️', science: '🔬', 'sport-health': '🏋️', 'video-cinema': '📹',
   entrepreneurship: '🚀', 'performing-arts': '🎭', 'nature-environment': '🌿',
@@ -12,11 +12,11 @@ const DOMAIN_ICONS: Record<string, string> = {
 }
 
 export function RightSidebar({ hidden = false }: { hidden?: boolean }) {
-  // Placeholder suggested accounts with good scores in user's domains
+  // Placeholder suggested accounts with good scores in user's topics
   const suggestedAccounts = [
-    { address: '0x1a2b...3c4d', score: 87, domain: 'tech-dev' },
-    { address: '0x5e6f...7g8h', score: 74, domain: 'design-creative' },
-    { address: '0x9i0j...1k2l', score: 91, domain: 'web3-crypto' },
+    { address: '0x1a2b...3c4d', score: 87, topic: 'tech-dev' },
+    { address: '0x5e6f...7g8h', score: 74, topic: 'design-creative' },
+    { address: '0x9i0j...1k2l', score: 91, topic: 'web3-crypto' },
   ]
 
   return (
@@ -40,7 +40,7 @@ export function RightSidebar({ hidden = false }: { hidden?: boolean }) {
                   <div>
                     <p className="text-sm font-medium">{account.address}</p>
                     <p className="text-xs text-muted-foreground">
-                      {DOMAIN_ICONS[account.domain]} Score: {account.score}
+                      {TOPIC_ICONS[account.topic]} Score: {account.score}
                     </p>
                   </div>
                 </div>

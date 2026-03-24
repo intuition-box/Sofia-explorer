@@ -1,12 +1,12 @@
 import { OG_BASE_URL } from '@/config'
-import { DOMAIN_BY_ID } from '@/config/taxonomy'
-import type { DomainScore } from '@/types/reputation'
+import { TOPIC_BY_ID } from '@/config/taxonomy'
+import type { TopicScore } from '@/types/reputation'
 
 // ── Types ──
 
 export interface ShareProfileParams {
   walletAddress: string
-  domainScores: DomainScore[]
+  topicScores: TopicScore[]
   connectedCount: number
   totalCertifications: number
 }
@@ -28,26 +28,27 @@ export function formatDisplayName(walletAddress: string): string {
   return walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4)
 }
 
-export function formatInterests(domainScores: DomainScore[]): string {
-  return domainScores
+export function formatInterests(topicScores: TopicScore[]): string {
+  if (!topicScores) return ''
+  return topicScores
     .map((d) => {
-      const label = DOMAIN_BY_ID.get(d.domainId)?.label ?? d.domainId
+      const label = TOPIC_BY_ID.get(d.topicId)?.label ?? d.topicId
       return `${label}:${d.score}`
     })
     .join(',')
 }
 
-export function calculateLevel(domainScores: DomainScore[]): number {
-  if (domainScores.length === 0) return 0
+export function calculateLevel(topicScores: TopicScore[]): number {
+  if (!topicScores || topicScores.length === 0) return 0
   return Math.round(
-    domainScores.reduce((s, d) => s + d.score, 0) / domainScores.length,
+    topicScores.reduce((s, d) => s + d.score, 0) / topicScores.length,
   )
 }
 
 export function buildOgParams(params: ShareProfileParams): OgParams {
   const displayName = formatDisplayName(params.walletAddress)
-  const level = calculateLevel(params.domainScores)
-  const interests = formatInterests(params.domainScores)
+  const level = calculateLevel(params.topicScores)
+  const interests = formatInterests(params.topicScores)
 
   return {
     wallet: params.walletAddress,
@@ -72,8 +73,8 @@ export async function createShareLink(
   params: ShareProfileParams,
 ): Promise<string> {
   const displayName = formatDisplayName(params.walletAddress)
-  const level = calculateLevel(params.domainScores)
-  const interests = formatInterests(params.domainScores)
+  const level = calculateLevel(params.topicScores)
+  const interests = formatInterests(params.topicScores)
 
   const res = await fetch(`${OG_BASE_URL}/api/share`, {
     method: 'POST',
