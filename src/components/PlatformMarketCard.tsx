@@ -1,14 +1,15 @@
 /**
  * PlatformMarketCard — displays market data for a platform atom vault.
  * Shows market cap, share price, position count, and user PnL.
- * Clicking adds the platform to the cart for deposit.
+ * Clicking opens AtomDetailDialog.
  */
 
+import { useState } from "react"
 import { Card } from "./ui/card"
-import { Badge } from "./ui/badge"
 import { TrendingUp, Users, DollarSign } from "lucide-react"
 import { formatEther } from "viem"
-import { useCart } from "@/hooks/useCart"
+import { usePrivy } from "@privy-io/react-auth"
+import AtomDetailDialog from "./AtomDetailDialog"
 import type { PlatformVaultData } from "@/services/platformMarketService"
 import "@/components/styles/platform-market.css"
 
@@ -33,22 +34,13 @@ function formatSharePrice(raw: string): string {
 }
 
 export default function PlatformMarketCard({ market, platformSlug }: PlatformMarketCardProps) {
-  const cart = useCart()
-
-  const handleClick = () => {
-    cart.addItem({
-      id: `invest-${market.termId}`,
-      side: "support",
-      termId: market.termId,
-      title: market.label,
-      intention: "Invest",
-      intentionColor: "#10B981",
-      favicon: `/favicons/${platformSlug}.png`,
-    })
-  }
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const { user } = usePrivy()
+  const walletAddress = user?.wallet?.address
 
   return (
-    <Card className="pm-card" onClick={handleClick}>
+    <>
+    <Card className="pm-card" onClick={() => setDialogOpen(true)}>
       <div className="pm-header">
         <img
           src={`/favicons/${platformSlug}.png`}
@@ -86,5 +78,15 @@ export default function PlatformMarketCard({ market, platformSlug }: PlatformMar
         </div>
       </div>
     </Card>
+
+    <AtomDetailDialog
+      open={dialogOpen}
+      onOpenChange={setDialogOpen}
+      market={market}
+      platformName={market.label}
+      favicon={`/favicons/${platformSlug}.png`}
+      walletAddress={walletAddress}
+    />
+    </>
   )
 }

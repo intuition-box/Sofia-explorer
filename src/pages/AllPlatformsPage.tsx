@@ -62,24 +62,14 @@ export default function AllPlatformsPage() {
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
       <div className="page-content page-enter">
 
-        {/* Tab switcher */}
-        <div className="ip-tabs" style={{ marginBottom: 16 }}>
-          <button
-            className={`ip-tab ${tab === 'grid' ? 'ip-tab--active' : ''}`}
-            onClick={() => setTab('grid')}
-          >
-            <LayoutGrid className="h-3.5 w-3.5" /> Grid
+        <div className="pm-view-switcher">
+          <button className={`pm-view-btn ${tab === 'grid' ? 'pm-view-btn--active' : ''}`} onClick={() => setTab('grid')}>
+            <LayoutGrid className="h-3 w-3" /> Grid
           </button>
-          <button
-            className={`ip-tab ${tab === 'list' ? 'ip-tab--active' : ''}`}
-            onClick={() => setTab('list')}
-          >
-            <List className="h-3.5 w-3.5" /> List
+          <button className={`pm-view-btn ${tab === 'list' ? 'pm-view-btn--active' : ''}`} onClick={() => setTab('list')}>
+            <List className="h-3 w-3" /> List
           </button>
-          <button
-            className={`ip-tab ${tab === 'connect' ? 'ip-tab--active' : ''}`}
-            onClick={() => setTab('connect')}
-          >
+          <button className={`pm-view-btn ${tab === 'connect' ? 'pm-view-btn--active' : ''}`} onClick={() => setTab('connect')}>
             Connect
           </button>
         </div>
