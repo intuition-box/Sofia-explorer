@@ -3,21 +3,59 @@ import { useNavigate } from 'react-router-dom'
 import { useTopicSelection } from '@/hooks/useDomainSelection'
 import { usePlatformConnections } from '@/hooks/usePlatformConnections'
 import { usePlatformMarket } from '@/hooks/usePlatformMarket'
+import { useTaxonomy } from '@/hooks/useTaxonomy'
 import PlatformGrid from '@/components/profile/PlatformGrid'
 import PlatformMarketCard from '@/components/PlatformMarketCard'
+import AtomDetailDialog from '@/components/AtomDetailDialog'
 import PageHeader from '@/components/PageHeader'
 import SofiaLoader from '@/components/ui/SofiaLoader'
 import { PAGE_COLORS } from '@/config/pageColors'
-import { ATOM_ID_TO_PLATFORM } from '@/config/atomIds'
+import { ATOM_ID_TO_PLATFORM, PLATFORM_ATOM_IDS } from '@/config/atomIds'
+import { usePrivy } from '@privy-io/react-auth'
+import { formatEther } from 'viem'
+import { LayoutGrid, List, Users, TrendingUp, DollarSign } from 'lucide-react'
+import { usePlatformCatalog } from '@/hooks/usePlatformCatalog'
+import type { PlatformVaultData } from '@/services/platformMarketService'
 import '@/components/styles/pages.css'
+
+/** Display order for topics — most relevant first */
+const TOPIC_ORDER = [
+  'web3-crypto',
+  'tech-dev',
+  'gaming',
+  'design-creative',
+  'music-audio',
+  'video-cinema',
+  'entrepreneurship',
+  'science',
+  'sport-health',
+  'food-lifestyle',
+  'literature',
+  'personal-dev',
+  'performing-arts',
+  'nature-environment',
+]
+
+function formatMCap(raw: string): string {
+  const num = parseFloat(formatEther(BigInt(raw || '0')))
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'k'
+  if (num >= 1) return num.toFixed(2)
+  if (num >= 0.001) return num.toFixed(4)
+  return '0'
+}
 
 export default function AllPlatformsPage() {
   const { selectedCategories } = useTopicSelection()
   const { getStatus, getConnection, connect, disconnect, startChallenge, verifyChallengeCode } = usePlatformConnections()
-  const { ranked, isLoading: marketsLoading } = usePlatformMarket()
+  const { ranked, getMarketBySlug, isLoading: marketsLoading } = usePlatformMarket()
+  const { topics } = useTaxonomy()
+  const { getPlatformsByTopic } = usePlatformCatalog()
+  const { user } = usePrivy()
+  const walletAddress = user?.wallet?.address
   const navigate = useNavigate()
   const pc = PAGE_COLORS['/profile/platforms']
-  const [tab, setTab] = useState<'markets' | 'connect'>('markets')
+  const [tab, setTab] = useState<'grid' | 'list' | 'connect'>('grid')
+  const [selectedMarket, setSelectedMarket] = useState<PlatformVaultData | null>(null)
 
   return (
     <div>
@@ -27,10 +65,16 @@ export default function AllPlatformsPage() {
         {/* Tab switcher */}
         <div className="ip-tabs" style={{ marginBottom: 16 }}>
           <button
-            className={`ip-tab ${tab === 'markets' ? 'ip-tab--active' : ''}`}
-            onClick={() => setTab('markets')}
+            className={`ip-tab ${tab === 'grid' ? 'ip-tab--active' : ''}`}
+            onClick={() => setTab('grid')}
           >
-            Markets
+            <LayoutGrid className="h-3.5 w-3.5" /> Grid
+          </button>
+          <button
+            className={`ip-tab ${tab === 'list' ? 'ip-tab--active' : ''}`}
+            onClick={() => setTab('list')}
+          >
+            <List className="h-3.5 w-3.5" /> List
           </button>
           <button
             className={`ip-tab ${tab === 'connect' ? 'ip-tab--active' : ''}`}
@@ -40,24 +84,95 @@ export default function AllPlatformsPage() {
           </button>
         </div>
 
-        {tab === 'markets' ? (
+        {tab === 'grid' ? (
+          /* ── Grid view: grouped by topic ── */
           marketsLoading ? (
             <div className="ip-loader"><SofiaLoader size={48} /></div>
           ) : (
-            <div className="pm-grid">
-              {ranked.map((market) => {
+            <div className="pm-topics">
+              {[...topics].sort((a, b) => {
+                const ai = TOPIC_ORDER.indexOf(a.id)
+                const bi = TOPIC_ORDER.indexOf(b.id)
+                return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi)
+              }).map((topic) => {
+                const topicPlatforms = getPlatformsByTopic(topic.id)
+                const cards = topicPlatforms
+                  .map((p) => ({ slug: p.id, market: getMarketBySlug(p.id) }))
+                  .filter((c): c is { slug: string; market: PlatformVaultData } => !!c.market)
+                  .sort((a, b) => Number(BigInt(b.market.marketCap) - BigInt(a.market.marketCap)))
+
+                if (cards.length === 0) return null
+
+                return (
+                  <div key={topic.id} className="pm-topic-group">
+                    <h3 className="pm-topic-title" style={{ color: topic.color }}>
+                      {topic.label}
+                      <span className="pm-topic-count">{cards.length}</span>
+                    </h3>
+                    <div className="pm-grid">
+                      {cards.map(({ slug, market }) => (
+                        <PlatformMarketCard
+                          key={market.termId}
+                          market={market}
+                          platformSlug={slug}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )
+        ) : tab === 'list' ? (
+          /* ── List view: table ranked by market cap ── */
+          marketsLoading ? (
+            <div className="ip-loader"><SofiaLoader size={48} /></div>
+          ) : (
+            <div className="pm-table">
+              <div className="pm-table-header">
+                <span className="pm-table-col-rank">#</span>
+                <span className="pm-table-col-name">Platform</span>
+                <span className="pm-table-col-mcap">MCap</span>
+                <span className="pm-table-col-price">Price</span>
+                <span className="pm-table-col-holders">Holders</span>
+                <span className="pm-table-col-pnl">P&L</span>
+              </div>
+              {ranked.map((market, i) => {
                 const slug = ATOM_ID_TO_PLATFORM.get(market.termId) || ''
                 return (
-                  <PlatformMarketCard
+                  <div
                     key={market.termId}
-                    market={market}
-                    platformSlug={slug}
-                  />
+                    className="pm-table-row"
+                    onClick={() => setSelectedMarket(market)}
+                  >
+                    <span className="pm-table-col-rank">{i + 1}</span>
+                    <span className="pm-table-col-name">
+                      <img
+                        src={`/favicons/${slug}.png`}
+                        alt=""
+                        className="pm-table-icon"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                      />
+                      {market.label}
+                    </span>
+                    <span className="pm-table-col-mcap">{formatMCap(market.marketCap)} T</span>
+                    <span className="pm-table-col-price">{parseFloat(formatEther(BigInt(market.sharePrice || '0'))).toFixed(4)}</span>
+                    <span className="pm-table-col-holders">{market.positionCount}</span>
+                    <span className="pm-table-col-pnl" style={{
+                      color: market.userPnlPct == null ? 'var(--muted-foreground)'
+                        : market.userPnlPct >= 0 ? '#10B981' : '#EF4444'
+                    }}>
+                      {market.userPnlPct != null
+                        ? `${market.userPnlPct >= 0 ? '+' : ''}${market.userPnlPct}%`
+                        : '—'}
+                    </span>
+                  </div>
                 )
               })}
             </div>
           )
         ) : (
+          /* ── Connect tab ── */
           <PlatformGrid
             selectedCategories={selectedCategories}
             getStatus={getStatus}
@@ -67,6 +182,18 @@ export default function AllPlatformsPage() {
             onStartChallenge={startChallenge}
             onVerifyChallenge={verifyChallengeCode}
             onBack={() => navigate(-1)}
+          />
+        )}
+
+        {/* Detail dialog */}
+        {selectedMarket && (
+          <AtomDetailDialog
+            open={!!selectedMarket}
+            onOpenChange={(open) => { if (!open) setSelectedMarket(null) }}
+            market={selectedMarket}
+            platformName={selectedMarket.label}
+            favicon={`/favicons/${ATOM_ID_TO_PLATFORM.get(selectedMarket.termId) || ''}.png`}
+            walletAddress={walletAddress}
           />
         )}
       </div>
