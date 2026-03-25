@@ -34,10 +34,14 @@ async function resolveTopClaims(walletAddress: string): Promise<TopClaim[]> {
   const seen = new Set<string>()
   const tripleTermIds: string[] = []
 
+  // Predicates to exclude (has tag = quests/badges, not real claims)
+  const EXCLUDED_PREDICATES = new Set(['has tag'])
+
   for (const event of activityData.events ?? []) {
     const termId = event.triple?.term_id
     if (!termId) continue
     if (DEBATE_TERM_IDS.has(termId)) continue
+    if (EXCLUDED_PREDICATES.has(event.triple?.predicate?.label ?? '')) continue
     if (seen.has(termId)) continue
     seen.add(termId)
     tripleTermIds.push(termId)
