@@ -19,7 +19,7 @@ function isSofiaInstalled(): boolean {
 }
 
 export function getCertifyUrl(platformUrl: string): string {
-  if (!isSofiaInstalled()) return CHROME_STORE_URL
+  if (!isSofiaInstalled()) return platformUrl
   try {
     const url = new URL(platformUrl)
     url.searchParams.set('sofia_certify', 'true')

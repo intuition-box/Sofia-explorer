@@ -4,6 +4,7 @@ import { usePrivy } from '@privy-io/react-auth'
 import { formatEther } from 'viem'
 import { useTaxonomy } from '@/hooks/useTaxonomy'
 import { usePlatformCatalog } from '@/hooks/usePlatformCatalog'
+import { usePlatformMarket } from '@/hooks/usePlatformMarket'
 import { useTopicSelection } from '@/hooks/useDomainSelection'
 import { usePlatformConnections } from '@/hooks/usePlatformConnections'
 import { useReputationScores } from '@/hooks/useReputationScores'
@@ -18,6 +19,7 @@ import { ArrowLeft, ThumbsUp, ThumbsDown, Plus } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import NicheDetailList from '@/components/profile/NicheDetailList'
 import TrendingCard from '@/components/TrendingCard'
+import PlatformMarketCard from '@/components/PlatformMarketCard'
 import PositionBoardDialog from '@/components/profile/PositionBoardDialog'
 import SofiaLoader from '@/components/ui/SofiaLoader'
 import '@/components/styles/interest-page.css'
@@ -36,6 +38,7 @@ export default function InterestPage() {
   const { user } = usePrivy()
   const { topicById } = useTaxonomy()
   const { getPlatformsByTopic } = usePlatformCatalog()
+  const { getMarketBySlug, isLoading: marketsLoading } = usePlatformMarket()
   const topic = topicId ? topicById(topicId) : undefined
 
   const { selectedTopics, selectedCategories, toggleCategory } = useTopicSelection()
@@ -134,6 +137,28 @@ export default function InterestPage() {
                   domainLabel={topic.label}
                 />
               ))}
+            </div>
+          )}
+        </section>
+
+        {/* Platform Markets */}
+        <section className="ip-section">
+          <h3 className="ip-section-title">Platform Markets</h3>
+          {marketsLoading ? (
+            <div className="ip-loader"><SofiaLoader size={48} /></div>
+          ) : (
+            <div className="pm-grid">
+              {platforms
+                .map((p) => ({ platform: p, market: getMarketBySlug(p.id) }))
+                .filter(({ market }) => market)
+                .sort((a, b) => Number(BigInt(b.market!.marketCap) - BigInt(a.market!.marketCap)))
+                .map(({ platform, market }) => (
+                  <PlatformMarketCard
+                    key={platform.id}
+                    market={market!}
+                    platformSlug={platform.id}
+                  />
+                ))}
             </div>
           )}
         </section>
