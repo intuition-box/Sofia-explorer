@@ -296,30 +296,45 @@
   color: var(--muted-foreground);
 }
 
-.ip-trending-actions {
+.ip-trending-market {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: space-between;
   margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid color-mix(in oklab, var(--border) 40%, transparent);
 }
 
-.ip-trending-action-btn {
-  font-size: 11px;
-  height: 26px;
-  gap: 3px;
-  padding: 0 8px;
+.ip-trending-market-stats {
+  display: flex;
+  gap: 10px;
 }
 
-.ip-trending-link {
+.ip-trending-market-stat {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 11px;
+  gap: 3px;
+  font-size: 0.65rem;
   color: var(--muted-foreground);
-  text-decoration: none;
+  font-variant-numeric: tabular-nums;
 }
-.ip-trending-link:hover {
-  text-decoration: underline;
+
+.ip-trending-market-stat svg {
+  opacity: 0.5;
+}
+
+.ip-trending-invest-btn {
+  font-size: 10px;
+  height: 24px;
+  gap: 4px;
+  padding: 0 10px;
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.ip-trending-invest-btn:hover {
+  background: var(--primary);
+  color: var(--primary-foreground);
 }
 
 /* ── Platforms ── */

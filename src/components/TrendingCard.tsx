@@ -2,11 +2,29 @@ import { useState, useCallback } from 'react'
 import { Card } from './ui/card'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
-import { ExternalLink, Share2, Users } from 'lucide-react'
+import { DollarSign, TrendingUp, Users, ShoppingCart } from 'lucide-react'
 import { useClaimPositions } from '@/hooks/useClaimPositions'
+import { usePlatformMarket } from '@/hooks/usePlatformMarket'
+import { useCart } from '@/hooks/useCart'
 import PositionBoardDialog from './profile/PositionBoardDialog'
 import type { TrendingPlatform } from '@/types'
 import { usePrivy } from '@privy-io/react-auth'
+import { formatEther } from 'viem'
+
+function formatMCap(raw: string): string {
+  const num = parseFloat(formatEther(BigInt(raw || '0')))
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'k'
+  if (num >= 1) return num.toFixed(2)
+  if (num >= 0.001) return num.toFixed(4)
+  return '0'
+}
+
+function formatPrice(raw: string): string {
+  const num = parseFloat(formatEther(BigInt(raw || '0')))
+  if (num >= 1) return num.toFixed(4)
+  if (num >= 0.0001) return num.toFixed(6)
+  return num.toExponential(2)
+}
 
 interface TrendingCardProps {
   platform: TrendingPlatform
@@ -17,22 +35,33 @@ export default function TrendingCard({ platform, domainLabel }: TrendingCardProp
   const [boardOpen, setBoardOpen] = useState(false)
   const { user } = usePrivy()
   const walletAddress = user?.wallet?.address ?? ''
-  const { positions } = useClaimPositions(platform.termId, 3)
+  const { getMarketBySlug } = usePlatformMarket()
+  const cart = useCart()
 
-  // Use first intention for the dialog badge
-  const firstIntention = platform.intentions[0]
-  const intentionLabel = firstIntention?.category ?? 'Trusted'
-  const intentionColor = firstIntention?.color ?? '#888'
+  const market = platform.platformSlug ? getMarketBySlug(platform.platformSlug) : undefined
+  const atomTermId = market?.termId
 
-  const handleShare = useCallback(() => {
-    const text = `${platform.platformName} is trending in ${domainLabel}!`
-    const url = `https://${platform.platformDomain}`
-    window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'noopener,noreferrer')
-  }, [platform, domainLabel])
+  // Position board for the platform ATOM vault
+  const { positions } = useClaimPositions(atomTermId, 3)
+
+  const handleInvest = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (market) {
+      cart.addItem({
+        id: `invest-${market.termId}`,
+        side: 'support',
+        termId: market.termId,
+        title: platform.platformName,
+        intention: 'Invest',
+        intentionColor: '#10B981',
+        favicon: platform.favicon,
+      })
+    }
+  }, [market, cart, platform])
 
   return (
     <>
-      <Card className="ip-trending-card" onClick={() => platform.termId && setBoardOpen(true)}>
+      <Card className="ip-trending-card" onClick={() => atomTermId && setBoardOpen(true)}>
         <div className="ip-trending-header">
           <img
             src={platform.favicon}
@@ -41,12 +70,12 @@ export default function TrendingCard({ platform, domainLabel }: TrendingCardProp
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
           />
           <span className="ip-trending-label">{platform.platformName}</span>
-          {platform.userPnlPct != null && (
+          {market?.userPnlPct != null && (
             <span
               className="ip-trending-pnl"
-              style={{ color: platform.userPnlPct >= 0 ? '#10B981' : '#EF4444' }}
+              style={{ color: market.userPnlPct >= 0 ? '#10B981' : '#EF4444' }}
             >
-              {platform.userPnlPct >= 0 ? '+' : ''}{platform.userPnlPct}%
+              {market.userPnlPct >= 0 ? '+' : ''}{market.userPnlPct}%
             </span>
           )}
         </div>
@@ -80,33 +109,42 @@ export default function TrendingCard({ platform, domainLabel }: TrendingCardProp
           </div>
         )}
 
-        <div className="ip-trending-actions" onClick={(e) => e.stopPropagation()}>
-          <a href={`https://${platform.platformDomain}`} target="_blank" rel="noopener noreferrer" className="ip-trending-link">
-            <ExternalLink className="h-3 w-3" />
-          </a>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="ip-trending-action-btn"
-            style={{ marginLeft: 'auto', width: 26, padding: 0 }}
-            onClick={handleShare}
-          >
-            <Share2 className="h-3.5 w-3.5" />
-          </Button>
-        </div>
+        {/* Market metrics */}
+        {market && (
+          <div className="ip-trending-market">
+            <div className="ip-trending-market-stats">
+              <span className="ip-trending-market-stat">
+                <DollarSign className="h-3 w-3" /> {formatMCap(market.marketCap)}
+              </span>
+              <span className="ip-trending-market-stat">
+                <TrendingUp className="h-3 w-3" /> {formatPrice(market.sharePrice)}
+              </span>
+              <span className="ip-trending-market-stat">
+                <Users className="h-3 w-3" /> {market.positionCount}
+              </span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="ip-trending-invest-btn"
+              onClick={handleInvest}
+            >
+              <ShoppingCart className="h-3 w-3" /> Invest
+            </Button>
+          </div>
+        )}
       </Card>
 
-      {/* Dialog outside card to avoid click conflicts */}
-      {platform.termId && (
+      {/* Atom vault detail dialog */}
+      {atomTermId && (
         <PositionBoardDialog
           open={boardOpen}
           onOpenChange={setBoardOpen}
-          termId={platform.termId}
-          counterTermId={platform.counterTermId}
+          termId={atomTermId}
           title={platform.platformName}
           favicon={platform.favicon}
-          intention={intentionLabel}
-          intentionColor={intentionColor}
+          intention="Invest"
+          intentionColor="#10B981"
           walletAddress={walletAddress}
         />
       )}

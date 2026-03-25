@@ -30,14 +30,16 @@ const GET_ATOM_VAULT_STATS = `
       term_id
       label
       image
-      vaults {
-        market_cap
-        total_shares
-        position_count
-        current_share_price
-        positions(where: { account_id: { _ilike: $address } }) {
-          shares
-          total_deposit_assets_after_total_fees
+      term {
+        vaults {
+          market_cap
+          total_shares
+          position_count
+          current_share_price
+          positions(where: { account_id: { _ilike: $address } }) {
+            shares
+            total_deposit_assets_after_total_fees
+          }
         }
       }
     }
@@ -67,7 +69,7 @@ export async function fetchPlatformVaultStats(
   const atoms = json.data?.atoms || []
 
   return atoms.map((atom: any) => {
-    const vault = atom.vaults?.[0]
+    const vault = atom.term?.vaults?.[0]
     const userPosition = vault?.positions?.[0]
 
     const userShares = BigInt(userPosition?.shares || "0")

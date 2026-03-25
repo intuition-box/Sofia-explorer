@@ -37,9 +37,13 @@ export default function PlatformMarketCard({ market, platformSlug }: PlatformMar
 
   const handleClick = () => {
     cart.addItem({
+      id: `invest-${market.termId}`,
+      side: "support",
       termId: market.termId,
-      label: market.label,
-      type: "support",
+      title: market.label,
+      intention: "Invest",
+      intentionColor: "#10B981",
+      favicon: `/favicons/${platformSlug}.png`,
     })
   }
 

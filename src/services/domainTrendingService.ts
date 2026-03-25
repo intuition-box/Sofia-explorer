@@ -106,9 +106,13 @@ function buildPlatformDomains(topicId: string) {
   const platforms = getPlatformsByTopic(topicId)
   const platformDomains = new Set<string>()
   const domainToName = new Map<string, string>()
+  const domainToSlug = new Map<string, string>()
 
   for (const p of platforms) {
     const hosts: string[] = [normalizeDomain(`${p.id}.com`)]
+    if (p.website) {
+      try { hosts.push(normalizeDomain(new URL(p.website).hostname)) } catch {}
+    }
     if (p.apiBaseUrl) {
       const extracted = normalizeDomain(extractDomain(p.apiBaseUrl))
       if (extracted) hosts.push(extracted)
@@ -117,17 +121,18 @@ function buildPlatformDomains(topicId: string) {
     for (const h of hosts) {
       platformDomains.add(h)
       domainToName.set(h, p.name)
+      domainToSlug.set(h, p.id)
     }
   }
 
-  return { platformDomains, domainToName }
+  return { platformDomains, domainToName, domainToSlug }
 }
 
 /**
  * Fetch trending platforms aggregated by domain
  */
 export async function fetchTrendingByDomain(topicId: string): Promise<TrendingPlatform[]> {
-  const { platformDomains, domainToName } = buildPlatformDomains(topicId)
+  const { platformDomains, domainToName, domainToSlug } = buildPlatformDomains(topicId)
 
   // Fetch all categories in parallel using label-based query
   const promises = ALL_CATEGORIES.map(async ({ type, label }) => {
@@ -180,22 +185,26 @@ export async function fetchTrendingByDomain(topicId: string): Promise<TrendingPl
   // Convert to TrendingPlatform[]
   const platformEntries = [...platformMap.entries()]
 
-  const platforms: TrendingPlatform[] = platformEntries.map(([host, entry]) => ({
-    platformDomain: host,
-    platformName: entry.name,
-    favicon: `https://www.google.com/s2/favicons?domain=${host}&sz=32`,
-    totalCertifiers: entry.totalCertifiers,
-    intentions: [...entry.intentionCounts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .map(([cat, count]) => ({
-        category: cat,
-        count,
-        color: INTENTION_COLORS[CATEGORY_DISPLAY[cat]] ?? '#888',
-      })),
-    termId: entry.termId,
-    counterTermId: entry.counterTermId,
-    userPnlPct: null,
-  }))
+  const platforms: TrendingPlatform[] = platformEntries.map(([host, entry]) => {
+    const slug = domainToSlug.get(host)
+    return {
+      platformDomain: host,
+      platformName: entry.name,
+      platformSlug: slug,
+      favicon: slug ? `/favicons/${slug}.png` : `https://www.google.com/s2/favicons?domain=${host}&sz=32`,
+      totalCertifiers: entry.totalCertifiers,
+      intentions: [...entry.intentionCounts.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .map(([cat, count]) => ({
+          category: cat,
+          count,
+          color: INTENTION_COLORS[CATEGORY_DISPLAY[cat]] ?? '#888',
+        })),
+      termId: entry.termId,
+      counterTermId: entry.counterTermId,
+      userPnlPct: null,
+    }
+  })
 
   return platforms.sort((a, b) => b.totalCertifiers - a.totalCertifiers)
 }
