@@ -8,10 +8,11 @@ export function useReputationScores(
   selectedTopics: string[],
   selectedCategories: string[],
   ethccSignals?: EthccSofiaSignals | null,
+  compositeScore?: number | null,
 ): UserReputationProfile | null {
   return useMemo(
-    () => computeReputationProfile(getStatus, selectedTopics, selectedCategories, ethccSignals),
-    [getStatus, selectedTopics, selectedCategories, ethccSignals],
+    () => computeReputationProfile(getStatus, selectedTopics, selectedCategories, ethccSignals, compositeScore),
+    [getStatus, selectedTopics, selectedCategories, ethccSignals, compositeScore],
   )
 }
 

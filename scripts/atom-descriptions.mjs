@@ -10,20 +10,20 @@
 // =============================================================================
 
 export const TOPIC_DESCRIPTIONS = {
-  'tech-dev': 'Software engineering, web & mobile development, AI/ML, DevOps, cybersecurity, and open-source.',
-  'design-creative': 'UI/UX design, illustration, motion design, 3D modeling, photography, and graphic design.',
-  'music-audio': 'Music production, DJing, instruments, vocals, sound design, and music culture.',
-  'gaming': 'Competitive gaming, RPGs, strategy, esports, indie games, MMOs, and retro gaming.',
-  'web3-crypto': 'DeFi, NFTs, trading, DAOs, smart contracts, Layer 2s, and decentralized protocols.',
-  'science': 'Mathematics, physics, biology, psychology, history, philosophy, and linguistics.',
-  'sport-health': 'Team sports, fitness, running, combat sports, extreme sports, and wellness.',
-  'video-cinema': 'Filmmaking, cinephilia, streaming, YouTube content creation, and animation.',
-  'entrepreneurship': 'Startups, freelancing, e-commerce, marketing, investing, and personal branding.',
-  'performing-arts': 'Theater, dance, circus, comedy, street art, and live performance.',
-  'nature-environment': 'Ecology, outdoor adventure, astronomy, gardening, and wildlife observation.',
-  'food-lifestyle': 'Gastronomy, beverages, streetwear, collectibles, DIY, and interior design.',
-  'literature': 'Fiction, non-fiction, creative writing, journalism, blogging, and literary criticism.',
-  'personal-dev': 'Mindfulness, coaching, relationships, personal finance, and neurodiversity.',
+  'tech-dev': 'Everything related to software, code, and technology.',
+  'design-creative': 'Visual creation, design, and digital arts.',
+  'music-audio': 'Music, sound, and audio culture.',
+  'gaming': 'Video games, esports, and gaming culture.',
+  'web3-crypto': 'Blockchain, crypto, and the decentralized web.',
+  'science': 'Science, research, and academic knowledge.',
+  'sport-health': 'Sports, fitness, and well-being.',
+  'video-cinema': 'Film, video, streaming, and visual storytelling.',
+  'entrepreneurship': 'Business, startups, and professional growth.',
+  'performing-arts': 'Live performance, theater, and stage arts.',
+  'nature-environment': 'Nature, ecology, and the outdoors.',
+  'food-lifestyle': 'Food, fashion, and everyday lifestyle.',
+  'literature': 'Reading, writing, and literature.',
+  'personal-dev': 'Self-improvement, mindset, and personal growth.',
 }
 
 // =============================================================================

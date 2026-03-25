@@ -17,6 +17,7 @@
  *   --dry-run     Pin images + metadata to IPFS only, don't send transactions
  *   --estimate    Show costs without executing
  *   --skip-pin    Skip all IPFS pinning (use cached pins)
+ *   --repin       Force re-pin metadata (clears cached pins, keeps image pins)
  *   --batch=N     Batch size for createAtoms (default: 20)
  */
 
@@ -24,6 +25,7 @@ import { createPublicClient, createWalletClient, http, stringToHex, formatEther 
 import { privateKeyToAccount } from 'viem/accounts'
 import { readFileSync, writeFileSync, existsSync } from 'fs'
 import { basename } from 'path'
+import { PLATFORM_DESCRIPTIONS } from './atom-descriptions.mjs'
 
 // ── Config ──
 
@@ -133,16 +135,16 @@ function parsePlatforms() {
 // ── Build description from platform data ──
 
 function buildDescription(platform) {
-  const { name, dataPoints } = platform
-  if (dataPoints.length === 0) return name
+  const { id, name } = platform
 
-  // Capitalize first letter of each data point, clean up
-  const signals = dataPoints
-    .map((dp) => dp.replace(/^activite /, '').replace(/^donnees /, ''))
-    .slice(0, 6) // max 6 signals
-    .join(', ')
+  // Use real hand-written descriptions from atom-descriptions.mjs
+  if (PLATFORM_DESCRIPTIONS[id]) {
+    return PLATFORM_DESCRIPTIONS[id]
+  }
 
-  return `${name}. Signals: ${signals}.`
+  // Fallback: just the name (no more "Signals: ..." junk)
+  console.warn(`  ⚠ No description for "${id}" — using name only`)
+  return name
 }
 
 // ── Pin image to IPFS via Pinata ──
@@ -167,7 +169,7 @@ async function pinImageToIPFS(filePath, fileName, pinataJwt) {
   }
 
   const json = await res.json()
-  return `ipfs://${json.IpfsHash}`
+  return `${IPFS_GATEWAY}/${json.IpfsHash}`
 }
 
 // ── Pin metadata to IPFS via Intuition ──
@@ -215,7 +217,10 @@ async function main() {
   const dryRun = args.includes('--dry-run')
   const estimateOnly = args.includes('--estimate')
   const skipPin = args.includes('--skip-pin')
-  const batchSize = parseInt(args.find((a) => a.startsWith('--batch='))?.split('=')[1] || '20')
+  const repin = args.includes('--repin')
+  const batchSize = parseInt(args.find((a) => a.startsWith('--batch='))?.split('=')[1] || '5')
+  const limit = parseInt(args.find((a) => a.startsWith('--limit='))?.split('=')[1] || '0')
+  const onlyIds = args.find((a) => a.startsWith('--only='))?.split('=')[1]?.split(',') || []
 
   const privateKey = process.env.PRIVATE_KEY
   const pinataJwt = process.env.PINATA_JWT
@@ -233,13 +238,40 @@ async function main() {
   }
 
   const cache = loadCache()
-  const platforms = parsePlatforms()
+  let platforms = parsePlatforms()
+  if (onlyIds.length > 0) platforms = platforms.filter((p) => onlyIds.includes(p.id))
+  else if (limit > 0) platforms = platforms.slice(0, limit)
+
+  // Convert old ipfs:// image pins to gateway URLs
+  for (const [id, uri] of Object.entries(cache.imagePins)) {
+    if (uri.startsWith('ipfs://')) {
+      const hash = uri.replace('ipfs://', '')
+      cache.imagePins[id] = `${IPFS_GATEWAY}/${hash}`
+    }
+  }
+
+  // --repin: clear metadata pins + atom IDs (keep image pins)
+  if (repin) {
+    if (onlyIds.length > 0) {
+      console.log(`── Repin mode: clearing pins + atom IDs for ${onlyIds.join(', ')} ──\n`)
+      for (const id of onlyIds) {
+        delete cache.pins[`platform:${id}`]
+        delete cache.atomIds[`platform:${id}`]
+      }
+    } else {
+      console.log('── Repin mode: clearing ALL cached metadata pins + atom IDs ──\n')
+      cache.pins = {}
+      cache.atomIds = {}
+    }
+    saveCache(cache)
+  }
 
   console.log(`\n=== Sofia Platform Atom Creator ===`)
   console.log(`Platforms: ${platforms.length}`)
   console.log(`With favicon: ${platforms.filter((p) => p.hasFavicon).length}`)
   console.log(`Batch size: ${batchSize}`)
-  console.log(`Dry run: ${dryRun}\n`)
+  console.log(`Dry run: ${dryRun}`)
+  console.log(`Repin: ${repin}\n`)
 
   // ── Step 1: Pin favicons to IPFS via Pinata ──
 
@@ -374,6 +406,9 @@ async function main() {
   console.log(`To create: ${toCreate.length} atoms (${allItems.length - toCreate.length} already done)`)
 
   for (let i = 0; i < toCreate.length; i += batchSize) {
+    // Delay between batches to avoid RPC rate limits
+    if (i > 0) await new Promise((r) => setTimeout(r, 5000))
+
     const batch = toCreate.slice(i, i + batchSize)
     const encodedDataArray = batch.map((item) => stringToHex(cache.pins[item.key]))
     const depositsArray = batch.map(() => 0n)
@@ -424,11 +459,14 @@ async function main() {
       saveCache(cache)
     } catch (e) {
       const msg = e.message || ''
-      if (msg.includes('AtomExists')) {
+      if (msg.includes('AtomExists') || msg.includes('0xb4856ebc')) {
         console.log(`  Some atoms exist, falling back to individual creation...`)
         for (const item of batch) {
           if (cache.atomIds[item.key]) continue
           const encoded = stringToHex(cache.pins[item.key])
+
+          // Delay between individual RPC calls to avoid 429 rate limits
+          await new Promise((r) => setTimeout(r, 3000))
 
           try {
             const atomId = await publicClient.readContract({
@@ -467,7 +505,7 @@ async function main() {
               cache.atomIds[item.key] = result[0]
               console.log(`    CREATED ${item.name} → ${result[0]}`)
             } catch (singleErr) {
-              if (singleErr.message?.includes('AtomExists')) {
+              if (singleErr.message?.includes('AtomExists') || singleErr.message?.includes('0xb4856ebc')) {
                 cache.atomIds[item.key] = atomId
                 console.log(`    EXISTS ${item.name} → ${atomId}`)
               } else {

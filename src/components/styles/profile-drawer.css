@@ -181,6 +181,50 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Trust Score */
+.pd-trust-card {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--card) 80%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 50%, transparent);
+}
+
+.pd-trust-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.pd-trust-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+}
+
+.pd-trust-value {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--foreground);
+}
+
+.pd-trust-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: color-mix(in oklab, var(--muted) 60%, transparent);
+  overflow: hidden;
+}
+
+.pd-trust-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #10B981, #3B82F6);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Share button */
 .pd-share-btn {
   gap: 6px;
