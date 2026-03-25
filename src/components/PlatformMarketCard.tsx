@@ -50,16 +50,12 @@ export default function PlatformMarketCard({ market, platformSlug }: PlatformMar
   return (
     <Card className="pm-card" onClick={handleClick}>
       <div className="pm-header">
-        {market.image && (
-          <img
-            src={market.image}
-            alt=""
-            className="pm-icon"
-            onError={(e) => {
-              ;(e.target as HTMLImageElement).style.display = "none"
-            }}
-          />
-        )}
+        <img
+          src={`/favicons/${platformSlug}.png`}
+          alt=""
+          className="pm-icon"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+        />
         <span className="pm-name">{market.label}</span>
         {market.userPnlPct != null && (
           <span

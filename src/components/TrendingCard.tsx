@@ -6,7 +6,7 @@ import { DollarSign, TrendingUp, Users, ShoppingCart } from 'lucide-react'
 import { useClaimPositions } from '@/hooks/useClaimPositions'
 import { usePlatformMarket } from '@/hooks/usePlatformMarket'
 import { useCart } from '@/hooks/useCart'
-import PositionBoardDialog from './profile/PositionBoardDialog'
+import AtomDetailDialog from './AtomDetailDialog'
 import type { TrendingPlatform } from '@/types'
 import { usePrivy } from '@privy-io/react-auth'
 import { formatEther } from 'viem'
@@ -135,16 +135,14 @@ export default function TrendingCard({ platform, domainLabel }: TrendingCardProp
         )}
       </Card>
 
-      {/* Atom vault detail dialog */}
-      {atomTermId && (
-        <PositionBoardDialog
+      {/* Atom detail dialog */}
+      {market && (
+        <AtomDetailDialog
           open={boardOpen}
           onOpenChange={setBoardOpen}
-          termId={atomTermId}
-          title={platform.platformName}
+          market={market}
+          platformName={platform.platformName}
           favicon={platform.favicon}
-          intention="Invest"
-          intentionColor="#10B981"
           walletAddress={walletAddress}
         />
       )}
