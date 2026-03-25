@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { usePrivy } from '@privy-io/react-auth'
 import { formatEther } from 'viem'
-import { TOPIC_BY_ID } from '@/config/taxonomy'
+import { useTaxonomy } from '@/hooks/useTaxonomy'
 import { getPlatformsByTopic } from '@/config/platformCatalog'
 import { useTopicSelection } from '@/hooks/useDomainSelection'
 import { usePlatformConnections } from '@/hooks/usePlatformConnections'
@@ -34,7 +34,8 @@ export default function InterestPage() {
   const { topicId } = useParams<{ topicId: string }>()
   const navigate = useNavigate()
   const { user } = usePrivy()
-  const topic = topicId ? TOPIC_BY_ID.get(topicId) : undefined
+  const { topicById } = useTaxonomy()
+  const topic = topicId ? topicById(topicId) : undefined
 
   const { selectedTopics, selectedCategories, toggleCategory } = useTopicSelection()
   const { getStatus } = usePlatformConnections()

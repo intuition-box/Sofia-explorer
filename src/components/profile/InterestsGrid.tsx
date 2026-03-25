@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { Plus, X } from 'lucide-react'
-import { TOPIC_BY_ID } from '@/config/taxonomy'
+import { useTaxonomy } from '@/hooks/useTaxonomy'
 import type { TopicScore } from '@/types/reputation'
 import { Card } from '../ui/card'
 
@@ -14,6 +14,7 @@ interface InterestsGridProps {
 
 export default function InterestsGrid({ selectedTopics, selectedCategories, topicScores, onAddTopic, onRemoveTopic }: InterestsGridProps) {
   const navigate = useNavigate()
+  const { topicById } = useTaxonomy()
 
   if (selectedTopics.length === 0) {
     return (
@@ -31,7 +32,7 @@ export default function InterestsGrid({ selectedTopics, selectedCategories, topi
   return (
     <div className="ig-grid">
       {selectedTopics.map((topicId) => {
-        const topic = TOPIC_BY_ID.get(topicId)
+        const topic = topicById(topicId)
         if (!topic) return null
 
         const categoryCount = topic.categories

@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { TOPIC_BY_ID } from '@/config/taxonomy'
+import { useTaxonomy } from '@/hooks/useTaxonomy'
 import { getPlatformsByTopic } from '@/config/platformCatalog'
 import { useTopicSelection } from '@/hooks/useDomainSelection'
 import { usePlatformConnections } from '@/hooks/usePlatformConnections'
@@ -10,7 +10,8 @@ import '@/components/styles/pages.css'
 export default function PlatformConnectionPage() {
   const { topicId } = useParams<{ topicId: string }>()
   const navigate = useNavigate()
-  const topic = topicId ? TOPIC_BY_ID.get(topicId) : undefined
+  const { topicById } = useTaxonomy()
+  const topic = topicId ? topicById(topicId) : undefined
   const { selectedCategories } = useTopicSelection()
   const { getStatus, getConnection, connect, disconnect, startChallenge, verifyChallengeCode } = usePlatformConnections()
 
