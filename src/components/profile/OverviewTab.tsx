@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { TOPIC_BY_ID } from '../../config/taxonomy'
-import { PLATFORM_CATALOG } from '../../config/platformCatalog'
+import { useTaxonomy } from '@/hooks/useTaxonomy'
+import { usePlatformCatalog } from '@/hooks/usePlatformCatalog'
 import type { ConnectionStatus, TopicScore } from '../../types/reputation'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
@@ -24,7 +24,10 @@ export default function OverviewTab({
   onNavigate,
   onToggleCategory,
 }: OverviewTabProps) {
-  const connectedPlatforms = PLATFORM_CATALOG.filter(
+  const { topicById } = useTaxonomy()
+  const { platforms } = usePlatformCatalog()
+
+  const connectedPlatforms = platforms.filter(
     (p) => getStatus(p.id) === 'connected',
   )
 
@@ -32,7 +35,7 @@ export default function OverviewTab({
 
   const categoriesByTopic = selectedTopics
     .map((topicId) => {
-      const topic = TOPIC_BY_ID.get(topicId)
+      const topic = topicById(topicId)
       if (!topic) return null
       const activeCategories = topic.categories
         .filter((c) => selectedCategories.includes(c.id))

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTaxonomy } from '@/hooks/useTaxonomy'
-import { getPlatformsByTopic } from '@/config/platformCatalog'
+import { usePlatformCatalog } from '@/hooks/usePlatformCatalog'
 import { useTopicSelection } from '@/hooks/useDomainSelection'
 import { usePlatformConnections } from '@/hooks/usePlatformConnections'
 import PlatformGrid from '@/components/profile/PlatformGrid'
@@ -11,6 +11,7 @@ export default function PlatformConnectionPage() {
   const { topicId } = useParams<{ topicId: string }>()
   const navigate = useNavigate()
   const { topicById } = useTaxonomy()
+  const { getPlatformsByTopic } = usePlatformCatalog()
   const topic = topicId ? topicById(topicId) : undefined
   const { selectedCategories } = useTopicSelection()
   const { getStatus, getConnection, connect, disconnect, startChallenge, verifyChallengeCode } = usePlatformConnections()
