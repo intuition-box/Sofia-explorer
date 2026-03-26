@@ -1,10 +1,14 @@
+import { useState } from 'react'
 import { usePrivy, useLogin, useLogout, useLinkAccount } from '@privy-io/react-auth'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { isAddress } from 'viem'
 import { Button } from "./ui/button";
 import { Search, Bell, Home, Wallet, LogOut, Sun, Moon, User } from "lucide-react";
 import { useTheme } from '../hooks/useTheme'
 import { useEnsNames } from '../hooks/useEnsNames'
 import { useCart } from '../hooks/useCart'
+import { useViewAs } from '../hooks/useViewAs'
+import { resolveEnsToAddress } from '../services/ensService'
 import type { Address } from 'viem'
 import './styles/header.css'
 import {
@@ -20,8 +24,32 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
   const { logout } = useLogout()
   const { linkWallet } = useLinkAccount({ onSuccess: () => window.location.reload() })
   const location = useLocation()
+  const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
   const cart = useCart()
+  const { setViewAs } = useViewAs()
+  const [searchValue, setSearchValue] = useState('')
+
+  const handleSearch = async () => {
+    const q = searchValue.trim()
+    if (!q) return
+
+    if (isAddress(q)) {
+      setViewAs(q)
+      navigate('/profile')
+      setSearchValue('')
+    } else if (q.endsWith('.eth') || q.endsWith('.box')) {
+      setSearchValue('Resolving...')
+      const addr = await resolveEnsToAddress(q)
+      if (addr) {
+        setViewAs(addr)
+        navigate('/profile')
+        setSearchValue('')
+      } else {
+        setSearchValue(q)
+      }
+    }
+  }
 
   const walletAddress = user?.wallet?.address
   const addresses = walletAddress ? [walletAddress as Address] : []
@@ -53,7 +81,10 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="search"
-              placeholder="Search Sofia..."
+              placeholder="Search wallet or ENS..."
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               className="w-full h-9 rounded-full bg-muted pl-10 pr-4 text-sm outline-none focus:bg-background focus:ring-2 focus:ring-ring transition-colors"
             />
           </div>

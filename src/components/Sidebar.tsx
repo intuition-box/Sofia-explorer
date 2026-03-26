@@ -62,7 +62,7 @@ export function Sidebar() {
     { to: '/streaks', icon: Flame, label: 'Streaks', public: false },
     { to: '/vote', icon: Vote, label: 'Vote', public: false },
     { to: '/scores', icon: BarChart3, label: 'My Stats', public: false },
-    { to: '/platforms', icon: Globe, label: 'Platforms', public: false },
+    { to: '/platforms', icon: Globe, label: 'Platform Market', public: false },
   ]
 
   return (

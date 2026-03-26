@@ -200,11 +200,47 @@
   color: var(--muted-foreground);
 }
 
+.pm-table-sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.1s;
+}
+.pm-table-sortable:hover {
+  color: var(--foreground);
+}
+.pm-table-sorted {
+  color: var(--primary) !important;
+  font-weight: 800;
+}
+
 .pm-table-col-pnl {
   min-width: 55px;
   text-align: right;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+/* ── Toolbar ── */
+.pm-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  justify-content: flex-end;
+}
+
+.pm-sort-select {
+  padding: 4px 8px;
+  font-size: 11px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in oklab, var(--border) 40%, transparent);
+  background: var(--background);
+  color: var(--foreground);
+  cursor: pointer;
+  outline: none;
+}
+.pm-sort-select:focus {
+  border-color: var(--primary);
 }
 
 /* ── View switcher (compact) ── */

@@ -47,7 +47,7 @@ export interface TaxonomyData {
 // ── GraphQL queries ──
 
 const GET_TAXONOMY_TRIPLES = `
-  query GetTaxonomyTriples($predicateId: numeric!, $topicTermIds: [String!]!) {
+  query GetTaxonomyTriples($predicateId: String!, $topicTermIds: [String!]!) {
     triples(
       where: {
         predicate_id: { _eq: $predicateId }

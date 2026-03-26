@@ -18,6 +18,8 @@ interface TopClaimsSectionProps {
   claims: TopClaim[]
   loading: boolean
   walletAddress?: string
+  /** When true, skip platform positions (used for public profiles where we can't fetch other user's market data) */
+  hideplatformPositions?: boolean
 }
 
 /** Map predicate label to intention display name */
@@ -179,11 +181,12 @@ function PlatformPositionCard({ market, walletAddress }: { market: PlatformVault
   )
 }
 
-export default function TopClaimsSection({ claims, loading, walletAddress }: TopClaimsSectionProps) {
+export default function TopClaimsSection({ claims, loading, walletAddress, hideplatformPositions }: TopClaimsSectionProps) {
   const { markets } = usePlatformMarket()
 
   // Get platforms where user has a position, sorted by PnL desc
-  const topPlatforms = markets
+  // Only shown for own profile (not public profiles)
+  const topPlatforms = hideplatformPositions ? [] : markets
     .filter((m) => m.userPnlPct !== null)
     .sort((a, b) => (b.userPnlPct ?? 0) - (a.userPnlPct ?? 0))
     .slice(0, 4)

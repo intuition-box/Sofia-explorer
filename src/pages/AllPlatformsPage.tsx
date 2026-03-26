@@ -55,23 +55,35 @@ export default function AllPlatformsPage() {
   const navigate = useNavigate()
   const pc = PAGE_COLORS['/profile/platforms']
   const [tab, setTab] = useState<'grid' | 'list' | 'connect'>('grid')
+  const [sortBy, setSortBy] = useState<'mcap' | 'price' | 'holders' | 'name'>('mcap')
   const [selectedMarket, setSelectedMarket] = useState<PlatformVaultData | null>(null)
+
+  const sortPlatforms = (a: PlatformVaultData, b: PlatformVaultData) => {
+    switch (sortBy) {
+      case 'mcap': return Number(BigInt(b.marketCap) - BigInt(a.marketCap))
+      case 'price': return Number(BigInt(b.sharePrice) - BigInt(a.sharePrice))
+      case 'holders': return b.positionCount - a.positionCount
+      case 'name': return a.label.localeCompare(b.label)
+    }
+  }
 
   return (
     <div>
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
       <div className="page-content page-enter">
 
-        <div className="pm-view-switcher">
-          <button className={`pm-view-btn ${tab === 'grid' ? 'pm-view-btn--active' : ''}`} onClick={() => setTab('grid')}>
-            <LayoutGrid className="h-3 w-3" /> Grid
-          </button>
-          <button className={`pm-view-btn ${tab === 'list' ? 'pm-view-btn--active' : ''}`} onClick={() => setTab('list')}>
-            <List className="h-3 w-3" /> List
-          </button>
-          <button className={`pm-view-btn ${tab === 'connect' ? 'pm-view-btn--active' : ''}`} onClick={() => setTab('connect')}>
+        <div className="pm-toolbar">
+          <div className="pm-view-switcher">
+            <button className={`pm-view-btn ${tab === 'grid' ? 'pm-view-btn--active' : ''}`} onClick={() => setTab('grid')}>
+              <LayoutGrid className="h-3 w-3" /> Grid
+            </button>
+            <button className={`pm-view-btn ${tab === 'list' ? 'pm-view-btn--active' : ''}`} onClick={() => setTab('list')}>
+              <List className="h-3 w-3" /> List
+            </button>
+            <button className={`pm-view-btn ${tab === 'connect' ? 'pm-view-btn--active' : ''}`} onClick={() => setTab('connect')}>
             Connect
           </button>
+          </div>
         </div>
 
         {tab === 'grid' ? (
@@ -89,7 +101,7 @@ export default function AllPlatformsPage() {
                 const cards = topicPlatforms
                   .map((p) => ({ slug: p.id, market: getMarketBySlug(p.id) }))
                   .filter((c): c is { slug: string; market: PlatformVaultData } => !!c.market)
-                  .sort((a, b) => Number(BigInt(b.market.marketCap) - BigInt(a.market.marketCap)))
+                  .sort((a, b) => sortPlatforms(a.market, b.market))
 
                 if (cards.length === 0) return null
 
@@ -122,12 +134,12 @@ export default function AllPlatformsPage() {
               <div className="pm-table-header">
                 <span className="pm-table-col-rank">#</span>
                 <span className="pm-table-col-name">Platform</span>
-                <span className="pm-table-col-mcap">MCap</span>
-                <span className="pm-table-col-price">Price</span>
-                <span className="pm-table-col-holders">Holders</span>
-                <span className="pm-table-col-pnl">P&L</span>
+                <span className={`pm-table-col-mcap pm-table-sortable ${sortBy === 'mcap' ? 'pm-table-sorted' : ''}`} onClick={() => setSortBy('mcap')}>MCap</span>
+                <span className={`pm-table-col-price pm-table-sortable ${sortBy === 'price' ? 'pm-table-sorted' : ''}`} onClick={() => setSortBy('price')}>Price</span>
+                <span className={`pm-table-col-holders pm-table-sortable ${sortBy === 'holders' ? 'pm-table-sorted' : ''}`} onClick={() => setSortBy('holders')}>Holders</span>
+                <span className={`pm-table-col-pnl pm-table-sortable ${sortBy === 'name' ? 'pm-table-sorted' : ''}`} onClick={() => setSortBy('name')}>P&L</span>
               </div>
-              {ranked.map((market, i) => {
+              {[...ranked].sort(sortPlatforms).map((market, i) => {
                 const slug = ATOM_ID_TO_PLATFORM.get(market.termId) || ''
                 return (
                   <div

@@ -36,7 +36,7 @@ export interface PlatformCatalogData {
 // ── GraphQL queries ──
 
 const GET_PLATFORM_TRIPLES = `
-  query GetPlatformTriples($predicateId: numeric!, $categoryTermIds: [String!]!) {
+  query GetPlatformTriples($predicateId: String!, $categoryTermIds: [String!]!) {
     triples(
       where: {
         predicate_id: { _eq: $predicateId }
