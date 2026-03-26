@@ -9,12 +9,13 @@ import { usePlatformConnections } from '@/hooks/usePlatformConnections'
 import { useReputationScores } from '@/hooks/useReputationScores'
 import { useDomainTrending } from '@/hooks/useDomainTrending'
 import { useDomainClaims } from '@/hooks/useDomainClaims'
+import { useTopicCertifications } from '@/hooks/useTopicCertifications'
 import { usePrefetchClaimDialogs } from '@/hooks/useClaimPositions'
 import { useCart } from '@/hooks/useCart'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ArrowLeft, ThumbsUp, ThumbsDown, Plus } from 'lucide-react'
+import { ArrowLeft, ThumbsUp, ThumbsDown, Plus, ExternalLink } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import NicheDetailList from '@/components/profile/NicheDetailList'
 import TrendingCard from '@/components/TrendingCard'
@@ -43,10 +44,11 @@ export default function InterestPage() {
   const scores = useReputationScores(getStatus, selectedTopics, selectedCategories)
   const topicScore = scores?.topics.find((d) => d.topicId === topicId)
 
+  const walletAddress = user?.wallet?.address
   const { items: trending, loading: trendingLoading } = useDomainTrending(topicId)
   const { claims, loading: claimsLoading } = useDomainClaims(topicId)
+  const { certifications, loading: certsLoading } = useTopicCertifications(topicId, walletAddress)
   const cart = useCart()
-  const walletAddress = user?.wallet?.address
   const [dialogClaim, setDialogClaim] = useState<typeof claims[number] | null>(null)
 
   // Prefetch all claim dialog data so modals open instantly
@@ -269,6 +271,43 @@ export default function InterestPage() {
               intentionColor={topic?.color || '#8B5CF6'}
               walletAddress={walletAddress}
             />
+          )}
+        </section>
+
+        {/* Certified in this topic */}
+        <section className="ip-section">
+          <h3 className="ip-section-title">Certified in {topic.label}</h3>
+          {certsLoading ? (
+            <div className="ip-loader"><SofiaLoader size={48} /></div>
+          ) : certifications.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No certifications in this topic yet.</p>
+          ) : (
+            <div className="ip-certs-grid">
+              {certifications.map((cert) => (
+                <Card key={cert.termId} className="ip-cert-card">
+                  <a href={`https://${cert.domain}`} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                    <img
+                      src={cert.favicon}
+                      alt=""
+                      className="h-8 w-8 rounded-lg bg-muted hover:opacity-80 transition-opacity"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                    />
+                  </a>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{cert.domain || cert.platformLabel}</p>
+                    <p className="text-xs text-muted-foreground">{cert.intention}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge variant="secondary" className="text-xs">{cert.positionCount} holders</Badge>
+                    {cert.url && (
+                      <a href={cert.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground">
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    )}
+                  </div>
+                </Card>
+              ))}
+            </div>
           )}
         </section>
 

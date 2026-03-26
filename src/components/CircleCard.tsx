@@ -4,6 +4,8 @@ import { ChevronUp, ChevronDown, ExternalLink } from 'lucide-react'
 import IntentionTooltip from '@/components/IntentionTooltip'
 import type { CircleItem } from '@/services/circleService'
 import { INTENTION_COLORS } from '@/config/intentions'
+import { TOPIC_META } from '@/config/topicMeta'
+import { SOFIA_TOPICS } from '@/config/taxonomy'
 import { timeAgo } from '@/utils/formatting'
 
 /** Verb phrase displayed before the colored intention word */
@@ -40,12 +42,23 @@ export default function CircleCard({ item, displayName, avatar, isPrivate, onDep
           <span className="text-sm font-bold truncate">{shownName}</span>
           <span className="text-xs text-muted-foreground shrink-0">{timeAgo(item.timestamp)}</span>
         </div>
-        <img
-          src={item.favicon}
-          alt=""
-          className="h-8 w-8 rounded-lg bg-muted shrink-0"
-          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-        />
+        {item.domain ? (
+          <a href={`https://${item.domain}`} target="_blank" rel="noopener noreferrer" className="shrink-0">
+            <img
+              src={item.favicon}
+              alt={item.domain}
+              className="h-8 w-8 rounded-lg bg-muted cursor-pointer hover:opacity-80 transition-opacity"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+            />
+          </a>
+        ) : (
+          <img
+            src={item.favicon}
+            alt=""
+            className="h-8 w-8 rounded-lg bg-muted shrink-0"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+          />
+        )}
       </div>
 
       {/* Phrase: user + verb + colored intentions + title */}
@@ -68,8 +81,27 @@ export default function CircleCard({ item, displayName, avatar, isPrivate, onDep
         {' '}
         <span className="font-semibold">{item.title}</span>
       </p>
-      {item.url && item.domain && (
-        <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:underline truncate">{item.domain}</a>
+      {/* Topic context badges */}
+      {item.topicContexts?.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {item.topicContexts.map((slug) => {
+            const meta = TOPIC_META[slug]
+            const label = SOFIA_TOPICS.find((t) => t.id === slug)?.label ?? slug
+            return (
+              <span
+                key={slug}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
+                style={{
+                  backgroundColor: `${meta?.color ?? '#888'}18`,
+                  color: meta?.color ?? '#888',
+                  border: `1px solid ${meta?.color ?? '#888'}30`,
+                }}
+              >
+                {label}
+              </span>
+            )
+          })}
+        </div>
       )}
 
       {/* Actions */}

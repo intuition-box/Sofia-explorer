@@ -6,7 +6,16 @@ import '@/components/styles/pages.css'
 
 export default function DomainSelectionPage() {
   const navigate = useNavigate()
-  const { selectedTopics, toggleTopic, hasPosition, isPending } = useTopicSync()
+  const { selectedTopics, toggleTopic, removeTopic, hasPosition, isPending } = useTopicSync()
+
+  const handleToggle = (topicId: string) => {
+    const isSelected = selectedTopics.includes(topicId)
+    if (isSelected) {
+      removeTopic(topicId) // redeem if on-chain, else just remove locally
+    } else {
+      toggleTopic(topicId) // add locally + auto-add to cart
+    }
+  }
 
   return (
     <div>
@@ -14,7 +23,7 @@ export default function DomainSelectionPage() {
       <div className="page-content page-enter">
         <DomainSelector
           selectedTopics={selectedTopics}
-          onToggle={toggleTopic}
+          onToggle={handleToggle}
           onContinue={() => navigate('/profile')}
           onBack={() => navigate('/profile')}
           hasPosition={hasPosition}

@@ -69,16 +69,32 @@ export async function fetchPlatformVaultStats(
   const atoms = json.data?.atoms || []
 
   return atoms.map((atom: any) => {
-    const vault = atom.term?.vaults?.[0]
-    const userPosition = vault?.positions?.[0]
+    const vaults = atom.term?.vaults || []
 
-    const userShares = BigInt(userPosition?.shares || "0")
-    const userDeposited = BigInt(userPosition?.total_deposit_assets_after_total_fees || "0")
-    const sharePrice = BigInt(vault?.current_share_price || "0")
+    // Aggregate across all curve vaults
+    let totalMarketCap = 0n
+    let totalShares = 0n
+    let totalPositionCount = 0
+    let bestSharePrice = 0n
+    let userShares = 0n
+    let userDeposited = 0n
+
+    for (const vault of vaults) {
+      totalMarketCap += BigInt(vault.market_cap || "0")
+      totalShares += BigInt(vault.total_shares || "0")
+      totalPositionCount += vault.position_count || 0
+      const sp = BigInt(vault.current_share_price || "0")
+      if (sp > bestSharePrice) bestSharePrice = sp
+
+      for (const p of vault.positions || []) {
+        userShares += BigInt(p.shares || "0")
+        userDeposited += BigInt(p.total_deposit_assets_after_total_fees || "0")
+      }
+    }
 
     let userPnlPct: number | null = null
     if (userShares > 0n && userDeposited > 0n) {
-      const currentValue = (userShares * sharePrice) / (10n ** 18n)
+      const currentValue = (userShares * bestSharePrice) / (10n ** 18n)
       const pnl = Number(currentValue - userDeposited) / Number(userDeposited)
       userPnlPct = Math.round(pnl * 1000) / 10
     }
@@ -87,10 +103,10 @@ export async function fetchPlatformVaultStats(
       termId: atom.term_id,
       label: atom.label,
       image: atom.image,
-      marketCap: vault?.market_cap || "0",
-      totalShares: vault?.total_shares || "0",
-      positionCount: vault?.position_count || 0,
-      sharePrice: vault?.current_share_price || "0",
+      marketCap: String(totalMarketCap),
+      totalShares: String(totalShares),
+      positionCount: totalPositionCount,
+      sharePrice: String(bestSharePrice),
       userShares: String(userShares),
       userDeposited: String(userDeposited),
       userPnlPct,

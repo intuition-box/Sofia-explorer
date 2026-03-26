@@ -5,7 +5,7 @@ import {
 } from '@0xsofia/dashboard-graphql'
 import { getAddress } from 'viem'
 import { SOFIA_PROXY_ADDRESS, PREDICATE_IDS, SUBJECT_IDS } from '../config'
-import { processEvents } from './feedProcessing'
+import { processEvents, enrichWithTopicContexts } from './feedProcessing'
 
 export interface CircleItem {
   id: string
@@ -18,6 +18,8 @@ export interface CircleItem {
   intentions: string[]
   timestamp: string
   intentionVaults: Record<string, { termId: string; counterTermId: string }>
+  /** Topic slugs from nested "in context of" triples (e.g. ["tech-dev", "web3-crypto"]) */
+  topicContexts: string[]
 }
 
 // Cache trusted wallets so we don't re-fetch on every loadMore
@@ -68,11 +70,13 @@ export async function fetchCircleFeed(
     offset,
   })()
 
-  return processEvents(data.events ?? [], (evt) => {
+  const items = processEvents(data.events ?? [], (evt) => {
     const address = evt.deposit?.receiver?.id || evt.redemption?.sender?.id || ''
     const label = evt.deposit?.receiver?.label || evt.redemption?.sender?.label || address
     return { address, label }
   })
+  await enrichWithTopicContexts(items)
+  return items
 }
 
 export async function fetchFollowingCount(walletAddress: string): Promise<number> {

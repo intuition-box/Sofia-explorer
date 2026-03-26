@@ -2,7 +2,7 @@ import {
   useGetAllActivityQuery,
 } from '@0xsofia/dashboard-graphql'
 import { SOFIA_PROXY_ADDRESS } from '../config'
-import { processEvents } from './feedProcessing'
+import { processEvents, enrichWithTopicContexts } from './feedProcessing'
 import type { CircleItem } from './circleService'
 
 export async function fetchAllActivity(
@@ -15,11 +15,13 @@ export async function fetchAllActivity(
     offset,
   })()
 
-  return processEvents(data.events ?? [], (evt) => {
+  const items = processEvents(data.events ?? [], (evt) => {
     const receiver = evt.deposit?.receiver
     return {
       address: receiver?.id || '',
       label: receiver?.label || receiver?.id || '',
     }
   })
+  await enrichWithTopicContexts(items)
+  return items
 }

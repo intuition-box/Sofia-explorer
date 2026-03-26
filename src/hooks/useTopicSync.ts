@@ -57,7 +57,7 @@ export function useTopicSync() {
   const { wallets } = useWallets()
   const wallet = wallets[0]
 
-  const { selectedTopics, toggleTopic } = useTopicSelection()
+  const { selectedTopics, selectedCategories, toggleTopic } = useTopicSelection()
   const { positions, hasPosition, isPending, isLoading: positionsLoading, refetch } = useTopicPositions(selectedTopics)
   const cart = useCart()
 
@@ -149,6 +149,7 @@ export function useTopicSync() {
 
   return {
     selectedTopics,
+    selectedCategories,
     toggleTopic,
     removeTopic,
     hasPosition,

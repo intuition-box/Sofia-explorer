@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { usePrivy, useLogin, useLinkAccount } from '@privy-io/react-auth'
 import { useViewAs } from '@/hooks/useViewAs'
-import { useTopicSelection } from '../hooks/useDomainSelection'
+import { useTopicSync } from '../hooks/useTopicSync'
 import { usePlatformConnections } from '../hooks/usePlatformConnections'
 import { useReputationScores } from '../hooks/useReputationScores'
 import { useUserActivity } from '../hooks/useUserActivity'
@@ -26,7 +26,7 @@ export default function ProfilePage() {
   const { linkWallet } = useLinkAccount({ onSuccess: () => window.location.reload() })
   const { viewAsAddress, isViewingAs, clearViewAs } = useViewAs()
   const address = viewAsAddress || user?.wallet?.address || ''
-  const { selectedTopics, selectedCategories, toggleTopic } = useTopicSelection()
+  const { selectedTopics, selectedCategories, removeTopic } = useTopicSync()
   const navigate = useNavigate()
   const { getStatus } = usePlatformConnections()
   const { ethccWallet, signals: ethccSignals, loading: ethccLoading, setWallet, clearWallet } = useEthccData()
@@ -124,7 +124,7 @@ export default function ProfilePage() {
             selectedCategories={selectedCategories}
             topicScores={topicScores}
             onAddTopic={isViewingAs ? undefined : () => navigate('/profile/topics')}
-            onRemoveTopic={isViewingAs ? undefined : toggleTopic}
+            onRemoveTopic={isViewingAs ? undefined : removeTopic}
           />
         </section>
 
