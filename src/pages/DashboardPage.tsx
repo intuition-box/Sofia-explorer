@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom'
 import { useCircleFeed } from '../hooks/useCircleFeed'
 import { useAllActivity } from '../hooks/useAllActivity'
 import type { CircleItem } from '../services/circleService'
-import { PLATFORM_CATALOG } from '../config/platformCatalog'
+import { PLATFORM_CATALOG } from '../config/platformCatalog' // kept for getPlatformIdsForTopic helper
 import { Card } from '../components/ui/card'
 import { Badge } from '../components/ui/badge'
 import { ScrollArea } from '../components/ui/scroll-area'

@@ -74,10 +74,11 @@ export interface TrendingItemLive {
 export interface TrendingPlatform {
   platformDomain: string
   platformName: string
+  platformSlug?: string
   favicon: string
   totalCertifiers: number
   intentions: { category: IntentCategory; count: number; color: string }[]
-  /** termId of the atom — used for Buy */
+  /** termId of the platform atom — used for market data + invest */
   termId?: string
   /** counterTermId of "I trusts [atom]" triple — used for Sell */
   counterTermId?: string

@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { configureClient } from '@0xsofia/dashboard-graphql'
 import { PRIVY_APP_ID, GRAPHQL_URL } from '../config'
 import { CartProvider } from '../hooks/useCart'
+import { ViewAsProvider } from '../hooks/useViewAs'
 
 // Use proxied URL in dev to avoid CORS
 configureClient({ apiUrl: GRAPHQL_URL })
@@ -28,9 +29,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
     >
       <QueryClientProvider client={queryClient}>
         <CartProvider>
-          <BrowserRouter>
-            {children}
-          </BrowserRouter>
+          <ViewAsProvider>
+            <BrowserRouter>
+              {children}
+            </BrowserRouter>
+          </ViewAsProvider>
         </CartProvider>
       </QueryClientProvider>
     </PrivyProvider>

@@ -31,72 +31,72 @@ const TOPICS = [
   {
     id: 'tech-dev',
     label: 'Tech & Dev',
-    description: 'Software engineering, web & mobile development, AI/ML, DevOps, cybersecurity, and open-source.',
+    description: 'Everything related to software, code, and technology.',
   },
   {
     id: 'design-creative',
     label: 'Design & Visual Arts',
-    description: 'UI/UX design, illustration, motion design, 3D modeling, photography, and graphic design.',
+    description: 'Visual creation, design, and digital arts.',
   },
   {
     id: 'music-audio',
     label: 'Music & Audio',
-    description: 'Music production, DJing, instruments, vocals, sound design, and music culture.',
+    description: 'Music, sound, and audio culture.',
   },
   {
     id: 'gaming',
     label: 'Gaming',
-    description: 'Competitive gaming, RPGs, strategy, esports, indie games, MMOs, and retro gaming.',
+    description: 'Video games, esports, and gaming culture.',
   },
   {
     id: 'web3-crypto',
     label: 'Web3 & Crypto',
-    description: 'DeFi, NFTs, trading, DAOs, smart contracts, Layer 2s, and decentralized protocols.',
+    description: 'Blockchain, crypto, and the decentralized web.',
   },
   {
     id: 'science',
     label: 'Science & Knowledge',
-    description: 'Mathematics, physics, biology, psychology, history, philosophy, and linguistics.',
+    description: 'Science, research, and academic knowledge.',
   },
   {
     id: 'sport-health',
     label: 'Sport & Health',
-    description: 'Team sports, fitness, running, combat sports, extreme sports, and wellness.',
+    description: 'Sports, fitness, and well-being.',
   },
   {
     id: 'video-cinema',
     label: 'Video & Cinema',
-    description: 'Filmmaking, cinephilia, streaming, YouTube content creation, and animation.',
+    description: 'Film, video, streaming, and visual storytelling.',
   },
   {
     id: 'entrepreneurship',
     label: 'Entrepreneurship & Business',
-    description: 'Startups, freelancing, e-commerce, marketing, investing, and personal branding.',
+    description: 'Business, startups, and professional growth.',
   },
   {
     id: 'performing-arts',
     label: 'Performing Arts',
-    description: 'Theater, dance, circus, comedy, street art, and live performance.',
+    description: 'Live performance, theater, and stage arts.',
   },
   {
     id: 'nature-environment',
     label: 'Nature & Environment',
-    description: 'Ecology, outdoor adventure, astronomy, gardening, and wildlife observation.',
+    description: 'Nature, ecology, and the outdoors.',
   },
   {
     id: 'food-lifestyle',
     label: 'Food, Fashion & Lifestyle',
-    description: 'Gastronomy, beverages, streetwear, collectibles, DIY, and interior design.',
+    description: 'Food, fashion, and everyday lifestyle.',
   },
   {
     id: 'literature',
     label: 'Literature & Writing',
-    description: 'Fiction, non-fiction, creative writing, journalism, blogging, and literary criticism.',
+    description: 'Reading, writing, and literature.',
   },
   {
     id: 'personal-dev',
     label: 'Personal Development',
-    description: 'Mindfulness, coaching, relationships, personal finance, and neurodiversity.',
+    description: 'Self-improvement, mindset, and personal growth.',
   },
 ]
 

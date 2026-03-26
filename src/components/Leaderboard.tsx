@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react'
 import type { Address } from 'viem'
 import { useEnsNames } from '../hooks/useEnsNames'
+import { useTrustLeaderboard } from '../hooks/useTrustLeaderboard'
 import { EXPLORER_URL } from '../config'
 import type { LeaderboardProps, AlphaTester, PoolPosition } from '../types'
+import type { EigentrustEntry } from '../services/mcpTrustService'
 import { Card } from './ui/card'
 import { Button } from './ui/button'
 import { formatTrust } from '../utils/formatting'
@@ -10,6 +12,7 @@ import './styles/leaderboard.css'
 
 type AlphaSortOption = 'TX' | 'Intentions' | 'Pioneer' | 'Trust Volume'
 type PoolSortOption = 'Shares' | 'Current Value' | 'P&L' | 'P&L %'
+type TrustSortOption = 'Score' | 'Confidence' | 'Paths'
 
 function sortAlpha(data: AlphaTester[], sortBy: AlphaSortOption) {
   return [...data].sort((a, b) => {
@@ -48,6 +51,23 @@ const POOL_COLUMNS: { label: string; key: PoolSortOption }[] = [
   { label: 'P&L %', key: 'P&L %' },
 ]
 
+const TRUST_COLUMNS: { label: string; key: TrustSortOption }[] = [
+  { label: 'Score', key: 'Score' },
+  { label: 'Confidence', key: 'Confidence' },
+  { label: 'Paths', key: 'Paths' },
+]
+
+function sortTrust(data: EigentrustEntry[], sortBy: TrustSortOption) {
+  return [...data].sort((a, b) => {
+    switch (sortBy) {
+      case 'Score': return b.score - a.score
+      case 'Confidence': return b.confidence - a.confidence
+      case 'Paths': return b.pathCount - a.pathCount
+      default: return 0
+    }
+  })
+}
+
 export default function Leaderboard({
   alphaData = [],
   alphaLoading,
@@ -57,24 +77,29 @@ export default function Leaderboard({
   poolError,
   connectedAddress,
 }: LeaderboardProps) {
-  const [activeTab, setActiveTab] = useState<'alpha' | 'pool'>('alpha')
+  const [activeTab, setActiveTab] = useState<'alpha' | 'pool' | 'trust'>('alpha')
+  const { rankings: trustRankings, loading: trustLoading, error: trustError } = useTrustLeaderboard()
   const [alphaSortBy, setAlphaSortBy] = useState<AlphaSortOption>('TX')
   const [poolSortBy, setPoolSortBy] = useState<PoolSortOption>('P&L %')
+  const [trustSortBy, setTrustSortBy] = useState<TrustSortOption>('Score')
 
   const sortedAlpha = useMemo(() => sortAlpha(alphaData, alphaSortBy), [alphaData, alphaSortBy])
   const sortedPool = useMemo(() => (poolData ? sortPool(poolData, poolSortBy) : []), [poolData, poolSortBy])
+  const sortedTrust = useMemo(() => sortTrust(trustRankings, trustSortBy), [trustRankings, trustSortBy])
 
   const allAddresses = useMemo(() => {
     const a = alphaData.map((u) => u.address)
     const p = (poolData || []).map((pos: PoolPosition) => pos.address)
-    return [...a, ...p] as Address[]
-  }, [alphaData, poolData])
+    const t = trustRankings.map((r) => r.address as Address)
+    return [...a, ...p, ...t] as Address[]
+  }, [alphaData, poolData, trustRankings])
 
   const { getDisplay, getAvatar } = useEnsNames(allAddresses)
 
   const isAlpha = activeTab === 'alpha'
-  const loading = isAlpha ? alphaLoading : poolLoading
-  const error = isAlpha ? alphaError : poolError
+  const isTrust = activeTab === 'trust'
+  const loading = isTrust ? trustLoading : isAlpha ? alphaLoading : poolLoading
+  const error = isTrust ? trustError : isAlpha ? alphaError : poolError
   const columns = isAlpha ? ALPHA_COLUMNS : POOL_COLUMNS
 
   return (
@@ -99,12 +124,21 @@ export default function Leaderboard({
           >
             Season Pool
           </Button>
+          <Button
+            size="sm"
+            variant={activeTab === 'trust' ? 'default' : 'ghost'}
+            data-active={activeTab === 'trust'}
+            onClick={() => setActiveTab('trust')}
+          >
+            Trust Ranking
+          </Button>
         </div>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="lb-table">
+          {!isTrust && (
           <thead>
             <tr className="lb-border-row">
               <th className="lb-rank-head">#</th>
@@ -125,6 +159,25 @@ export default function Leaderboard({
               ))}
             </tr>
           </thead>
+          )}
+          {isTrust && (
+          <thead>
+            <tr className="lb-border-row">
+              <th className="lb-rank-head">#</th>
+              <th className="lb-cell-head">User</th>
+              {TRUST_COLUMNS.map((col) => (
+                <th
+                  key={col.key}
+                  className="lb-cell-head-num"
+                  onClick={() => setTrustSortBy(col.key)}
+                >
+                  {col.label}
+                  {trustSortBy === col.key && ' ▼'}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          )}
           <tbody>
             {loading &&
               Array.from({ length: 5 }).map((_, i) => (
@@ -175,7 +228,39 @@ export default function Leaderboard({
                 )
               })}
 
-            {!loading && !error && !isAlpha &&
+            {!loading && !error && isTrust &&
+              sortedTrust.map((entry, i) => {
+                const addr = entry.address as Address
+                const isSelf = connectedAddress && addr.toLowerCase() === connectedAddress.toLowerCase()
+                return (
+                  <tr
+                    key={addr}
+                    className={"lb-border-row" + (isSelf ? " lb-self-row" : "")}
+                  >
+                    <td className="lb-rank">{i + 1}</td>
+                    <td className="lb-cell">
+                      <a
+                        href={`${EXPLORER_URL}/address/${addr}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="lb-user-link"
+                      >
+                        <img
+                          src={getAvatar(addr)}
+                          alt=""
+                          className="lb-avatar"
+                        />
+                        <span className="lb-username">{getDisplay(addr)}</span>
+                      </a>
+                    </td>
+                    <td className="lb-cell-num">{entry.score.toFixed(4)}</td>
+                    <td className="lb-cell-num">{(entry.confidence * 100).toFixed(1)}%</td>
+                    <td className="lb-cell-num">{entry.pathCount}</td>
+                  </tr>
+                )
+              })}
+
+            {!loading && !error && activeTab === 'pool' &&
               sortedPool.map((pos, i) => {
                 const isSelf = connectedAddress && pos.address.toLowerCase() === connectedAddress.toLowerCase()
                 return (
@@ -212,6 +297,14 @@ export default function Leaderboard({
           </tbody>
         </table>
       </div>
+
+      {isTrust && !loading && (
+        <div className="lb-trust-legend">
+          <p><strong>Score</strong> — Global trust level computed by EigenTrust across the entire attestation graph. Higher means more trusted by well-trusted wallets.</p>
+          <p><strong>Confidence</strong> — How reliable the score is, based on the volume and diversity of attestations received.</p>
+          <p><strong>Paths</strong> — Number of distinct trust paths leading to this wallet. More paths = more robust reputation.</p>
+        </div>
+      )}
     </Card>
   )
 }

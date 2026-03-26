@@ -148,6 +148,27 @@ export async function resolveEnsAvatar(address: string): Promise<void> {
   }
 }
 
+/**
+ * Resolve an ENS name to a wallet address.
+ * Returns null if resolution fails.
+ */
+export async function resolveEnsToAddress(ensName: string): Promise<string | null> {
+  try {
+    const address = await ensClient.getEnsAddress({ name: normalize(ensName) })
+    return address || null
+  } catch {
+    // Fallback: try ENSTATE API
+    try {
+      const res = await fetch(`https://enstate.rs/n/${ensName}`)
+      if (res.ok) {
+        const data = await res.json()
+        if (data.address) return data.address
+      }
+    } catch {}
+    return null
+  }
+}
+
 async function resolveAvatars(
   addresses: string[],
   onUpdate: () => void,

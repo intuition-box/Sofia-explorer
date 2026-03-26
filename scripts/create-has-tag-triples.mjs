@@ -3,7 +3,7 @@
  *
  * Creates two types of triples:
  *   1. [Category] has tag [Topic]     (~88 triples)
- *   2. [Platform] has tag [Category]  (~300 triples, deduced via platform.targetNiches → category)
+ *   2. [Platform] has tag [Category]  (~300 triples, read directly from platform.targetCategories)
  *
  * All atoms (Topics, Categories, Platforms) must exist on-chain first.
  * This script resolves them by label via GraphQL.
@@ -85,7 +85,6 @@ function parseTaxonomy() {
 
   const topics = []
   const categories = []
-  const nicheToCategory = new Map()
 
   const topicRegex = /id:\s*"([^"]+)",\s*\n\s*label:\s*"([^"]+)",\s*\n\s*icon:/g
   let topicMatch
@@ -128,18 +127,10 @@ function parseTaxonomy() {
         topicLabel: topic.label,
       })
 
-      const nichesSection = afterCat.match(/niches:\s*\[([\s\S]*?)\]\s*,?\s*}/)?.[1]
-      if (nichesSection) {
-        const nicheIdRegex = /id:\s*"([^"]+)"/g
-        let nicheMatch
-        while ((nicheMatch = nicheIdRegex.exec(nichesSection)) !== null) {
-          nicheToCategory.set(nicheMatch[1], catId)
-        }
-      }
     }
   }
 
-  return { topics, categories, nicheToCategory }
+  return { topics, categories }
 }
 
 // ── Parse platformCatalog.ts ──
@@ -147,23 +138,20 @@ function parseTaxonomy() {
 function parsePlatforms() {
   const content = readFileSync('src/config/platformCatalog.ts', 'utf8')
   const platforms = []
-  const idRegex = /id:\s*"([^"]+)"/g
-  let match
 
-  while ((match = idRegex.exec(content)) !== null) {
-    const id = match[1]
-    const pos = match.index
-    const block = content.substring(pos, pos + 800)
+  // Split by platform object boundaries for reliable extraction
+  const entries = content.split(/\n  {/)
+  for (const entry of entries) {
+    const idMatch = entry.match(/id:\s*"([^"]+)"/)
+    const nameMatch = entry.match(/name:\s*"([^"]+)"/)
+    if (!idMatch || !nameMatch) continue
 
-    const nameMatch = block.match(/name:\s*"([^"]+)"/)
-    if (!nameMatch) continue
-
-    const nichesMatch = block.match(/targetNiches:\s*\[([^\]]*)\]/)
-    const niches = nichesMatch?.[1]
+    const catMatch = entry.match(/targetCategories:\s*\[([^\]]*)\]/)
+    const categories = catMatch?.[1]
       ?.match(/"([^"]+)"/g)
       ?.map((d) => d.replace(/"/g, '')) || []
 
-    platforms.push({ id, name: nameMatch[1], niches })
+    platforms.push({ id: idMatch[1], name: nameMatch[1], categories })
   }
   return platforms
 }
@@ -207,7 +195,8 @@ async function main() {
   const args = process.argv.slice(2)
   const dryRun = args.includes('--dry-run')
   const estimateOnly = args.includes('--estimate')
-  const batchSize = parseInt(args.find((a) => a.startsWith('--batch='))?.split('=')[1] || '20')
+  const batchSize = parseInt(args.find((a) => a.startsWith('--batch='))?.split('=')[1] || '5')
+  const limitTriples = parseInt(args.find((a) => a.startsWith('--limit='))?.split('=')[1] || '0')
 
   const privateKey = process.env.PRIVATE_KEY
   if (!privateKey && !dryRun && !estimateOnly) {
@@ -217,19 +206,14 @@ async function main() {
   }
 
   const cache = loadCache()
-  const { topics, categories, nicheToCategory } = parseTaxonomy()
+  const { topics, categories } = parseTaxonomy()
   const platforms = parsePlatforms()
 
-  // Build platform → categories mapping via niches
+  // Build platform → categories mapping (read directly from targetCategories)
   const platformToCategories = new Map()
   for (const platform of platforms) {
-    const categoryIds = new Set()
-    for (const nicheId of platform.niches) {
-      const catId = nicheToCategory.get(nicheId)
-      if (catId) categoryIds.add(catId)
-    }
-    if (categoryIds.size > 0) {
-      platformToCategories.set(platform.id, { name: platform.name, categories: [...categoryIds] })
+    if (platform.categories.length > 0) {
+      platformToCategories.set(platform.id, { name: platform.name, categories: platform.categories })
     }
   }
 
@@ -244,54 +228,58 @@ async function main() {
   console.log(`Batch size: ${batchSize}`)
   console.log(`Dry run: ${dryRun}\n`)
 
-  // ── Step 1: Resolve all atom IDs via GraphQL ──
+  // ── Step 1: Resolve atom IDs from local caches (no GraphQL) ──
 
-  console.log('── Step 1: Resolve atom IDs ──\n')
+  console.log('── Step 1: Resolve atom IDs from local caches ──\n')
 
-  // Resolve topics
+  // Load atom IDs from the creation script caches
+  const topicCache = existsSync('scripts/.topic-cache.json')
+    ? JSON.parse(readFileSync('scripts/.topic-cache.json', 'utf8'))
+    : { atomIds: {} }
+  const categoryCache = existsSync('scripts/.category-cache.json')
+    ? JSON.parse(readFileSync('scripts/.category-cache.json', 'utf8'))
+    : { atomIds: {} }
+  const platformCache = existsSync('scripts/.platform-cache.json')
+    ? JSON.parse(readFileSync('scripts/.platform-cache.json', 'utf8'))
+    : { atomIds: {} }
+
+  // Import topic atom IDs
   for (const topic of topics) {
     const key = `topic:${topic.id}`
-    if (cache.atomIds[key]) {
-      console.log(`  CACHED topic "${topic.label}" → ${cache.atomIds[key]}`)
-      continue
-    }
-    const atomId = await findAtomByLabel(topic.label)
-    if (atomId) {
-      cache.atomIds[key] = atomId
-      console.log(`  FOUND  topic "${topic.label}" → ${atomId}`)
-      saveCache(cache)
-    } else {
+    const sourceKey = topic.id
+    if (topicCache.atomIds[sourceKey]) {
+      cache.atomIds[key] = topicCache.atomIds[sourceKey]
+      console.log(`  LOADED topic "${topic.label}" → ${cache.atomIds[key]}`)
+    } else if (!cache.atomIds[key]) {
       console.error(`  NOT FOUND: topic "${topic.label}" — run create-topic-atoms.mjs first`)
     }
   }
 
-  // Resolve categories
+  // Import category atom IDs
   for (const cat of categories) {
     const key = `cat:${cat.id}`
-    if (cache.atomIds[key]) continue
-    const atomId = await findAtomByLabel(cat.label)
-    if (atomId) {
-      cache.atomIds[key] = atomId
-      console.log(`  FOUND  category "${cat.label}" → ${atomId}`)
-      saveCache(cache)
-    } else {
+    const sourceKey = cat.id
+    if (categoryCache.atomIds[sourceKey]) {
+      cache.atomIds[key] = categoryCache.atomIds[sourceKey]
+      console.log(`  LOADED category "${cat.label}" → ${cache.atomIds[key]}`)
+    } else if (!cache.atomIds[key]) {
       console.error(`  NOT FOUND: category "${cat.label}" — run create-category-atoms.mjs first`)
     }
   }
 
-  // Resolve platforms
+  // Import platform atom IDs
   for (const [platformId, mapping] of platformToCategories) {
     const key = `platform:${platformId}`
-    if (cache.atomIds[key]) continue
-    const atomId = await findAtomByLabel(mapping.name)
-    if (atomId) {
-      cache.atomIds[key] = atomId
-      console.log(`  FOUND  platform "${mapping.name}" → ${atomId}`)
-      saveCache(cache)
-    } else {
+    const sourceKey = `platform:${platformId}`
+    if (platformCache.atomIds[sourceKey]) {
+      cache.atomIds[key] = platformCache.atomIds[sourceKey]
+      console.log(`  LOADED platform "${mapping.name}" → ${cache.atomIds[key]}`)
+    } else if (!cache.atomIds[key]) {
       console.error(`  NOT FOUND: platform "${mapping.name}" — run create-platform-atoms.mjs first`)
     }
   }
+
+  saveCache(cache)
 
   // Check missing
   const missingTopics = topics.filter((t) => !cache.atomIds[`topic:${t.id}`])
@@ -303,7 +291,7 @@ async function main() {
   if (missingPlats.length > 0) console.error(`  Missing platforms: ${missingPlats.map(([, v]) => v.name).join(', ')}`)
 
   if (dryRun) {
-    console.log('\n── Dry run — Platform → Category mapping (via niches) ──\n')
+    console.log('\n── Dry run — Platform → Category mapping ──\n')
     for (const [platformId, mapping] of platformToCategories) {
       const catLabels = mapping.categories.map((cId) => {
         const cat = categories.find((c) => c.id === cId)
@@ -394,7 +382,14 @@ async function main() {
   }
 
   console.log(`Triples to create: ${catToTopicTriples.length}`)
-  await createTriplesBatched(catToTopicTriples, cache.categoryToTopicTriples)
+  const catTriplesToRun = limitTriples > 0 ? catToTopicTriples.slice(0, limitTriples) : catToTopicTriples
+  await createTriplesBatched(catTriplesToRun, cache.categoryToTopicTriples)
+
+  if (limitTriples > 0 && limitTriples <= catToTopicTriples.length) {
+    console.log(`\n── Limit reached (${limitTriples}). Stopping. ──`)
+    saveCache(cache)
+    return
+  }
 
   // ── Step 3: Create [Platform] has tag [Category] triples ──
 
@@ -436,6 +431,9 @@ async function main() {
 
   async function createTriplesBatched(triples, cacheMap) {
     for (let i = 0; i < triples.length; i += batchSize) {
+      // Delay between batches
+      if (i > 0) await new Promise((r) => setTimeout(r, 5000))
+
       const batch = triples.slice(i, i + batchSize)
 
       const subjectIds = batch.map((t) => t.subjectId)
@@ -489,6 +487,7 @@ async function main() {
         // Fallback: one by one
         for (const triple of batch) {
           if (cacheMap[triple.key]) continue
+          await new Promise((r) => setTimeout(r, 3000))
           try {
             const singleCost = await publicClient.readContract({
               address: SOFIA_FEE_PROXY,
@@ -519,7 +518,7 @@ async function main() {
             console.log(`    CREATED ${triple.label}`)
             saveCache(cache)
           } catch (singleErr) {
-            if (singleErr.message?.includes('TripleExists')) {
+            if (singleErr.message?.includes('TripleExists') || singleErr.message?.includes('0x4762af7d')) {
               console.log(`    EXISTS ${triple.label}`)
               cacheMap[triple.key] = 'existing'
               saveCache(cache)

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { PLATFORM_CATALOG } from '../../config/platformCatalog'
-import { getSuggestedPlatforms, TOPIC_BY_ID } from '../../config/taxonomy'
+import { getSuggestedPlatforms } from '../../config/taxonomy'
+import { useTaxonomy } from '@/hooks/useTaxonomy'
 import type { ConnectionStatus, PlatformConnection, AuthType } from '../../types/reputation'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
@@ -61,6 +62,7 @@ export default function PlatformGrid({
   const [search, setSearch] = useState('')
   const [usernameInputs, setUsernameInputs] = useState<Record<string, string>>({})
   const [showUsernameFor, setShowUsernameFor] = useState<string | null>(null)
+  const { topicById } = useTaxonomy()
   const suggested = getSuggestedPlatforms(selectedCategories)
   const catalog = platformsProp ?? PLATFORM_CATALOG
 
@@ -83,9 +85,9 @@ export default function PlatformGrid({
   const grouped = useMemo(() => {
     const groups = new Map<string, typeof sorted>()
     for (const p of sorted) {
-      const topicId = (currentTopic && p.targetDomains?.includes(currentTopic))
+      const topicId = (currentTopic && p.targetTopics?.includes(currentTopic))
         ? currentTopic
-        : p.targetDomains?.[0] || 'other'
+        : p.targetTopics?.[0] || 'other'
       const existing = groups.get(topicId) || []
       existing.push(p)
       groups.set(topicId, existing)
@@ -113,7 +115,7 @@ export default function PlatformGrid({
       </div>
 
       {[...grouped.entries()].map(([topicId, platforms]) => {
-        const topic = TOPIC_BY_ID.get(topicId)
+        const topic = topicById(topicId)
         const label = topic?.label || topicId
 
         return (
@@ -134,7 +136,7 @@ export default function PlatformGrid({
                 return (
                   <Card
                     key={platform.id}
-                    className={`pg-card ${isConnected ? 'border-green-500/30 bg-green-50/50' : ''}`}
+                    className={`pg-card ${isConnected ? 'pg-card--connected' : isSuggested ? 'pg-card--suggested' : ''}`}
                   >
                     {/* Platform identity */}
                     <div className="pg-identity">
@@ -149,9 +151,6 @@ export default function PlatformGrid({
                       />
                       <div className="pg-name-wrap">
                         <span className="font-medium truncate pg-name">{platform.name}</span>
-                        {isSuggested && !isConnected && (
-                          <Badge variant="secondary" className="text-[10px] pg-badge">Suggested</Badge>
-                        )}
                       </div>
                     </div>
 

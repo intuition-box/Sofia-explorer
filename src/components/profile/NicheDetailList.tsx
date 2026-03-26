@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, X } from 'lucide-react'
-import { getCategoriesForTopic } from '@/config/taxonomy'
+import { useTaxonomy } from '@/hooks/useTaxonomy'
 import type { NicheScore } from '@/types/reputation'
 import { Card } from '../ui/card'
 
@@ -15,11 +15,12 @@ interface NicheDetailListProps {
 
 export default function NicheDetailList({ topicId, topicColor, selectedCategories, nicheScores, onToggleCategory }: NicheDetailListProps) {
   const navigate = useNavigate()
+  const { getCategoriesForTopic } = useTaxonomy()
   const scoreMap = useMemo(() => new Map(nicheScores.map((s) => [s.nicheId, s])), [nicheScores])
 
   const allCategories = useMemo(() => {
     return getCategoriesForTopic(topicId)
-  }, [topicId])
+  }, [topicId, getCategoriesForTopic])
 
   const selected = allCategories.filter((c) => selectedCategories.includes(c.id))
 

@@ -15,12 +15,15 @@ import { SUBJECT_IDS } from '../config'
 // ── Types ──
 
 export interface UserPosition {
+  termId: string
   shares: string
   currentSharePrice: string
   isTriple: boolean
   predicateLabel?: string
   objectLabel?: string
   objectUrl?: string
+  tripleSubjectId?: string
+  tripleObjectId?: string
   atomLabel?: string
   atomUrl?: string
 }
@@ -51,12 +54,15 @@ export async function fetchUserProfile(
   })()
 
   const positions: UserPosition[] = data.positions.map((p: PositionRaw) => ({
+    termId: p.vault?.term?.atom?.term_id ?? p.vault?.term?.triple?.term_id ?? '',
     shares: p.shares,
     currentSharePrice: p.vault?.current_share_price,
     isTriple: !!p.vault?.term?.triple,
     predicateLabel: p.vault?.term?.triple?.predicate?.label,
     objectLabel: p.vault?.term?.triple?.object?.label ?? p.vault?.term?.atom?.label,
     objectUrl: p.vault?.term?.triple?.object?.value?.thing?.url ?? p.vault?.term?.atom?.value?.thing?.url,
+    tripleSubjectId: p.vault?.term?.triple?.subject?.term_id,
+    tripleObjectId: p.vault?.term?.triple?.object?.term_id,
     atomLabel: p.vault?.term?.atom?.label,
     atomUrl: p.vault?.term?.atom?.value?.thing?.url,
   }))

@@ -12,6 +12,7 @@ import type {
 const POINTS_PER_PLATFORM = 10   // Connected platform in this topic
 const POINTS_PER_ETHCC_TOPIC = 3 // EthCC topic vote matching this topic (bonus)
 const POINTS_PER_ETHCC_TRACK = 3 // EthCC track interest matching this topic (bonus)
+const TRUST_BOOST_MULTIPLIER = 20 // compositeScore (0–100) × 0.2 = max +20 pts per topic
 
 // ── Score computation ──
 
@@ -20,6 +21,7 @@ export function computeReputationProfile(
   selectedTopics: string[],
   selectedCategories: string[],
   ethccSignals?: EthccSofiaSignals | null,
+  compositeScore?: number | null,
 ): UserReputationProfile | null {
   const connectedPlatforms = PLATFORM_CATALOG.filter(
     (p) => getStatus(p.id) === 'connected',
@@ -50,7 +52,10 @@ export function computeReputationProfile(
       }
     }
 
-    const score = platformPoints + ethccBonus
+    // Trust boost: global composite score (0–100) applied proportionally
+    const trustBoost = compositeScore ? Math.round(compositeScore * TRUST_BOOST_MULTIPLIER / 100) : 0
+
+    const score = platformPoints + ethccBonus + trustBoost
 
     return {
       topicId: topic.id,

@@ -41,3 +41,21 @@
 /* ── P&L colors ── */
 .lb-positive { color: #22c55e; }
 .lb-negative { color: #ef4444; }
+
+/* ── Trust legend ── */
+.lb-trust-legend {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lb-trust-legend p {
+  font-size: 11px;
+  color: var(--muted-foreground);
+  line-height: 1.4;
+}
+.lb-trust-legend strong {
+  color: var(--foreground);
+  font-weight: 600;
+}

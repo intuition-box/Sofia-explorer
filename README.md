@@ -19,9 +19,9 @@ Behavioral reputation dashboard for the [Sofia](https://0xsofia.com) browser ext
 ## Getting Started
 
 ```bash
-pnpm install
-pnpm dev            # Dev server on http://localhost:5173 (auto-open)
-pnpm build          # tsc -b && vite build → dist/
+bun install
+bun dev             # Dev server on http://localhost:5173 (auto-open)
+bun run build       # tsc -b && vite build → dist/
 ```
 
 ### Environment Variables
@@ -30,14 +30,15 @@ pnpm build          # tsc -b && vite build → dist/
 VITE_PRIVY_APP_ID=        # Privy app ID for Web3 auth
 VITE_PRIVY_CLIENT_ID=     # Privy client ID
 VITE_OG_BASE_URL=         # OG image service URL (default: sofia-og.vercel.app)
+VITE_MCP_TRUST_URL=       # MCP Trust Engine URL (default: https://mcp-trust.intuition.box)
 ```
 
 ### GraphQL Package
 
 ```bash
 cd packages/graphql
-pnpm codegen        # Generate TS types + React Query hooks from .graphql files
-pnpm build          # Bundle with tsup
+bun run codegen     # Generate TS types + React Query hooks from .graphql files
+bun run build       # Bundle with tsup
 ```
 
 ## Architecture
@@ -84,6 +85,7 @@ Sofia operates on **Intuition Mainnet** (chain ID 1155), a purpose-built chain f
 |-----------|-------|
 | RPC | `https://rpc.intuition.systems` |
 | GraphQL Indexer | `https://mainnet.intuition.sh/v1/graphql` |
+| MCP Trust Engine | `https://mcp-trust.intuition.box/mcp` |
 | Explorer | `https://explorer.intuition.systems` |
 | Native Token | TRUST |
 | SofiaFeeProxy | `0x26F81d723Ad1648194FAA4b7E235105Fd1212c6c` |
@@ -107,12 +109,12 @@ User clicks Buy/Sell → CartDrawer → WeightModal (amount selection)
 | Route | Description | Auth |
 |-------|-------------|------|
 | `/` | Live feed (All Activity / My Circle toggle) — LandingPage if not authenticated | Public |
-| `/leaderboard` | Alpha testers + season pool rankings | Public |
+| `/leaderboard` | Alpha testers + season pool + trust ranking | Public |
 | `/profile` | Reputation overview: EthCC wallet, top claims, interests, last activity | Protected |
-| `/profile/interest/:domainId` | Domain deep-dive: niches, trending platforms, debate claims | Protected |
-| `/profile/interest/:domainId/platforms` | Platform connections for a domain | Protected |
-| `/profile/interest/:domainId/niches` | Niche selection for a domain | Protected |
-| `/profile/domains` | Global domain selection | Protected |
+| `/profile/interest/:topicId` | Topic deep-dive: categories, trending platforms, debate claims | Protected |
+| `/profile/interest/:topicId/platforms` | Platform connections for a topic | Protected |
+| `/profile/interest/:topicId/categories` | Category selection for a topic | Protected |
+| `/profile/topics` | Global topic selection | Protected |
 | `/platforms` | Full catalog of 140 platforms | Protected |
 | `/streaks` | Streak leaderboard by daily certifications | Protected |
 | `/vote` | Card-based voting on debate claims (support/oppose) | Protected |
@@ -152,6 +154,9 @@ Seasonal staking with PnL% tracking. Current season: **Beta** (Feb 21 – Apr 5,
 ### Debate / Vote
 Card-based voting interface on curated claims (SOFIA_CLAIMS + INTUITION_FEATURED_CLAIMS). Users support or oppose with TRUST deposits. Market cap and position counts displayed per claim.
 
+### Trust Scoring (MCP)
+Graph-based trust scores powered by the Intuition MCP Trust Engine. Composite score combines EigenTrust (50%), AgentRank (30%), and personalized transitive trust (20%). Displayed in the ProfileDrawer and used as a boost in reputation scoring. Trust Ranking tab on the Leaderboard shows the top 50 wallets by EigenTrust score. Graceful fallback if the MCP server is unreachable.
+
 ### Profile Sharing
 OG image generation via `sofia-og.vercel.app` with reputation stats, plus Twitter/X share intent.
 
@@ -183,8 +188,8 @@ See [scripts/README.md](scripts/README.md) for the complete atom creation guide,
 ```
 src/
 ├── pages/              # 14 route-level components
-├── hooks/              # 27 custom React hooks
-├── services/           # 25 data services
+├── hooks/              # 29 custom React hooks
+├── services/           # 26 data services
 ├── components/
 │   ├── ui/             # 50 shadcn/ui primitives
 │   ├── profile/        # 15 profile feature components

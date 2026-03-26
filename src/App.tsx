@@ -22,12 +22,15 @@ import ScoresPage from './pages/ScoresPage'
 import StreaksPage from './pages/StreaksPage'
 import VotePage from './pages/VotePage'
 import OAuthCallbackPage from './pages/OAuthCallbackPage'
+import PublicProfilePage from './pages/PublicProfilePage'
+import { useViewAs } from './hooks/useViewAs'
 import './components/styles/layout.css'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { ready, authenticated } = usePrivy()
+  const { isViewingAs } = useViewAs()
   if (!ready) return null
-  if (!authenticated) return <Navigate to="/feed" replace />
+  if (!authenticated && !isViewingAs) return <Navigate to="/feed" replace />
   return <>{children}</>
 }
 
@@ -93,6 +96,7 @@ export default function App() {
           {/* Public routes */}
           <Route path="/feed" element={<DashboardPage />} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/profile/:address" element={<PublicProfilePage />} />
           <Route path="/auth/callback" element={<OAuthCallbackPage />} />
 
           {/* Protected routes */}

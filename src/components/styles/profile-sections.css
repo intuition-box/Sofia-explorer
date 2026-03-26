@@ -39,6 +39,66 @@
   border-bottom: 1px solid color-mix(in oklab, var(--border) 40%, transparent);
 }
 
+/* ── Public profile stats ── */
+.pub-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.pub-stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 12px;
+  text-align: center;
+}
+
+.pub-stat-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+}
+
+.pub-stat-label {
+  font-size: 0.65rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+}
+
+/* ── Public profile interests ── */
+.pub-interests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.pub-interest-card {
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.pub-interest-card:hover {
+  border-color: var(--primary);
+}
+
+.pub-interest-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.pub-interest-count {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--muted-foreground);
+  margin-top: 2px;
+}
+
 /* ── LastActivitySection ── */
 .las-grid {
   display: grid;

@@ -29,6 +29,12 @@ export default defineConfig({
         secure: true,
         rewrite: (path) => path.replace(/^\/eth-rpc/, ''),
       },
+      '/mcp-trust': {
+        target: 'https://mcp-trust.intuition.box',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/mcp-trust/, ''),
+      },
     },
   },
 })

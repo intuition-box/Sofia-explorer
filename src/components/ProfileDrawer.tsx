@@ -6,6 +6,7 @@ import { usePlatformConnections } from '../hooks/usePlatformConnections'
 import { useReputationScores } from '../hooks/useReputationScores'
 import { useShareProfile } from '../hooks/useShareProfile'
 import { useTrustCircle } from '../hooks/useTrustCircle'
+import { useTrustScore } from '../hooks/useTrustScore'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { Button } from './ui/button'
 import ShareProfileModal from './profile/ShareProfileModal'
@@ -24,7 +25,8 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
   const { stats } = useDiscoveryScore(address || undefined)
   const { selectedTopics, selectedCategories } = useTopicSelection()
   const { getStatus, connectedCount } = usePlatformConnections()
-  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories)
+  const { score: trustScore, loading: trustScoreLoading } = useTrustScore(address || undefined)
+  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, undefined, trustScore)
   const topicScores = scores?.topics ?? []
   const { accounts: trustCircle, loading: trustLoading } = useTrustCircle(address || undefined)
 
@@ -101,6 +103,28 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
               ))}
             </div>
           </div>
+
+          {/* Trust Score */}
+          {trustScore !== null && (
+            <div className="px-3 pt-2 pb-0">
+              <div className="pd-trust-card">
+                <div className="pd-trust-header">
+                  <span className="pd-trust-label">Trust Score</span>
+                  <span className="pd-trust-value">{trustScore.toFixed(0)}</span>
+                </div>
+                <div className="pd-trust-bar">
+                  <div className="pd-trust-fill" style={{ width: `${Math.min(trustScore, 100)}%` }} />
+                </div>
+              </div>
+            </div>
+          )}
+          {trustScoreLoading && (
+            <div className="px-3 pt-2 pb-0">
+              <div className="pd-trust-card">
+                <span className="pd-trust-label" style={{ opacity: 0.5 }}>Loading trust score...</span>
+              </div>
+            </div>
+          )}
 
           {/* Discovery badges */}
           {stats && (

@@ -1,18 +1,20 @@
 import { useNavigate } from 'react-router-dom'
 import { usePrivy, useLogin, useLinkAccount } from '@privy-io/react-auth'
+import { useViewAs } from '@/hooks/useViewAs'
 import { useTopicSelection } from '../hooks/useDomainSelection'
 import { usePlatformConnections } from '../hooks/usePlatformConnections'
 import { useReputationScores } from '../hooks/useReputationScores'
 import { useUserActivity } from '../hooks/useUserActivity'
 import { useTopClaims } from '../hooks/useTopClaims'
 import { useEthccData } from '../hooks/useEthccData'
+import { useTrustScore } from '../hooks/useTrustScore'
 import LastActivitySection from '../components/profile/LastActivitySection'
 import InterestsGrid from '../components/profile/InterestsGrid'
 import TopClaimsSection from '../components/profile/TopClaimsSection'
 import EthccConnectCard from '../components/profile/EthccConnectCard'
 import { Card } from '../components/ui/card'
 import { Button } from '../components/ui/button'
-import { Wallet } from 'lucide-react'
+import { Wallet, User } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import { PAGE_COLORS } from '../config/pageColors'
 import '@/components/styles/pages.css'
@@ -22,17 +24,19 @@ export default function ProfilePage() {
   const { authenticated, user } = usePrivy()
   const { login } = useLogin()
   const { linkWallet } = useLinkAccount({ onSuccess: () => window.location.reload() })
-  const address = user?.wallet?.address ?? ''
+  const { viewAsAddress, isViewingAs, clearViewAs } = useViewAs()
+  const address = viewAsAddress || user?.wallet?.address || ''
   const { selectedTopics, selectedCategories, toggleTopic } = useTopicSelection()
   const navigate = useNavigate()
   const { getStatus } = usePlatformConnections()
   const { ethccWallet, signals: ethccSignals, loading: ethccLoading, setWallet, clearWallet } = useEthccData()
-  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, ethccSignals)
+  const { score: trustCompositeScore } = useTrustScore(address || undefined)
+  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, ethccSignals, trustCompositeScore)
   const topicScores = scores?.topics ?? []
   const { items: activityItems, loading: activityLoading } = useUserActivity(address || undefined)
   const { claims: topClaims, loading: claimsLoading } = useTopClaims(address || undefined)
 
-  if (!authenticated) {
+  if (!authenticated && !isViewingAs) {
     return (
       <Card className="p-8 text-center">
         <Wallet className="h-10 w-10 mx-auto text-muted-foreground/40" />
@@ -49,13 +53,28 @@ export default function ProfilePage() {
   }
 
   const pc = PAGE_COLORS['/profile']
+  const shortAddr = address ? address.slice(0, 6) + '...' + address.slice(-4) : ''
 
   return (
     <div>
-      <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
+      <PageHeader color={pc.color} glow={pc.glow} title={isViewingAs ? shortAddr : pc.title} subtitle={isViewingAs ? 'Viewing profile' : pc.subtitle} />
+
+      {/* View-as banner */}
+      {isViewingAs && (
+        <Card className="pp-wallet-banner" style={{ borderColor: '#627EEA40', background: '#627EEA08' }}>
+          <User className="h-5 w-5" style={{ color: '#627EEA' }} />
+          <div className="pp-wallet-banner-text">
+            <p className="text-sm font-semibold">Viewing as {shortAddr}</p>
+            <p className="text-xs text-muted-foreground">Read-only mode — you are viewing another user's profile.</p>
+          </div>
+          <Button size="sm" variant="outline" onClick={clearViewAs}>
+            Back to my profile
+          </Button>
+        </Card>
+      )}
 
       {/* Link wallet banner */}
-      {!address && (
+      {!isViewingAs && !address && (
         <Card className="pp-wallet-banner">
           <Wallet className="h-5 w-5 text-muted-foreground" />
           <div className="pp-wallet-banner-text">
@@ -71,16 +90,18 @@ export default function ProfilePage() {
 
       <div className="pp-sections page-content page-enter">
 
-        {/* EthCC Wallet */}
-        <section className="pp-section">
-          <EthccConnectCard
-            ethccWallet={ethccWallet}
-            signals={ethccSignals}
-            loading={ethccLoading}
-            onConnect={setWallet}
-            onDisconnect={clearWallet}
-          />
-        </section>
+        {/* EthCC Wallet — own profile only */}
+        {!isViewingAs && (
+          <section className="pp-section">
+            <EthccConnectCard
+              ethccWallet={ethccWallet}
+              signals={ethccSignals}
+              loading={ethccLoading}
+              onConnect={setWallet}
+              onDisconnect={clearWallet}
+            />
+          </section>
+        )}
 
         {/* Top Claims */}
         {(claimsLoading || topClaims.length > 0) && (
@@ -90,19 +111,20 @@ export default function ProfilePage() {
               claims={topClaims}
               loading={claimsLoading}
               walletAddress={address}
+              hideplatformPositions={isViewingAs}
             />
           </section>
         )}
 
         {/* Interests */}
         <section className="pp-section">
-          <h3 className="pp-section-title">My Interests</h3>
+          <h3 className="pp-section-title">{isViewingAs ? 'Interests' : 'My Interests'}</h3>
           <InterestsGrid
             selectedTopics={selectedTopics}
             selectedCategories={selectedCategories}
             topicScores={topicScores}
-            onAddTopic={() => navigate('/profile/topics')}
-            onRemoveTopic={toggleTopic}
+            onAddTopic={isViewingAs ? undefined : () => navigate('/profile/topics')}
+            onRemoveTopic={isViewingAs ? undefined : toggleTopic}
           />
         </section>
 

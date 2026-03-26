@@ -1,18 +1,25 @@
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
-import { Share2, Users, TrendingUp, TrendingDown } from 'lucide-react'
+import { Share2, Users, TrendingUp, TrendingDown, DollarSign } from 'lucide-react'
 import type { TopClaim } from '@/hooks/useTopClaims'
+import { usePlatformMarket } from '@/hooks/usePlatformMarket'
 import { INTENTION_COLORS, intentionBadgeStyle } from '@/config/intentions'
+import { ATOM_ID_TO_PLATFORM } from '@/config/atomIds'
 import { formatEth } from '@/services/vaultTooltipService'
+import type { PlatformVaultData } from '@/services/platformMarketService'
 import IntentionTooltip from '../IntentionTooltip'
 import PositionBoardDialog from './PositionBoardDialog'
+import AtomDetailDialog from '../AtomDetailDialog'
 import { TopClaimSkeleton } from './ProfileSkeletons'
 import { useState } from 'react'
+import { formatEther } from 'viem'
 
 interface TopClaimsSectionProps {
   claims: TopClaim[]
   loading: boolean
   walletAddress?: string
+  /** When true, skip platform positions (used for public profiles where we can't fetch other user's market data) */
+  hideplatformPositions?: boolean
 }
 
 /** Map predicate label to intention display name */
@@ -111,7 +118,79 @@ function TopClaimCard({ claim, walletAddress }: { claim: TopClaim; walletAddress
   )
 }
 
-export default function TopClaimsSection({ claims, loading, walletAddress }: TopClaimsSectionProps) {
+function formatMCap(raw: string): string {
+  const num = parseFloat(formatEther(BigInt(raw || '0')))
+  if (num >= 1000) return (num / 1000).toFixed(2) + 'k T'
+  if (num >= 1) return num.toFixed(2) + ' T'
+  return '0 T'
+}
+
+function PlatformPositionCard({ market, walletAddress }: { market: PlatformVaultData; walletAddress?: string }) {
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const slug = ATOM_ID_TO_PLATFORM.get(market.termId) || ''
+
+  return (
+    <>
+      <Card className="tc-card" style={{ cursor: 'pointer' }} onClick={() => setDialogOpen(true)}>
+        <div className="tc-header">
+          <img
+            src={`/favicons/${slug}.png`}
+            alt=""
+            className="tc-favicon"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+          />
+          <span className="tc-title">{market.label}</span>
+        </div>
+
+        <div className="tc-stats-row">
+          <div className="tc-stat-block">
+            <span className="tc-stat-value">{formatMCap(market.marketCap)}</span>
+          </div>
+          <div className="tc-stat-block">
+            <Users className="h-3 w-3" />
+            <span className="tc-stat-value">{market.positionCount}</span>
+          </div>
+          {market.userPnlPct !== null && (
+            <div className={`tc-pnl ${market.userPnlPct >= 0 ? 'tc-pnl--up' : 'tc-pnl--down'}`}>
+              {market.userPnlPct >= 0
+                ? <TrendingUp className="h-3 w-3" />
+                : <TrendingDown className="h-3 w-3" />}
+              <span className="tc-pnl-value">
+                {market.userPnlPct >= 0 ? '+' : ''}{market.userPnlPct}%
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="tc-actions">
+          <span className="tc-badge" style={intentionBadgeStyle('#10B981')}>
+            Platform
+          </span>
+        </div>
+      </Card>
+
+      <AtomDetailDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        market={market}
+        platformName={market.label}
+        favicon={`/favicons/${slug}.png`}
+        walletAddress={walletAddress}
+      />
+    </>
+  )
+}
+
+export default function TopClaimsSection({ claims, loading, walletAddress, hideplatformPositions }: TopClaimsSectionProps) {
+  const { markets } = usePlatformMarket()
+
+  // Get platforms where user has a position, sorted by PnL desc
+  // Only shown for own profile (not public profiles)
+  const topPlatforms = hideplatformPositions ? [] : markets
+    .filter((m) => m.userPnlPct !== null)
+    .sort((a, b) => (b.userPnlPct ?? 0) - (a.userPnlPct ?? 0))
+    .slice(0, 4)
+
   if (loading) {
     return (
       <div className="tc-grid">
@@ -120,10 +199,14 @@ export default function TopClaimsSection({ claims, loading, walletAddress }: Top
     )
   }
 
-  if (claims.length === 0) return null
+  const hasContent = claims.length > 0 || topPlatforms.length > 0
+  if (!hasContent) return null
 
   return (
     <div className="tc-grid">
+      {topPlatforms.map((market) => (
+        <PlatformPositionCard key={market.termId} market={market} walletAddress={walletAddress} />
+      ))}
       {claims.map((claim) => (
         <TopClaimCard key={claim.termId} claim={claim} walletAddress={walletAddress} />
       ))}

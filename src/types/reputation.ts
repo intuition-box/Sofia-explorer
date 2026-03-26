@@ -61,7 +61,7 @@ export interface PlatformConfig {
   website?: string
   dataPoints: string[]
   targetTopics: string[]
-  targetNiches: string[]
+  targetCategories: string[]
   signalConfidence: SignalConfidence
   integrationPhase: IntegrationPhase
   rateLimitInfo?: string
