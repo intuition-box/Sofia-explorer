@@ -12,6 +12,7 @@ import {
   ATOM_ID_TO_PLATFORM,
   ATOM_ID_TO_CATEGORY,
 } from "@/config/atomIds"
+import { TOPIC_META } from "@/config/topicMeta"
 
 // ── Types ──
 
@@ -22,6 +23,7 @@ export interface OnChainPlatform {
   website?: string
   image?: string
   description?: string
+  color: string // derived from first topic color
   categoryIds: string[] // slugs derived from has-tag triples
   topicIds: string[] // derived transitively via category→topic
 }
@@ -119,6 +121,7 @@ export async function fetchPlatformCatalog(
         website: subject.value?.thing?.url,
         image: subject.image,
         description: subject.value?.thing?.description,
+        color: '#888',
         categoryIds: [],
         topicIds: [],
       }
@@ -133,6 +136,10 @@ export async function fetchPlatformCatalog(
     const topicId = categoryToTopic.get(categorySlug)
     if (topicId && !platform.topicIds.includes(topicId)) {
       platform.topicIds.push(topicId)
+      // Use first topic color as platform color
+      if (platform.color === '#888') {
+        platform.color = TOPIC_META[topicId]?.color ?? '#888'
+      }
     }
   }
 
