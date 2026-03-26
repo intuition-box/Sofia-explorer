@@ -2,7 +2,7 @@ import { SOFIA_TOPICS } from '../../config/taxonomy'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
-import { Check, ArrowLeft } from 'lucide-react'
+import { Check, ArrowLeft, Clock, Link } from 'lucide-react'
 import '../styles/domain-selector.css'
 
 const TOPIC_ICONS: Record<string, string> = {
@@ -27,6 +27,10 @@ interface TopicSelectorProps {
   onToggle: (topicId: string) => void
   onContinue: () => void
   onBack?: () => void
+  /** Check if topic has confirmed on-chain position */
+  hasPosition?: (topicId: string) => boolean
+  /** Check if topic is selected but not yet confirmed on-chain */
+  isPending?: (topicId: string) => boolean
 }
 
 export default function DomainSelector({
@@ -34,6 +38,8 @@ export default function DomainSelector({
   onToggle,
   onContinue,
   onBack,
+  hasPosition,
+  isPending,
 }: TopicSelectorProps) {
   return (
     <div className="flex flex-col gap-5">
@@ -45,19 +51,36 @@ export default function DomainSelector({
       <div className="grid gap-4 mt-4 ds-grid">
         {SOFIA_TOPICS.map((topic) => {
           const isSelected = selectedTopics.includes(topic.id)
+          const confirmed = hasPosition?.(topic.id) ?? false
+          const pending = isPending?.(topic.id) ?? false
           const nicheCount = topic.categories.reduce((s, c) => s + c.niches.length, 0)
 
           return (
             <Card
               key={topic.id}
-              className={`p-6 cursor-pointer transition-all hover:shadow-md ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}
+              className={`p-6 cursor-pointer transition-all hover:shadow-md ${
+                isSelected
+                  ? confirmed
+                    ? 'ring-2 ring-emerald-500 bg-emerald-500/5'
+                    : 'ring-2 ring-primary bg-primary/5'
+                  : ''
+              }`}
               onClick={() => onToggle(topic.id)}
             >
               <div className="flex items-start justify-between">
                 <span className="text-3xl">{TOPIC_ICONS[topic.id] || '📌'}</span>
                 {isSelected && (
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                    <Check className="h-3.5 w-3.5" />
+                  <div className={`flex h-6 w-6 items-center justify-center rounded-full ${
+                    confirmed
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-primary text-primary-foreground'
+                  }`}>
+                    {confirmed
+                      ? <Link className="h-3.5 w-3.5" />
+                      : pending
+                        ? <Clock className="h-3.5 w-3.5" />
+                        : <Check className="h-3.5 w-3.5" />
+                    }
                   </div>
                 )}
               </div>
@@ -66,6 +89,16 @@ export default function DomainSelector({
                 <p className="text-sm text-muted-foreground mt-1">
                   {topic.categories.length} categories · {nicheCount} niches
                 </p>
+                {isSelected && pending && (
+                  <p className="text-xs text-amber-500 mt-1">
+                    Pending — confirm deposit in cart
+                  </p>
+                )}
+                {isSelected && confirmed && (
+                  <p className="text-xs text-emerald-500 mt-1">
+                    On-chain position active
+                  </p>
+                )}
               </div>
             </Card>
           )

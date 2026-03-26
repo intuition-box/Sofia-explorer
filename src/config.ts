@@ -7,6 +7,9 @@ export const EXPLORER_URL = 'https://explorer.intuition.systems'
 
 // ── Sofia Proxy Contract ──
 export const SOFIA_PROXY_ADDRESS: Address = '0x26F81d723Ad1648194FAA4b7E235105Fd1212c6c'
+
+// ── MultiVault Contract (direct calls for redeem / getShares) ──
+export const MULTIVAULT_ADDRESS: Address = '0x6E35cF57A41fA15eA0EaE9C33e751b01A784Fe7e'
 export const BLOCK_CHUNK = 50_000n
 export const REFRESH_INTERVAL = 120_000 // 2 min
 

@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom'
-import { useTopicSelection } from '@/hooks/useDomainSelection'
+import { useTopicSync } from '@/hooks/useTopicSync'
 import DomainSelector from '@/components/profile/DomainSelector'
 import PageHeader from '@/components/PageHeader'
 import '@/components/styles/pages.css'
 
 export default function DomainSelectionPage() {
   const navigate = useNavigate()
-  const { selectedTopics, toggleTopic } = useTopicSelection()
+  const { selectedTopics, toggleTopic, hasPosition, isPending } = useTopicSync()
 
   return (
     <div>
@@ -17,6 +17,8 @@ export default function DomainSelectionPage() {
           onToggle={toggleTopic}
           onContinue={() => navigate('/profile')}
           onBack={() => navigate('/profile')}
+          hasPosition={hasPosition}
+          isPending={isPending}
         />
       </div>
     </div>
