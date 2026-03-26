@@ -4,9 +4,8 @@ import {
   custom,
   http,
   formatUnits,
-  type WalletClient,
 } from 'viem'
-import { intuitionChain, PROXY_ADDRESS, SofiaFeeProxyAbi } from '../lib/contracts'
+import { intuitionChain, INTUITION_RPC_URL, PROXY_ADDRESS, SofiaFeeProxyAbi } from '../lib/contracts'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -35,8 +34,7 @@ export interface WalletDescriptor {
 // ---------------------------------------------------------------------------
 
 const publicClient = createPublicClient({
-  chain: intuitionChain,
-  transport: http(),
+  transport: http(INTUITION_RPC_URL),
 })
 
 // ---------------------------------------------------------------------------
@@ -45,7 +43,7 @@ const publicClient = createPublicClient({
 
 export async function buildWalletClient(
   wallet: WalletDescriptor,
-): Promise<{ address: `0x${string}`; client: WalletClient }> {
+){
   await wallet.switchChain(intuitionChain.id)
   const provider = await wallet.getEthereumProvider()
   const address = wallet.address as `0x${string}`
@@ -187,7 +185,6 @@ export async function executeSingleDeposit(
     functionName: 'deposit',
     args: [address, termId as `0x${string}`, 1n, 0n],
     value: totalCost,
-    chain: intuitionChain,
   })
 
   const receipt = await publicClient.waitForTransactionReceipt({ hash })
@@ -230,7 +227,6 @@ export async function executeBatchDeposit(
     functionName: 'depositBatch',
     args: [address, termIds, curveIds, assets, minShares],
     value: totalValue,
-    chain: intuitionChain,
   })
 
   const receipt = await publicClient.waitForTransactionReceipt({ hash })

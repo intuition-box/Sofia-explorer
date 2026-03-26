@@ -10,7 +10,7 @@ import {
   custom,
   http,
 } from 'viem'
-import { intuitionChain, MULTI_VAULT_ADDRESS, MultiVaultAbi } from '../lib/contracts'
+import { intuitionChain, INTUITION_RPC_URL, MULTI_VAULT_ADDRESS, MultiVaultAbi } from '../lib/contracts'
 import type { WalletDescriptor } from './depositService'
 
 const CURVE_ID = 1n
@@ -30,8 +30,7 @@ export interface RedeemResult {
 // ---------------------------------------------------------------------------
 
 const publicClient = createPublicClient({
-  chain: intuitionChain,
-  transport: http(),
+  transport: http(INTUITION_RPC_URL),
 })
 
 // ---------------------------------------------------------------------------
@@ -114,7 +113,6 @@ export async function redeemAtom(
     abi: MultiVaultAbi,
     functionName: 'redeem',
     args,
-    chain: intuitionChain,
   })
 
   const receipt = await publicClient.waitForTransactionReceipt({ hash })
@@ -180,7 +178,6 @@ export async function redeemBatchAtoms(
     abi: MultiVaultAbi,
     functionName: 'redeemBatch',
     args,
-    chain: intuitionChain,
   })
 
   const receipt = await publicClient.waitForTransactionReceipt({ hash })

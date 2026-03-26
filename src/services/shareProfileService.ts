@@ -63,7 +63,7 @@ export function buildOgParams(params: ShareProfileParams): OgParams {
 }
 
 export function buildOgImageUrl(params: ShareProfileParams): string {
-  const ogParams = new URLSearchParams(buildOgParams(params))
+  const ogParams = new URLSearchParams(Object.entries(buildOgParams(params)))
   return `${OG_BASE_URL}/api/og?${ogParams.toString()}`
 }
 

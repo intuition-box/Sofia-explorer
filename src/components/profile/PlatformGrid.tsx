@@ -34,7 +34,16 @@ interface PlatformGridProps {
   onStartChallenge: (platformId: string, username: string) => Promise<void>
   onVerifyChallenge: (platformId: string) => Promise<void>
   onBack: () => void
-  platforms?: typeof PLATFORM_CATALOG
+  platforms?: Array<{
+    id: string
+    name: string
+    color: string
+    website?: string
+    authType?: AuthType
+    apiBaseUrl?: string
+    targetTopics?: string[]
+    targetCategories?: string[]
+  }>
   currentTopic?: string
 }
 

@@ -10,5 +10,6 @@ export const intuitionChain = defineChain({
   blockExplorers: { default: { name: 'Explorer', url: 'https://explorer.intuition.systems' } },
 })
 
+export const INTUITION_RPC_URL = 'https://rpc.intuition.systems'
 export const PROXY_ADDRESS = SOFIA_PROXY_ADDRESS
 export const MULTI_VAULT_ADDRESS = MULTIVAULT_ADDRESS

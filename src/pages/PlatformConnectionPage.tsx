@@ -16,7 +16,12 @@ export default function PlatformConnectionPage() {
   const { selectedCategories } = useTopicSelection()
   const { getStatus, getConnection, connect, disconnect, startChallenge, verifyChallengeCode } = usePlatformConnections()
 
-  const platforms = topicId ? getPlatformsByTopic(topicId) : []
+  const rawPlatforms = topicId ? getPlatformsByTopic(topicId) : []
+  const platforms = rawPlatforms.map((p) => ({
+    ...p,
+    targetTopics: p.topicIds,
+    targetCategories: p.categoryIds,
+  }))
 
   if (!topic) {
     return (
