@@ -13,6 +13,8 @@ const CATEGORY_LABELS: Record<IntentCategory, string> = {
   learning: 'Learning',
   fun: 'Fun',
   inspiration: 'Inspiration',
+  music: 'Music',
+  buying: 'Buying',
 }
 
 export default function TrendingPages() {

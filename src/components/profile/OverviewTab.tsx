@@ -47,7 +47,7 @@ export default function OverviewTab({
     categories: Array<{
       id: string
       label: string
-      niches: Array<{ id: string; label: string }>
+      niches?: Array<{ id: string; label: string }>
     }>
   }>
 
