@@ -212,17 +212,21 @@ export default function DashboardPage() {
       {/* Intention filters */}
       <ScrollArea className="w-full mb-2">
         <div className="flex gap-2 pb-2">
-          {INTENT_FILTERS.map((intent) => (
-            <Button
-              key={intent}
-              variant={intentFilter === intent ? 'default' : 'outline'}
-              size="sm"
-              className="flex-shrink-0 text-xs h-7"
-              onClick={() => setIntentFilter(intent)}
-            >
-              {intent}
-            </Button>
-          ))}
+          {INTENT_FILTERS.map((intent) => {
+            const isActive = intentFilter === intent
+            const color = INTENTION_COLORS[intent]
+            return (
+              <button
+                key={intent}
+                className="feed-intent-pill"
+                data-active={isActive || undefined}
+                style={color ? { '--pill-color': color } as React.CSSProperties : undefined}
+                onClick={() => setIntentFilter(intent)}
+              >
+                {intent}
+              </button>
+            )
+          })}
         </div>
       </ScrollArea>
 

@@ -47,6 +47,11 @@ export default function App() {
     window.scrollTo(0, 0)
   }, [location.pathname])
 
+  // Auto-close cart when it becomes empty
+  useEffect(() => {
+    if (cartOpen && cart.count === 0) setCartOpen(false)
+  }, [cartOpen, cart.count])
+
   const handleCartSubmit = useCallback(() => {
     setCartOpen(false)
     setWeightModalOpen(true)

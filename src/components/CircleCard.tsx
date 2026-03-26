@@ -92,9 +92,9 @@ export default function CircleCard({ item, displayName, avatar, isPrivate, onDep
                 key={slug}
                 className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium"
                 style={{
-                  backgroundColor: `${meta?.color ?? '#888'}18`,
+                  backgroundColor: `color-mix(in oklab, ${meta?.color ?? '#888'} 15%, transparent)`,
                   color: meta?.color ?? '#888',
-                  border: `1px solid ${meta?.color ?? '#888'}30`,
+                  border: `1px solid color-mix(in oklab, ${meta?.color ?? '#888'} 25%, transparent)`,
                 }}
               >
                 {label}

@@ -42,10 +42,12 @@ export default function QuestCard({ item, displayName, avatar, isPrivate }: Ques
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           {!isPrivate && <img src={avatar} alt="" className="h-6 w-6 rounded-full shrink-0" referrerPolicy="no-referrer" />}
-          <SofiaMini color={color} size={18} />
           <span className="text-sm font-bold">{shownName}</span>
+          <span className="text-xs text-muted-foreground">{timeAgo(item.timestamp)}</span>
         </div>
-        <span className="text-xs text-muted-foreground">{timeAgo(item.timestamp)}</span>
+        <div className="h-8 w-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: `color-mix(in oklab, ${color} 15%, transparent)` }}>
+          <SofiaMini color={color} size={20} />
+        </div>
       </div>
       <p className="text-sm">
         <span className="text-muted-foreground">earned</span>

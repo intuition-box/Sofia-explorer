@@ -76,5 +76,33 @@
 .dp-space-close { background: none; border: none; cursor: pointer; padding: 0; display: flex; }
 .dp-space-close-icon { width: 14px; height: 14px; color: var(--muted-foreground); }
 
+/* ── Feed intent pills ── */
+.feed-intent-pill {
+  --pill-color: var(--foreground);
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 8px;
+  border: 1px solid color-mix(in oklab, var(--muted-foreground) 30%, transparent);
+  background: transparent;
+  color: var(--foreground);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.feed-intent-pill:hover {
+  border-color: var(--pill-color);
+  color: var(--pill-color);
+  background: color-mix(in oklab, var(--pill-color) 12%, transparent);
+}
+.feed-intent-pill[data-active] {
+  border-color: var(--pill-color);
+  color: var(--pill-color);
+  background: color-mix(in oklab, var(--pill-color) 20%, transparent);
+}
+
 /* ── Quest card ── */
 .qc-icon { font-size: 18px; }
