@@ -20,7 +20,7 @@ Behavioral reputation dashboard for the [Sofia](https://0xsofia.com) browser ext
 
 ```bash
 bun install
-bun dev             # Dev server on http://localhost:5173 (auto-open)
+bun dev             # Dev server on http://localhost:5173 
 bun run build       # tsc -b && vite build → dist/
 ```
 
