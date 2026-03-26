@@ -1,33 +1,57 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { formatEther } from 'viem'
+import { usePrivy } from '@privy-io/react-auth'
 import { Card } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
 import { ThumbsUp, ThumbsDown, ChevronRight, ChevronLeft } from 'lucide-react'
 import SofiaLoader from '../components/ui/SofiaLoader'
 import { useDebateClaims } from '../hooks/useDebateClaims'
+import { usePrefetchClaimDialogs } from '../hooks/useClaimPositions'
+import { useCart } from '../hooks/useCart'
+import { CLAIM_CATEGORIES, type ClaimCategory } from '../config/debateConfig'
+import PositionBoardDialog from '../components/profile/PositionBoardDialog'
 import PageHeader from '../components/PageHeader'
 import { PAGE_COLORS } from '../config/pageColors'
+import '@/components/styles/pages.css'
 
 function formatMarketCap(value: bigint): string {
   const num = parseFloat(formatEther(value))
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'k ETH'
-  if (num >= 1) return num.toFixed(2) + ' ETH'
-  if (num >= 0.001) return num.toFixed(4) + ' ETH'
-  return '0 ETH'
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'k T'
+  if (num >= 1) return num.toFixed(2) + ' T'
+  if (num >= 0.001) return num.toFixed(4) + ' T'
+  return '0 T'
 }
 
 export default function VotePage() {
   const { claims, loading, error } = useDebateClaims()
+  const { user } = usePrivy()
+  const walletAddress = user?.wallet?.address
+  const cart = useCart()
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [votes, setVotes] = useState<Record<string, 'support' | 'oppose'>>({})
+  const [activeTab, setActiveTab] = useState<ClaimCategory | 'all'>('all')
+  const [dialogOpen, setDialogOpen] = useState(false)
   const pc = PAGE_COLORS['/vote']
+
+  // Prefetch all claim dialog data so modals open instantly
+  usePrefetchClaimDialogs(claims, walletAddress)
+
+  const filtered = useMemo(() => {
+    if (activeTab === 'all') return claims
+    return claims.filter((c) => c.category === activeTab)
+  }, [claims, activeTab])
+
+  // Reset carousel index when tab changes
+  const handleTabChange = (tab: ClaimCategory | 'all') => {
+    setActiveTab(tab)
+    setCurrentIndex(0)
+  }
 
   if (loading) {
     return (
       <div>
         <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-        <div className="flex items-center justify-center" style={{ minHeight: 300 }}>
+        <div className="flex items-center justify-center page-loader-sm">
           <SofiaLoader size={96} />
         </div>
       </div>
@@ -38,7 +62,7 @@ export default function VotePage() {
     return (
       <div>
         <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-        <div style={{ padding: '16px 8px' }}>
+        <div className="page-content page-enter">
           <p className="text-sm text-muted-foreground">
             {error || 'No claims available.'}
           </p>
@@ -47,114 +71,201 @@ export default function VotePage() {
     )
   }
 
-  const claim = claims[currentIndex]
-  const totalPositions = claim.supportCount + claim.opposeCount
-  const totalMarketCap = claim.supportMarketCap + claim.opposeMarketCap
+  const claim = filtered[currentIndex]
+  const totalPositions = claim ? claim.supportCount + claim.opposeCount : 0
+  const totalMarketCap = claim ? claim.supportMarketCap + claim.opposeMarketCap : 0n
   const supportPercent =
-    totalMarketCap > 0n
+    claim && totalMarketCap > 0n
       ? Math.round(Number((claim.supportMarketCap * 100n) / totalMarketCap))
       : 50
-  const userVote = votes[claim.id]
-  const title = `${claim.subject} ${claim.predicate} ${claim.object}`
+  const title = claim ? `${claim.subject} ${claim.predicate} ${claim.object}` : ''
+  const categoryInfo = claim?.category ? CLAIM_CATEGORIES.find((c) => c.id === claim.category) : undefined
+  const userVote = claim
+    ? (cart.items.find((i) => i.termId === claim.termId)?.side
+      ?? cart.items.find((i) => i.termId === claim.counterTermId)?.side)
+    : undefined
 
   const handleVote = (type: 'support' | 'oppose') => {
-    setVotes((prev) => ({ ...prev, [claim.id]: type }))
+    if (!claim) return
+    const termId = type === 'support' ? claim.termId : claim.counterTermId
+    cart.addItem({
+      id: `${termId}-${type}`,
+      side: type,
+      termId,
+      intention: type === 'support' ? 'Support' : 'Oppose',
+      title,
+      favicon: '',
+      intentionColor: type === 'support' ? '#22C55E' : '#EF4444',
+    })
   }
 
-  const next = () => setCurrentIndex((i) => Math.min(i + 1, claims.length - 1))
+  const next = () => setCurrentIndex((i) => Math.min(i + 1, filtered.length - 1))
   const prev = () => setCurrentIndex((i) => Math.max(i - 1, 0))
 
   return (
     <div>
       <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-      <div className="space-y-6" style={{ padding: '16px 8px' }}>
+      <div className="space-y-6 page-content page-enter">
 
-      {/* Card navigation */}
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" size="icon" onClick={prev} disabled={currentIndex === 0}>
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-        <span className="text-sm text-muted-foreground">
-          {currentIndex + 1} / {claims.length}
-        </span>
-        <Button variant="ghost" size="icon" onClick={next} disabled={currentIndex === claims.length - 1}>
-          <ChevronRight className="h-5 w-5" />
-        </Button>
+      {/* Category tabs */}
+      <div className="vp-tabs">
+        <button
+          className={`vp-tab ${activeTab === 'all' ? 'vp-tab--active' : ''}`}
+          onClick={() => handleTabChange('all')}
+        >
+          All
+          <span className="vp-tab-count">{claims.length}</span>
+        </button>
+        {CLAIM_CATEGORIES.map((cat) => {
+          const count = claims.filter((c) => c.category === cat.id).length
+          if (count === 0) return null
+          return (
+            <button
+              key={cat.id}
+              className={`vp-tab ${activeTab === cat.id ? 'vp-tab--active' : ''}`}
+              style={activeTab === cat.id ? { borderColor: cat.color, color: cat.color } : undefined}
+              onClick={() => handleTabChange(cat.id)}
+            >
+              {cat.label}
+              <span className="vp-tab-count">{count}</span>
+            </button>
+          )
+        })}
       </div>
 
-      {/* Claim card */}
-      <Card className="p-6" style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 20 }}>
-        <div className="flex items-center justify-between">
-          <Badge variant="secondary">{totalPositions} positions</Badge>
-          <span className="text-xs text-muted-foreground">{formatMarketCap(totalMarketCap)}</span>
-        </div>
-
-        <h2 className="text-lg font-bold">{title}</h2>
-
-        {/* Vote bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs">
-            <span className="text-green-500">Support {supportPercent}%</span>
-            <span className="text-red-500">Oppose {100 - supportPercent}%</span>
+      {filtered.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center">No claims in this category.</p>
+      ) : (
+        <>
+          {/* Card navigation */}
+          <div className="flex items-center justify-between">
+            <Button variant="ghost" size="icon" onClick={prev} disabled={currentIndex === 0}>
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              {currentIndex + 1} / {filtered.length}
+            </span>
+            <Button variant="ghost" size="icon" onClick={next} disabled={currentIndex === filtered.length - 1}>
+              <ChevronRight className="h-5 w-5" />
+            </Button>
           </div>
-          <div className="h-2 rounded-full bg-muted overflow-hidden flex">
-            <div className="bg-green-500 transition-all" style={{ width: `${supportPercent}%` }} />
-            <div className="bg-red-500 flex-1" />
-          </div>
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{formatMarketCap(claim.supportMarketCap)} · {claim.supportCount}</span>
-            <span>{claim.opposeCount} · {formatMarketCap(claim.opposeMarketCap)}</span>
-          </div>
-        </div>
 
-        {/* Vote buttons */}
-        <div className="flex gap-3 pt-2">
-          <Button
-            className="flex-1"
-            variant={userVote === 'support' ? 'default' : 'outline'}
-            onClick={() => handleVote('support')}
-          >
-            <ThumbsUp className="h-4 w-4 mr-2" />
-            Support
-          </Button>
-          <Button
-            className="flex-1"
-            variant={userVote === 'oppose' ? 'destructive' : 'outline'}
-            onClick={() => handleVote('oppose')}
-          >
-            <ThumbsDown className="h-4 w-4 mr-2" />
-            Oppose
-          </Button>
-        </div>
+          {/* Claim card */}
+          {claim && (
+            <Card className="vp-claim-card vp-claim-card--hover" onClick={() => setDialogOpen(true)}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">{totalPositions} positions</Badge>
+                  {categoryInfo && (
+                    <span
+                      className="vp-category-badge"
+                      style={{ color: categoryInfo.color, borderColor: `${categoryInfo.color}40`, backgroundColor: `${categoryInfo.color}12` }}
+                    >
+                      {categoryInfo.label}
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs text-muted-foreground">{formatMarketCap(totalMarketCap)}</span>
+              </div>
 
-        {userVote && (
-          <p className="text-xs text-center text-muted-foreground">
-            You voted to {userVote} this claim.
-          </p>
-        )}
-      </Card>
+              <h2 className="text-lg font-bold">{title}</h2>
+
+              {/* Vote bar */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-green-500">Support {supportPercent}%</span>
+                  <span className="text-red-500">Oppose {100 - supportPercent}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-muted overflow-hidden flex">
+                  <div className="transition-all" style={{ width: `${supportPercent}%`, backgroundColor: '#22C55E' }} />
+                  <div style={{ backgroundColor: '#EF4444', flex: 1 }} />
+                </div>
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>{formatMarketCap(claim.supportMarketCap)} · {claim.supportCount}</span>
+                  <span>{claim.opposeCount} · {formatMarketCap(claim.opposeMarketCap)}</span>
+                </div>
+              </div>
+
+              {/* Vote buttons */}
+              <div className="flex gap-3 pt-2">
+                <Button
+                  className="flex-1"
+                  variant="outline"
+                  disabled={!!userVote && userVote !== 'support'}
+                  style={userVote === 'support' ? { borderColor: '#22C55E', color: '#22C55E', background: 'rgba(34,197,94,0.1)' } : undefined}
+                  onClick={(e) => { e.stopPropagation(); handleVote('support') }}
+                >
+                  <ThumbsUp className="h-4 w-4 mr-2" />
+                  {userVote === 'support' ? 'Supported' : 'Support'}
+                </Button>
+                <Button
+                  className="flex-1"
+                  variant="outline"
+                  disabled={!!userVote && userVote !== 'oppose'}
+                  style={userVote === 'oppose' ? { borderColor: '#EF4444', color: '#EF4444', background: 'rgba(239,68,68,0.1)' } : undefined}
+                  onClick={(e) => { e.stopPropagation(); handleVote('oppose') }}
+                >
+                  <ThumbsDown className="h-4 w-4 mr-2" />
+                  {userVote === 'oppose' ? 'Opposed' : 'Oppose'}
+                </Button>
+              </div>
+
+              {userVote && (
+                <p className="text-xs text-center text-muted-foreground">
+                  Added to cart as {userVote}.
+                </p>
+              )}
+            </Card>
+          )}
+
+          {/* Claim detail dialog */}
+          {claim && (
+            <PositionBoardDialog
+              open={dialogOpen}
+              onOpenChange={setDialogOpen}
+              termId={claim.termId}
+              counterTermId={claim.counterTermId}
+              title={title}
+              favicon=""
+              intention={categoryInfo?.label || 'Claim'}
+              intentionColor={categoryInfo?.color || '#8B5CF6'}
+              walletAddress={walletAddress}
+            />
+          )}
+        </>
+      )}
 
       {/* All claims list */}
       <div className="space-y-3">
-        <h3 className="text-sm font-medium">All Claims ({claims.length})</h3>
-        {claims.map((c, i) => {
+        <h3 className="text-sm font-medium">All Claims ({filtered.length})</h3>
+        {filtered.map((c, i) => {
           const cTotal = c.supportMarketCap + c.opposeMarketCap
           const pct = cTotal > 0n
             ? Math.round(Number((c.supportMarketCap * 100n) / cTotal))
             : 50
-          const voted = votes[c.id]
+          const voted = cart.items.find((ci) => ci.termId === c.termId)?.side
+          const catInfo = c.category ? CLAIM_CATEGORIES.find((cat) => cat.id === c.category) : undefined
           return (
             <Card
               key={c.id}
-              className={`p-4 cursor-pointer hover:shadow-sm transition-shadow ${i === currentIndex ? 'ring-1 ring-primary' : ''}`}
-              style={{ padding: 16 }}
+              className={`cursor-pointer hover:shadow-sm transition-shadow vp-claim-list-card ${i === currentIndex ? 'ring-1 ring-primary' : ''}`}
               onClick={() => setCurrentIndex(i)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    {c.subject} {c.predicate} {c.object}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium truncate">
+                      {c.subject} {c.predicate} {c.object}
+                    </p>
+                    {catInfo && (
+                      <span
+                        className="vp-category-badge"
+                        style={{ color: catInfo.color, borderColor: `${catInfo.color}40`, backgroundColor: `${catInfo.color}12` }}
+                      >
+                        {catInfo.label}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-xs text-muted-foreground">
                       {c.supportCount + c.opposeCount} positions · {formatMarketCap(cTotal)}

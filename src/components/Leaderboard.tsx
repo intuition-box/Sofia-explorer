@@ -1,21 +1,18 @@
 import { useState, useMemo } from 'react'
-import { formatEther } from 'viem'
 import type { Address } from 'viem'
 import { useEnsNames } from '../hooks/useEnsNames'
+import { useTrustLeaderboard } from '../hooks/useTrustLeaderboard'
 import { EXPLORER_URL } from '../config'
 import type { LeaderboardProps, AlphaTester, PoolPosition } from '../types'
+import type { EigentrustEntry } from '../services/mcpTrustService'
 import { Card } from './ui/card'
 import { Button } from './ui/button'
+import { formatTrust } from '../utils/formatting'
+import './styles/leaderboard.css'
 
 type AlphaSortOption = 'TX' | 'Intentions' | 'Pioneer' | 'Trust Volume'
 type PoolSortOption = 'Shares' | 'Current Value' | 'P&L' | 'P&L %'
-
-function formatTrust(wei: bigint) {
-  const num = parseFloat(formatEther(wei))
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'k T'
-  if (num >= 1) return num.toFixed(2) + ' T'
-  return num.toFixed(4) + ' T'
-}
+type TrustSortOption = 'Score' | 'Confidence' | 'Paths'
 
 function sortAlpha(data: AlphaTester[], sortBy: AlphaSortOption) {
   return [...data].sort((a, b) => {
@@ -54,32 +51,21 @@ const POOL_COLUMNS: { label: string; key: PoolSortOption }[] = [
   { label: 'P&L %', key: 'P&L %' },
 ]
 
-const cellBase: React.CSSProperties = {
-  padding: '12px 16px',
-  fontSize: 14,
-  verticalAlign: 'middle',
-}
+const TRUST_COLUMNS: { label: string; key: TrustSortOption }[] = [
+  { label: 'Score', key: 'Score' },
+  { label: 'Confidence', key: 'Confidence' },
+  { label: 'Paths', key: 'Paths' },
+]
 
-const cellNum: React.CSSProperties = {
-  ...cellBase,
-  textAlign: 'right',
-  fontVariantNumeric: 'tabular-nums',
-}
-
-const cellHead: React.CSSProperties = {
-  ...cellBase,
-  fontSize: 12,
-  fontWeight: 600,
-  color: 'var(--muted-foreground)',
-  textTransform: 'uppercase' as const,
-  letterSpacing: '0.5px',
-}
-
-const cellHeadNum: React.CSSProperties = {
-  ...cellHead,
-  textAlign: 'right',
-  cursor: 'pointer',
-  userSelect: 'none' as const,
+function sortTrust(data: EigentrustEntry[], sortBy: TrustSortOption) {
+  return [...data].sort((a, b) => {
+    switch (sortBy) {
+      case 'Score': return b.score - a.score
+      case 'Confidence': return b.confidence - a.confidence
+      case 'Paths': return b.pathCount - a.pathCount
+      default: return 0
+    }
+  })
 }
 
 export default function Leaderboard({
@@ -91,35 +77,41 @@ export default function Leaderboard({
   poolError,
   connectedAddress,
 }: LeaderboardProps) {
-  const [activeTab, setActiveTab] = useState<'alpha' | 'pool'>('alpha')
+  const [activeTab, setActiveTab] = useState<'alpha' | 'pool' | 'trust'>('alpha')
+  const { rankings: trustRankings, loading: trustLoading, error: trustError } = useTrustLeaderboard()
   const [alphaSortBy, setAlphaSortBy] = useState<AlphaSortOption>('TX')
   const [poolSortBy, setPoolSortBy] = useState<PoolSortOption>('P&L %')
+  const [trustSortBy, setTrustSortBy] = useState<TrustSortOption>('Score')
 
   const sortedAlpha = useMemo(() => sortAlpha(alphaData, alphaSortBy), [alphaData, alphaSortBy])
   const sortedPool = useMemo(() => (poolData ? sortPool(poolData, poolSortBy) : []), [poolData, poolSortBy])
+  const sortedTrust = useMemo(() => sortTrust(trustRankings, trustSortBy), [trustRankings, trustSortBy])
 
   const allAddresses = useMemo(() => {
     const a = alphaData.map((u) => u.address)
     const p = (poolData || []).map((pos: PoolPosition) => pos.address)
-    return [...a, ...p] as Address[]
-  }, [alphaData, poolData])
+    const t = trustRankings.map((r) => r.address as Address)
+    return [...a, ...p, ...t] as Address[]
+  }, [alphaData, poolData, trustRankings])
 
   const { getDisplay, getAvatar } = useEnsNames(allAddresses)
 
   const isAlpha = activeTab === 'alpha'
-  const loading = isAlpha ? alphaLoading : poolLoading
-  const error = isAlpha ? alphaError : poolError
+  const isTrust = activeTab === 'trust'
+  const loading = isTrust ? trustLoading : isAlpha ? alphaLoading : poolLoading
+  const error = isTrust ? trustError : isAlpha ? alphaError : poolError
   const columns = isAlpha ? ALPHA_COLUMNS : POOL_COLUMNS
 
   return (
-    <Card style={{ overflow: 'hidden' }}>
+    <Card className="overflow-hidden">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px' }}>
-        <span style={{ fontSize: 16, fontWeight: 600 }}>Leaderboard</span>
-        <div style={{ display: 'flex', gap: 4 }}>
+      <div className="lb-header">
+        <span className="lb-title">Leaderboard</span>
+        <div className="lb-tab-group">
           <Button
             size="sm"
             variant={activeTab === 'alpha' ? 'default' : 'ghost'}
+            data-active={activeTab === 'alpha'}
             onClick={() => setActiveTab('alpha')}
           >
             Alpha Testers
@@ -127,24 +119,34 @@ export default function Leaderboard({
           <Button
             size="sm"
             variant={activeTab === 'pool' ? 'default' : 'ghost'}
+            data-active={activeTab === 'pool'}
             onClick={() => setActiveTab('pool')}
           >
             Season Pool
+          </Button>
+          <Button
+            size="sm"
+            variant={activeTab === 'trust' ? 'default' : 'ghost'}
+            data-active={activeTab === 'trust'}
+            onClick={() => setActiveTab('trust')}
+          >
+            Trust Ranking
           </Button>
         </div>
       </div>
 
       {/* Table */}
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', whiteSpace: 'nowrap' }}>
+      <div className="overflow-x-auto">
+        <table className="lb-table">
+          {!isTrust && (
           <thead>
-            <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              <th style={{ ...cellHead, width: 50, textAlign: 'center' }}>#</th>
-              <th style={{ ...cellHead, textAlign: 'left' }}>User</th>
+            <tr className="lb-border-row">
+              <th className="lb-rank-head">#</th>
+              <th className="lb-cell-head">User</th>
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  style={cellHeadNum}
+                  className="lb-cell-head-num"
                   onClick={() =>
                     isAlpha
                       ? setAlphaSortBy(col.key as AlphaSortOption)
@@ -157,19 +159,38 @@ export default function Leaderboard({
               ))}
             </tr>
           </thead>
+          )}
+          {isTrust && (
+          <thead>
+            <tr className="lb-border-row">
+              <th className="lb-rank-head">#</th>
+              <th className="lb-cell-head">User</th>
+              {TRUST_COLUMNS.map((col) => (
+                <th
+                  key={col.key}
+                  className="lb-cell-head-num"
+                  onClick={() => setTrustSortBy(col.key)}
+                >
+                  {col.label}
+                  {trustSortBy === col.key && ' ▼'}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          )}
           <tbody>
             {loading &&
               Array.from({ length: 5 }).map((_, i) => (
-                <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                  <td colSpan={2 + columns.length} style={cellBase}>
-                    <div className="bg-muted animate-pulse" style={{ height: 20, borderRadius: 4 }} />
+                <tr key={i} className="lb-border-row">
+                  <td colSpan={2 + columns.length} className="lb-cell">
+                    <div className="lb-skeleton bg-muted animate-pulse" />
                   </td>
                 </tr>
               ))}
 
             {error && (
               <tr>
-                <td colSpan={2 + columns.length} style={{ ...cellBase, textAlign: 'center', color: 'var(--destructive-foreground)' }}>
+                <td colSpan={2 + columns.length} className="lb-error">
                   {error}
                 </td>
               </tr>
@@ -181,69 +202,93 @@ export default function Leaderboard({
                 return (
                   <tr
                     key={user.address}
-                    style={{
-                      borderBottom: '1px solid var(--border)',
-                      borderLeft: isSelf ? '3px solid var(--primary)' : undefined,
-                      background: isSelf ? 'rgba(255,198,176,0.08)' : undefined,
-                    }}
+                    className={"lb-border-row" + (isSelf ? " lb-self-row" : "")}
                   >
-                    <td style={{ ...cellBase, width: 50, textAlign: 'center', color: 'var(--muted-foreground)', fontWeight: 500 }}>{i + 1}</td>
-                    <td style={cellBase}>
+                    <td className="lb-rank">{i + 1}</td>
+                    <td className="lb-cell">
                       <a
                         href={`${EXPLORER_URL}/address/${user.address}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'inherit', textDecoration: 'none', fontWeight: 500 }}
+                        className="lb-user-link"
                       >
                         <img
                           src={getAvatar(user.address)}
                           alt=""
-                          style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover' }}
+                          className="lb-avatar"
                         />
-                        <span style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis' }}>{getDisplay(user.address)}</span>
+                        <span className="lb-username">{getDisplay(user.address)}</span>
                       </a>
                     </td>
-                    <td style={cellNum}>{user.intentions.toLocaleString()}</td>
-                    <td style={cellNum}>{user.pioneer}</td>
-                    <td style={cellNum}>{formatTrust(user.trustVolume)}</td>
-                    <td style={cellNum}>{user.tx.toLocaleString()}</td>
+                    <td className="lb-cell-num">{user.intentions.toLocaleString()}</td>
+                    <td className="lb-cell-num">{user.pioneer}</td>
+                    <td className="lb-cell-num">{formatTrust(user.trustVolume)}</td>
+                    <td className="lb-cell-num">{user.tx.toLocaleString()}</td>
                   </tr>
                 )
               })}
 
-            {!loading && !error && !isAlpha &&
+            {!loading && !error && isTrust &&
+              sortedTrust.map((entry, i) => {
+                const addr = entry.address as Address
+                const isSelf = connectedAddress && addr.toLowerCase() === connectedAddress.toLowerCase()
+                return (
+                  <tr
+                    key={addr}
+                    className={"lb-border-row" + (isSelf ? " lb-self-row" : "")}
+                  >
+                    <td className="lb-rank">{i + 1}</td>
+                    <td className="lb-cell">
+                      <a
+                        href={`${EXPLORER_URL}/address/${addr}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="lb-user-link"
+                      >
+                        <img
+                          src={getAvatar(addr)}
+                          alt=""
+                          className="lb-avatar"
+                        />
+                        <span className="lb-username">{getDisplay(addr)}</span>
+                      </a>
+                    </td>
+                    <td className="lb-cell-num">{entry.score.toFixed(4)}</td>
+                    <td className="lb-cell-num">{(entry.confidence * 100).toFixed(1)}%</td>
+                    <td className="lb-cell-num">{entry.pathCount}</td>
+                  </tr>
+                )
+              })}
+
+            {!loading && !error && activeTab === 'pool' &&
               sortedPool.map((pos, i) => {
                 const isSelf = connectedAddress && pos.address.toLowerCase() === connectedAddress.toLowerCase()
                 return (
                   <tr
                     key={pos.address}
-                    style={{
-                      borderBottom: '1px solid var(--border)',
-                      borderLeft: isSelf ? '3px solid var(--primary)' : undefined,
-                      background: isSelf ? 'rgba(255,198,176,0.08)' : undefined,
-                    }}
+                    className={"lb-border-row" + (isSelf ? " lb-self-row" : "")}
                   >
-                    <td style={{ ...cellBase, width: 50, textAlign: 'center', color: 'var(--muted-foreground)', fontWeight: 500 }}>{i + 1}</td>
-                    <td style={cellBase}>
+                    <td className="lb-rank">{i + 1}</td>
+                    <td className="lb-cell">
                       <a
                         href={`${EXPLORER_URL}/address/${pos.address}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: 'inherit', textDecoration: 'none', fontWeight: 500 }}
+                        className="lb-user-link"
                       >
                         <img
                           src={getAvatar(pos.address)}
                           alt=""
-                          style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover' }}
+                          className="lb-avatar"
                         />
-                        <span style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis' }}>{getDisplay(pos.address)}</span>
+                        <span className="lb-username">{getDisplay(pos.address)}</span>
                       </a>
                     </td>
-                    <td style={cellNum}>{formatTrust(pos.currentValue)}</td>
-                    <td style={{ ...cellNum, color: pos.pnl >= 0n ? '#22c55e' : '#ef4444' }}>
+                    <td className="lb-cell-num">{formatTrust(pos.currentValue)}</td>
+                    <td className={"lb-cell-num " + (pos.pnl >= 0n ? "lb-positive" : "lb-negative")}>
                       {pos.pnl >= 0n ? '+' : ''}{formatTrust(pos.pnl)}
                     </td>
-                    <td style={{ ...cellNum, color: pos.pnlPercent >= 0 ? '#22c55e' : '#ef4444' }}>
+                    <td className={"lb-cell-num " + (pos.pnlPercent >= 0 ? "lb-positive" : "lb-negative")}>
                       {pos.pnlPercent >= 0 ? '+' : ''}{pos.pnlPercent.toFixed(1)}%
                     </td>
                   </tr>
@@ -252,6 +297,14 @@ export default function Leaderboard({
           </tbody>
         </table>
       </div>
+
+      {isTrust && !loading && (
+        <div className="lb-trust-legend">
+          <p><strong>Score</strong> — Global trust level computed by EigenTrust across the entire attestation graph. Higher means more trusted by well-trusted wallets.</p>
+          <p><strong>Confidence</strong> — How reliable the score is, based on the volume and diversity of attestations received.</p>
+          <p><strong>Paths</strong> — Number of distinct trust paths leading to this wallet. More paths = more robust reputation.</p>
+        </div>
+      )}
     </Card>
   )
 }

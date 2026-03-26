@@ -4,19 +4,7 @@ import { Card } from './ui/card'
 import { Button } from './ui/button'
 import { Check } from 'lucide-react'
 import type { CircleItem } from '../services/circleService'
-
-const INTENTION_COLORS: Record<string, string> = {
-  Trusted: '#22C55E',
-  Distrusted: '#EF4444',
-  Work: '#3B82F6',
-  Learning: '#06B6D4',
-  Fun: '#F59E0B',
-  Inspiration: '#8B5CF6',
-  Buying: '#EC4899',
-  Music: '#FF5722',
-  Attending: '#10B981',
-  Valued: '#F97316',
-}
+import { INTENTION_COLORS, getSideColor } from '../config/intentions'
 
 interface PredicatePickerProps {
   isOpen: boolean
@@ -54,14 +42,14 @@ export default function PredicatePicker({ isOpen, side, item, onConfirm, onClose
   if (!isOpen) return null
 
   const isSupport = side === 'support'
-  const accentColor = isSupport ? '#22C55E' : '#EF4444'
+  const accentColor = getSideColor(side)
 
   return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <Card className="w-full max-w-md mx-4 p-0 overflow-hidden rounded-2xl" style={{ borderTop: `3px solid ${accentColor}`, zoom: 1.50 }}>
+      <Card className="w-full max-w-md mx-4 p-0 overflow-hidden rounded-2xl" style={{ borderTop: `3px solid ${accentColor}`, zoom: 1.25 }}>
         {/* Header */}
         <div className="px-6 pt-6 pb-4">
           <div className="flex items-center justify-between">

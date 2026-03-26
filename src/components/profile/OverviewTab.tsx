@@ -1,47 +1,49 @@
 import { useState } from 'react'
-import { DOMAIN_BY_ID } from '../../config/taxonomy'
-import { PLATFORM_CATALOG } from '../../config/platformCatalog'
-import type { ConnectionStatus, DomainScore } from '../../types/reputation'
+import { useTaxonomy } from '@/hooks/useTaxonomy'
+import { usePlatformCatalog } from '@/hooks/usePlatformCatalog'
+import type { ConnectionStatus, TopicScore } from '../../types/reputation'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { ChevronRight } from 'lucide-react'
 
 interface OverviewTabProps {
-  selectedDomains: string[]
-  selectedNiches: string[]
+  selectedTopics: string[]
+  selectedCategories: string[]
   getStatus: (platformId: string) => ConnectionStatus
-  domainScores: DomainScore[]
+  topicScores: TopicScore[]
   onNavigate: (tab: string) => void
-  onToggleNiche: (nicheId: string) => void
+  onToggleCategory: (nicheId: string) => void
 }
 
 export default function OverviewTab({
-  selectedDomains,
-  selectedNiches,
+  selectedTopics,
+  selectedCategories,
   getStatus,
-  domainScores,
+  topicScores,
   onNavigate,
-  onToggleNiche,
+  onToggleCategory,
 }: OverviewTabProps) {
-  const connectedPlatforms = PLATFORM_CATALOG.filter(
+  const { topicById } = useTaxonomy()
+  const { platforms } = usePlatformCatalog()
+
+  const connectedPlatforms = platforms.filter(
     (p) => getStatus(p.id) === 'connected',
   )
 
-  const [expandedDomain, setExpandedDomain] = useState<string | null>(null)
+  const [expandedTopic, setExpandedTopic] = useState<string | null>(null)
 
-  const nichesByDomain = selectedDomains
-    .map((domainId) => {
-      const domain = DOMAIN_BY_ID.get(domainId)
-      if (!domain) return null
-      const activeNiches = domain.categories
-        .flatMap((c) => c.niches)
-        .filter((n) => selectedNiches.includes(n.id))
-      return { domain, activeNiches, categories: domain.categories }
+  const categoriesByTopic = selectedTopics
+    .map((topicId) => {
+      const topic = topicById(topicId)
+      if (!topic) return null
+      const activeCategories = topic.categories
+        .filter((c) => selectedCategories.includes(c.id))
+      return { topic, activeCategories, categories: topic.categories }
     })
     .filter(Boolean) as Array<{
-    domain: { id: string; label: string; color: string }
-    activeNiches: Array<{ id: string; label: string }>
+    topic: { id: string; label: string; color: string }
+    activeCategories: Array<{ id: string; label: string }>
     categories: Array<{
       id: string
       label: string
@@ -49,7 +51,7 @@ export default function OverviewTab({
     }>
   }>
 
-  const hasSetup = selectedDomains.length > 0
+  const hasSetup = selectedTopics.length > 0
 
   return (
     <div className="space-y-6">
@@ -58,10 +60,10 @@ export default function OverviewTab({
         <Card className="p-8 text-center">
           <h2 className="text-xl font-bold">Enrich your profile</h2>
           <p className="text-base text-muted-foreground mt-2">
-            Select your domains of interest, connect your favorite platforms,
+            Select your topics of interest, connect your favorite platforms,
             and build your behavioral reputation across 103 platforms.
           </p>
-          <Button className="mt-4" onClick={() => onNavigate('domains')}>
+          <Button className="mt-4" onClick={() => onNavigate('topics')}>
             Get Started
           </Button>
         </Card>
@@ -69,56 +71,49 @@ export default function OverviewTab({
 
       {hasSetup && (
         <>
-          {/* Domains */}
+          {/* Topics */}
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-medium text-base">Domains ({selectedDomains.length})</h3>
-              <Button variant="ghost" size="sm" onClick={() => onNavigate('domains')}>
+              <h3 className="font-medium text-base">Topics ({selectedTopics.length})</h3>
+              <Button variant="ghost" size="sm" onClick={() => onNavigate('topics')}>
                 Edit
               </Button>
             </div>
             <div className="space-y-2">
-              {nichesByDomain.map(({ domain, activeNiches, categories }) => {
-                const isExpanded = expandedDomain === domain.id
+              {categoriesByTopic.map(({ topic, activeCategories, categories }) => {
+                const isExpanded = expandedTopic === topic.id
                 return (
-                  <Card key={domain.id} className="overflow-hidden" style={{ borderLeftColor: domain.color, borderLeftWidth: 3 }}>
+                  <Card key={topic.id} className="overflow-hidden" style={{ borderLeftColor: topic.color, borderLeftWidth: 3 }}>
                     <button
                       className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
-                      onClick={() => setExpandedDomain(isExpanded ? null : domain.id)}
+                      onClick={() => setExpandedTopic(isExpanded ? null : topic.id)}
                     >
-                      <span className="font-medium text-base">{domain.label}</span>
+                      <span className="font-medium text-base">{topic.label}</span>
                       <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="text-xs">{activeNiches.length} niches</Badge>
+                        <Badge variant="secondary" className="text-xs">{activeCategories.length} categories</Badge>
                         <ChevronRight className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
                       </div>
                     </button>
 
-                    {!isExpanded && activeNiches.length > 0 && (
+                    {!isExpanded && activeCategories.length > 0 && (
                       <div className="px-3 pb-3 flex flex-wrap gap-1">
-                        {activeNiches.map((n) => (
-                          <Badge key={n.id} variant="default" className="text-xs">{n.label}</Badge>
+                        {activeCategories.map((c) => (
+                          <Badge key={c.id} variant="default" className="text-xs">{c.label}</Badge>
                         ))}
                       </div>
                     )}
 
                     {isExpanded && (
-                      <div className="px-3 pb-3 space-y-3">
+                      <div className="px-3 pb-3 flex flex-wrap gap-1">
                         {categories.map((cat) => (
-                          <div key={cat.id}>
-                            <h4 className="text-xs font-medium text-muted-foreground mb-1">{cat.label}</h4>
-                            <div className="flex flex-wrap gap-1">
-                              {cat.niches.map((n) => (
-                                <Badge
-                                  key={n.id}
-                                  variant={selectedNiches.includes(n.id) ? 'default' : 'outline'}
-                                  className="text-xs cursor-pointer"
-                                  onClick={() => onToggleNiche(n.id)}
-                                >
-                                  {n.label}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
+                          <Badge
+                            key={cat.id}
+                            variant={selectedCategories.includes(cat.id) ? 'default' : 'outline'}
+                            className="text-xs cursor-pointer"
+                            onClick={() => onToggleCategory(cat.id)}
+                          >
+                            {cat.label}
+                          </Badge>
                         ))}
                       </div>
                     )}

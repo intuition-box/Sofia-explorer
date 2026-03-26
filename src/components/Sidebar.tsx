@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { usePrivy } from '@privy-io/react-auth'
 import { Button } from "./ui/button";
-import { Home, User, Trophy, Flame, Vote, BarChart3, Globe } from "lucide-react";
-import { useDomainSelection } from '../hooks/useDomainSelection'
+import { Home, User, Trophy, Flame, Vote, BarChart3, Globe, Lock } from "lucide-react";
+import { useTopicSelection } from '../hooks/useDomainSelection'
 import { SEASON_END } from '../config'
+import './styles/sidebar.css'
+
+const ETHCC_DATE = new Date('2026-03-30T09:00:00+02:00')
 
 function getTimeLeft() {
   const diff = SEASON_END.getTime() - Date.now()
@@ -14,9 +18,19 @@ function getTimeLeft() {
     minutes: Math.floor((diff / (1000 * 60)) % 60),
   }
 }
+
+function getEthccTimeLeft() {
+  const diff = ETHCC_DATE.getTime() - Date.now()
+  if (diff <= 0) return { days: 0, hours: 0, minutes: 0 }
+  return {
+    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((diff / (1000 * 60)) % 60),
+  }
+}
 const pad = (n: number) => String(n).padStart(2, '0')
 
-const DOMAIN_ICONS: Record<string, string> = {
+const TOPIC_ICONS: Record<string, string> = {
   'tech-dev': '💻', 'design-creative': '🎨', 'music-audio': '🎵', gaming: '🎮',
   'web3-crypto': '⛓️', science: '🔬', 'sport-health': '🏋️', 'video-cinema': '📹',
   entrepreneurship: '🚀', 'performing-arts': '🎭', 'nature-environment': '🌿',
@@ -25,47 +39,69 @@ const DOMAIN_ICONS: Record<string, string> = {
 
 export function Sidebar() {
   const location = useLocation()
-  const { selectedDomains } = useDomainSelection()
+  const { authenticated } = usePrivy()
+  const { selectedTopics } = useTopicSelection()
   const [timeLeft, setTimeLeft] = useState(getTimeLeft)
+  const [ethccLeft, setEthccLeft] = useState(getEthccTimeLeft)
 
   useEffect(() => {
-    const timer = setInterval(() => setTimeLeft(getTimeLeft()), 60_000)
+    const timer = setInterval(() => {
+      setTimeLeft(getTimeLeft())
+      setEthccLeft(getEthccTimeLeft())
+    }, 60_000)
     return () => clearInterval(timer)
   }, [])
 
   const navItems = [
-    { to: '/', icon: Home, label: 'Home' },
-    { to: '/profile', icon: User, label: 'My Profile' },
+    { to: '/feed', icon: Home, label: 'Home', public: true },
+    { to: '/profile', icon: User, label: 'My Profile', public: false },
   ]
 
   const quickLinks = [
-    { to: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
-    { to: '/streaks', icon: Flame, label: 'Streaks' },
-    { to: '/vote', icon: Vote, label: 'Vote' },
-    { to: '/profile?view=scores', icon: BarChart3, label: 'My Scores' },
-    { to: '/profile?view=platforms', icon: Globe, label: 'Platforms' },
+    { to: '/leaderboard', icon: Trophy, label: 'Leaderboard', public: true },
+    { to: '/streaks', icon: Flame, label: 'Streaks', public: false },
+    { to: '/vote', icon: Vote, label: 'Vote', public: false },
+    { to: '/scores', icon: BarChart3, label: 'My Stats', public: false },
+    { to: '/platforms', icon: Globe, label: 'Platform Market', public: false },
   ]
 
   return (
-    <aside className="fixed left-0 top-0 h-screen overflow-y-auto z-40" style={{ width: 384, background: 'var(--sidebar)', borderRight: '1px solid var(--border)', paddingTop: 85 }}>
-      <div className="p-4 space-y-6" style={{ zoom: 1.50, minHeight: 'calc(100vh - 85px)' }}>
+    <aside className="fixed left-0 top-0 h-screen overflow-y-auto z-40 sb-aside">
+      <div className="p-4 space-y-6 sb-inner" style={{ zoom: 1.25 }}>
         {/* Navigation */}
         <div>
           <h3 className="mb-3 px-2 text-sm font-medium text-foreground">
             Navigation
           </h3>
           <div className="space-y-1">
-            {navItems.map((item) => (
-              <Link key={item.to} to={item.to}>
-                <Button
-                  variant={location.pathname === item.to ? 'secondary' : 'ghost'}
-                  className="w-full justify-start h-9 px-2 text-foreground hover:bg-muted hover:text-foreground"
-                >
-                  <item.icon className="h-4 w-4 mr-3" />
-                  {item.label}
-                </Button>
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const locked = !item.public && !authenticated
+              if (locked) {
+                return (
+                  <Button
+                    key={item.to}
+                    variant="ghost"
+                    className="w-full justify-start h-9 px-2 sb-locked"
+                    disabled
+                  >
+                    <item.icon className="h-4 w-4 mr-3" />
+                    {item.label}
+                    <Lock className="h-3 w-3 ml-auto" />
+                  </Button>
+                )
+              }
+              return (
+                <Link key={item.to} to={item.to}>
+                  <Button
+                    variant={location.pathname === item.to ? 'secondary' : 'ghost'}
+                    className="w-full justify-start h-9 px-2 text-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <item.icon className="h-4 w-4 mr-3" />
+                    {item.label}
+                  </Button>
+                </Link>
+              )
+            })}
           </div>
         </div>
 
@@ -75,35 +111,52 @@ export function Sidebar() {
             Quick Access
           </h3>
           <div className="space-y-1">
-            {quickLinks.map((item) => (
-              <Link key={item.to} to={item.to}>
-                <Button
-                  variant={location.pathname === item.to ? 'secondary' : 'ghost'}
-                  className="w-full justify-start h-9 px-2 text-foreground hover:bg-muted hover:text-foreground"
-                >
-                  <item.icon className="h-4 w-4 mr-3" />
-                  {item.label}
-                </Button>
-              </Link>
-            ))}
+            {quickLinks.map((item) => {
+              const locked = !item.public && !authenticated
+              if (locked) {
+                return (
+                  <Button
+                    key={item.to}
+                    variant="ghost"
+                    className="w-full justify-start h-9 px-2 sb-locked"
+                    disabled
+                  >
+                    <item.icon className="h-4 w-4 mr-3" />
+                    {item.label}
+                    <Lock className="h-3 w-3 ml-auto" />
+                  </Button>
+                )
+              }
+              return (
+                <Link key={item.to} to={item.to}>
+                  <Button
+                    variant={location.pathname === item.to ? 'secondary' : 'ghost'}
+                    className="w-full justify-start h-9 px-2 text-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <item.icon className="h-4 w-4 mr-3" />
+                    {item.label}
+                  </Button>
+                </Link>
+              )
+            })}
           </div>
         </div>
 
         {/* Quick Spaces */}
-        {selectedDomains.length > 0 && (
+        {authenticated && selectedTopics.length > 0 && (
           <div>
             <h3 className="mb-3 px-2 text-sm font-medium text-foreground">
-              Quick Spaces
+              My Interests
             </h3>
             <div className="space-y-1">
-              {selectedDomains.slice(0, 6).map((domainId) => (
-                <Link key={domainId} to={`/?space=${domainId}`}>
+              {selectedTopics.slice(0, 6).map((topicId) => (
+                <Link key={topicId} to={`/feed?space=${topicId}`}>
                   <Button
                     variant="ghost"
                     className="w-full justify-start h-9 px-2 text-foreground hover:bg-muted hover:text-foreground"
                   >
-                    <span className="mr-3 text-sm">{DOMAIN_ICONS[domainId] || '📌'}</span>
-                    <span className="truncate text-sm">{domainId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</span>
+                    <span className="mr-3 text-sm">{TOPIC_ICONS[topicId] || '📌'}</span>
+                    <span className="truncate text-sm">{topicId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</span>
                   </Button>
                 </Link>
               ))}
@@ -111,16 +164,35 @@ export function Sidebar() {
           </div>
         )}
 
+        {/* EthCC Countdown */}
+        <a
+          href="https://ethcc.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-lg border sb-countdown sb-ethcc"
+        >
+          <p className="sb-countdown-label">EthCC 9 starts in</p>
+          <p className="sb-countdown-time">
+            {ethccLeft.days}d : {pad(ethccLeft.hours)}h : {pad(ethccLeft.minutes)}m
+          </p>
+          <p className="sb-countdown-hint">
+            Cannes, March 30 – April 2 2026
+          </p>
+          <Button size="sm" className="sb-countdown-btn sb-ethcc-btn">
+            Join EthCC
+          </Button>
+        </a>
+
         {/* Season Countdown */}
-        <div className="rounded-lg border" style={{ padding: 12 }}>
-          <p style={{ fontSize: 11, color: 'var(--muted-foreground)' }}>Beta Season ends in</p>
-          <p style={{ fontSize: 20, fontWeight: 700, marginTop: 4, fontVariantNumeric: 'tabular-nums' }}>
+        <div className="rounded-lg border sb-countdown">
+          <p className="sb-countdown-label">Beta Season ends in</p>
+          <p className="sb-countdown-time">
             {timeLeft.days}d : {pad(timeLeft.hours)}h : {pad(timeLeft.minutes)}m
           </p>
-          <p style={{ fontSize: 11, color: 'var(--muted-foreground)', marginTop: 4 }}>
+          <p className="sb-countdown-hint">
             The top spots are being claimed right now.
           </p>
-          <Button size="sm" style={{ marginTop: 8, width: '100%', fontSize: 12 }}>
+          <Button size="sm" className="sb-countdown-btn">
             Install Sofia
           </Button>
         </div>

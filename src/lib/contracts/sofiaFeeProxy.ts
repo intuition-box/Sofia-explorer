@@ -1,17 +1,4 @@
-import { defineChain } from 'viem'
-import { SOFIA_PROXY_ADDRESS } from '../config'
-
-/** Intuition mainnet (chain ID 1155) */
-export const intuitionChain = defineChain({
-  id: 1155,
-  name: 'Intuition',
-  nativeCurrency: { name: 'TRUST', symbol: 'TRUST', decimals: 18 },
-  rpcUrls: { default: { http: ['https://rpc.intuition.systems'] } },
-  blockExplorers: { default: { name: 'Explorer', url: 'https://explorer.intuition.systems' } },
-})
-
-export const PROXY_ADDRESS = SOFIA_PROXY_ADDRESS
-
+/** SofiaFeeProxy ABI — deposits only, redeems go through MultiVault directly */
 export const SofiaFeeProxyAbi = [
   // deposit(receiver, termId, curveId, minShares) payable → shares
   {
@@ -55,6 +42,35 @@ export const SofiaFeeProxyAbi = [
   {
     inputs: [{ internalType: 'uint256', name: 'depositAmount', type: 'uint256' }],
     name: 'getTotalDepositCost',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  // Fee param readers
+  {
+    inputs: [],
+    name: 'depositFixedFee',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'depositPercentageFee',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'FEE_DENOMINATOR',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'creationFixedFee',
     outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
     stateMutability: 'view',
     type: 'function',

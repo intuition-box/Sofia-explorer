@@ -1,5 +1,7 @@
 import { useState, useRef, useCallback } from 'react'
+import { Users } from 'lucide-react'
 import { useVaultTooltip, formatEth } from '../hooks/useVaultTooltip'
+import './styles/intention-tooltip.css'
 
 interface IntentionTooltipProps {
   termId?: string
@@ -36,8 +38,7 @@ export default function IntentionTooltip({ termId, color, children }: IntentionT
 
       {open && termId && (
         <span
-          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 pointer-events-none"
-          style={{ minWidth: 200 }}
+          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 pointer-events-none it-tooltip"
         >
           <span
             className="block rounded-lg border border-border bg-popover text-popover-foreground shadow-lg px-3 py-2 text-xs"
@@ -52,20 +53,20 @@ export default function IntentionTooltip({ termId, color, children }: IntentionT
                 {/* Support row */}
                 <span className="flex items-center justify-between gap-3">
                   <span className="text-emerald-500 font-semibold">Support</span>
-                  <span className="text-muted-foreground">
-                    {stats.supportCount} staker{stats.supportCount !== 1 ? 's' : ''}
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Users className="h-3 w-3" /> {stats.supportCount}
                     {' · '}
-                    {formatEth(stats.supportMarketCap)} ETH
+                    {formatEth(stats.supportMarketCap)} T
                   </span>
                 </span>
 
                 {/* Oppose row */}
                 <span className="flex items-center justify-between gap-3">
                   <span className="text-red-500 font-semibold">Oppose</span>
-                  <span className="text-muted-foreground">
-                    {stats.opposeCount} staker{stats.opposeCount !== 1 ? 's' : ''}
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Users className="h-3 w-3" /> {stats.opposeCount}
                     {' · '}
-                    {formatEth(stats.opposeMarketCap)} ETH
+                    {formatEth(stats.opposeMarketCap)} T
                   </span>
                 </span>
 

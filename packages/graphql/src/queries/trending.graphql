@@ -4,6 +4,8 @@ query GetTrendingByPredicate($predicateId: String!, $limit: Int!) {
     order_by: [{ positions_aggregate: { count: desc } }, { created_at: desc }]
     limit: $limit
   ) {
+    term_id
+    counter_term_id
     object {
       label
       value { thing { url } }

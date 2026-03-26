@@ -1,19 +1,8 @@
 import { X, Trash2 } from 'lucide-react'
 import { Button } from './ui/button'
 import type { CartItem } from '../hooks/useCart'
-
-const INTENTION_COLORS: Record<string, string> = {
-  Trusted: '#22C55E',
-  Distrusted: '#EF4444',
-  Work: '#3B82F6',
-  Learning: '#06B6D4',
-  Fun: '#F59E0B',
-  Inspiration: '#8B5CF6',
-  Buying: '#EC4899',
-  Music: '#FF5722',
-  Attending: '#10B981',
-  Valued: '#F97316',
-}
+import { INTENTION_COLORS } from '../config/intentions'
+import './styles/cart-drawer.css'
 
 interface CartDrawerProps {
   items: CartItem[]
@@ -25,17 +14,14 @@ interface CartDrawerProps {
 }
 
 export default function CartDrawer({ items, isOpen, onClose, onRemove, onClear, onSubmit }: CartDrawerProps) {
-  if (!isOpen) return null
-
-  // No zoom — manual sizing. RightSidebar = w-72 (288px) × 1.50 = 432px, top 85px
+  // No zoom — manual sizing. RightSidebar = w-72 (288px) × 1.25 = 360px, top 71px
   return (
     <aside
-      className="fixed right-0 overflow-hidden"
-      style={{ top: 74, width: 432, height: 'calc(100vh - 96px)', zIndex: 9999, background: 'var(--sidebar)', borderLeft: '1px solid var(--border)' }}
+      className={`fixed right-0 overflow-hidden cd-aside ${isOpen ? 'cd-open' : ''}`}
     >
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+        <div className="flex items-center justify-between px-4 py-4 border-b border-border">
           {items.length > 0 ? (
             <button onPointerDown={(e) => { e.stopPropagation(); onClear() }} className="text-sm text-muted-foreground hover:text-destructive transition-colors">
               Clear all
@@ -80,16 +66,12 @@ export default function CartDrawer({ items, isOpen, onClose, onRemove, onClear, 
                     <p className="text-xs font-medium leading-snug line-clamp-1">{item.title}</p>
                     <div className="flex items-center gap-1.5 mt-1">
                       <span
-                        className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                        style={{
-                          color,
-                          backgroundColor: `${color}15`,
-                          border: `1px solid ${color}30`,
-                        }}
+                        className="text-[10px] font-semibold px-2 py-0.5"
+                        style={{ backgroundColor: `${color}20`, borderWidth: '1px', borderStyle: 'solid', borderColor: `${color}40`, borderRadius: '6px' }}
                       >
                         {item.intention}
                       </span>
-                      <span className={`text-[10px] font-bold ${item.side === 'support' ? 'text-emerald-500' : 'text-red-500'}`}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: item.side === 'support' ? '#10B981' : '#EF4444' }}>
                         {item.side === 'support' ? '▲ Support' : '▼ Oppose'}
                       </span>
                     </div>

@@ -1,72 +1,84 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import { getSuggestedPlatforms } from '../config/taxonomy'
+import { useSyncExternalStore } from 'react'
 
-const STORAGE_KEY = 'sofia_domain_selection'
+const STORAGE_KEY = 'sofia_topic_selection'
+const SYNC_EVENT = 'sofia_topic_selection_sync'
 
-interface DomainSelectionState {
-  selectedDomains: string[]
-  selectedNiches: string[]
+interface TopicSelectionState {
+  selectedTopics: string[]
+  selectedCategories: string[]
 }
 
-function loadFromStorage(): DomainSelectionState {
+const DEFAULT_STATE: TopicSelectionState = { selectedTopics: [], selectedCategories: [] }
+
+function getSnapshot(): TopicSelectionState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) return JSON.parse(raw)
   } catch {}
-  return { selectedDomains: [], selectedNiches: [] }
+  return DEFAULT_STATE
 }
 
-function saveToStorage(state: DomainSelectionState) {
+function save(state: TopicSelectionState) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  window.dispatchEvent(new Event(SYNC_EVENT))
 }
 
-export function useDomainSelection() {
-  const [state, setState] = useState<DomainSelectionState>(loadFromStorage)
+function subscribe(callback: () => void) {
+  window.addEventListener(SYNC_EVENT, callback)
+  return () => window.removeEventListener(SYNC_EVENT, callback)
+}
 
-  useEffect(() => {
-    saveToStorage(state)
-  }, [state])
+// Cache the serialized string to avoid new objects on every getSnapshot call
+let cachedJson = ''
+let cachedState = DEFAULT_STATE
 
-  const toggleDomain = useCallback((domainId: string) => {
-    setState((prev) => {
-      const isSelected = prev.selectedDomains.includes(domainId)
-      if (isSelected) {
-        return {
-          selectedDomains: prev.selectedDomains.filter((d) => d !== domainId),
-          selectedNiches: prev.selectedNiches,
-        }
-      }
-      return {
-        selectedDomains: [...prev.selectedDomains, domainId],
-        selectedNiches: prev.selectedNiches,
-      }
+function getSnapshotStable(): TopicSelectionState {
+  const raw = localStorage.getItem(STORAGE_KEY) || ''
+  if (raw !== cachedJson) {
+    cachedJson = raw
+    try {
+      cachedState = raw ? JSON.parse(raw) : DEFAULT_STATE
+    } catch {
+      cachedState = DEFAULT_STATE
+    }
+  }
+  return cachedState
+}
+
+export function useTopicSelection() {
+  const state = useSyncExternalStore(subscribe, getSnapshotStable)
+
+  const toggleTopic = useCallback((topicId: string) => {
+    const current = getSnapshot()
+    const isSelected = current.selectedTopics.includes(topicId)
+    save({
+      selectedTopics: isSelected
+        ? current.selectedTopics.filter((d) => d !== topicId)
+        : [...current.selectedTopics, topicId],
+      selectedCategories: current.selectedCategories,
     })
   }, [])
 
-  const toggleNiche = useCallback((nicheId: string) => {
-    setState((prev) => {
-      const isSelected = prev.selectedNiches.includes(nicheId)
-      return {
-        selectedDomains: prev.selectedDomains,
-        selectedNiches: isSelected
-          ? prev.selectedNiches.filter((n) => n !== nicheId)
-          : [...prev.selectedNiches, nicheId],
-      }
+  const toggleCategory = useCallback((categoryId: string) => {
+    const current = getSnapshot()
+    const isSelected = current.selectedCategories.includes(categoryId)
+    save({
+      selectedTopics: current.selectedTopics,
+      selectedCategories: isSelected
+        ? current.selectedCategories.filter((n) => n !== categoryId)
+        : [...current.selectedCategories, categoryId],
     })
   }, [])
 
-  const clearSelection = useCallback(() => {
-    setState({ selectedDomains: [], selectedNiches: [] })
-  }, [])
-
-  const suggestedPlatforms = getSuggestedPlatforms(state.selectedNiches)
+  const suggestedPlatforms = getSuggestedPlatforms(state.selectedCategories)
 
   return {
-    selectedDomains: state.selectedDomains,
-    selectedNiches: state.selectedNiches,
+    selectedTopics: state.selectedTopics,
+    selectedCategories: state.selectedCategories,
     suggestedPlatforms,
-    toggleDomain,
-    toggleNiche,
-    clearSelection,
+    toggleTopic,
+    toggleCategory,
   }
 }

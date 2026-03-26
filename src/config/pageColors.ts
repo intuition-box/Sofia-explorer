@@ -6,7 +6,7 @@ export interface PageColorConfig {
 }
 
 export const PAGE_COLORS: Record<string, PageColorConfig> = {
-  '/': {
+  '/feed': {
     color: '#ffc6b0',
     title: 'Home',
     subtitle: 'Your browsing reputation dashboard',
@@ -37,10 +37,10 @@ export const PAGE_COLORS: Record<string, PageColorConfig> = {
     glow: 'rgba(255,255,255,0.2)',
   },
   '/profile/scores': {
-    color: '#cea2fd',
-    title: 'My Scores',
-    subtitle: 'Reputation scores by domain',
-    glow: 'rgba(206,162,253,0.4)',
+    color: '#5CC4D6',
+    title: 'My Stats',
+    subtitle: 'Your reputation statistics',
+    glow: 'rgba(92,196,214,0.4)',
   },
   '/profile/platforms': {
     color: '#B5CEAA',

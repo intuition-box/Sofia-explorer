@@ -14,12 +14,12 @@
 const CHROME_STORE_URL =
   'https://chromewebstore.google.com/detail/sofia'
 
-export function isSofiaInstalled(): boolean {
+function isSofiaInstalled(): boolean {
   return document.documentElement.dataset.sofiaExtension === 'true'
 }
 
 export function getCertifyUrl(platformUrl: string): string {
-  if (!isSofiaInstalled()) return CHROME_STORE_URL
+  if (!isSofiaInstalled()) return platformUrl
   try {
     const url = new URL(platformUrl)
     url.searchParams.set('sofia_certify', 'true')
@@ -29,4 +29,3 @@ export function getCertifyUrl(platformUrl: string): string {
   }
 }
 
-export { CHROME_STORE_URL }

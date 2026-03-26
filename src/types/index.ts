@@ -58,7 +58,7 @@ export interface VaultStats {
 
 // ── Trending ──
 
-export type IntentCategory = 'trusted' | 'distrusted' | 'work' | 'learning' | 'fun' | 'inspiration'
+export type IntentCategory = 'trusted' | 'distrusted' | 'work' | 'learning' | 'fun' | 'inspiration' | 'music' | 'buying'
 
 export interface TrendingItemLive {
   category: IntentCategory
@@ -67,6 +67,23 @@ export interface TrendingItemLive {
   domain: string
   favicon: string
   certifiers: number
+  termId?: string
+  counterTermId?: string
+}
+
+export interface TrendingPlatform {
+  platformDomain: string
+  platformName: string
+  platformSlug?: string
+  favicon: string
+  totalCertifiers: number
+  intentions: { category: IntentCategory; count: number; color: string }[]
+  /** termId of the platform atom — used for market data + invest */
+  termId?: string
+  /** counterTermId of "I trusts [atom]" triple — used for Sell */
+  counterTermId?: string
+  /** User P&L percentage on this atom (null if no position) */
+  userPnlPct?: number | null
 }
 
 export interface Reward {
@@ -97,32 +114,6 @@ export interface LeaderboardProps {
   connectedAddress?: Address | null
 }
 
-export interface GrainientProps {
-  timeSpeed?: number
-  colorBalance?: number
-  warpStrength?: number
-  warpFrequency?: number
-  warpSpeed?: number
-  warpAmplitude?: number
-  blendAngle?: number
-  blendSoftness?: number
-  rotationAmount?: number
-  noiseScale?: number
-  grainAmount?: number
-  grainScale?: number
-  grainAnimated?: boolean
-  contrast?: number
-  gamma?: number
-  saturation?: number
-  centerX?: number
-  centerY?: number
-  zoom?: number
-  color1?: string
-  color2?: string
-  color3?: string
-  className?: string
-}
-
 // ── User Stats ──
 
 export interface UserStats {
@@ -143,7 +134,3 @@ export interface RpcQueueConfig {
   maxRetries?: number
 }
 
-export interface GraphQLResponse<T> {
-  data?: T
-  errors?: Array<{ message: string }>
-}

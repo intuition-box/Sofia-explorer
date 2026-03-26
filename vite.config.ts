@@ -17,5 +17,24 @@ export default defineConfig({
   server: {
     port: 5173,
     open: true,
+    proxy: {
+      '/v1/graphql': {
+        target: 'https://mainnet.intuition.sh',
+        changeOrigin: true,
+        secure: true,
+      },
+      '/eth-rpc': {
+        target: 'https://cloudflare-eth.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/eth-rpc/, ''),
+      },
+      '/mcp-trust': {
+        target: 'https://mcp-trust.intuition.box',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/mcp-trust/, ''),
+      },
+    },
   },
 })

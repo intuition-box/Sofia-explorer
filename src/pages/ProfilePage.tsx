@@ -1,87 +1,42 @@
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { usePrivy, useLogin } from '@privy-io/react-auth'
-import { useEnsNames } from '../hooks/useEnsNames'
-import { useUserProfile } from '../hooks/useUserProfile'
-import { useDiscoveryScore } from '../hooks/useDiscoveryScore'
-import { useDomainSelection } from '../hooks/useDomainSelection'
+import { useNavigate } from 'react-router-dom'
+import { usePrivy, useLogin, useLinkAccount } from '@privy-io/react-auth'
+import { useViewAs } from '@/hooks/useViewAs'
+import { useTopicSync } from '../hooks/useTopicSync'
 import { usePlatformConnections } from '../hooks/usePlatformConnections'
 import { useReputationScores } from '../hooks/useReputationScores'
-import { useShareProfile } from '../hooks/useShareProfile'
-import OverviewTab from '../components/profile/OverviewTab'
-import DomainSelector from '../components/profile/DomainSelector'
-import NicheSelector from '../components/profile/NicheSelector'
-import PlatformGrid from '../components/profile/PlatformGrid'
-import ScoreView from '../components/profile/ScoreView'
-import ShareProfileModal from '../components/profile/ShareProfileModal'
-import ProfileHeader from '../components/profile/ProfileHeader'
+import { useUserActivity } from '../hooks/useUserActivity'
+import { useTopClaims } from '../hooks/useTopClaims'
+import { useEthccData } from '../hooks/useEthccData'
+import { useTrustScore } from '../hooks/useTrustScore'
+import LastActivitySection from '../components/profile/LastActivitySection'
+import InterestsGrid from '../components/profile/InterestsGrid'
+import TopClaimsSection from '../components/profile/TopClaimsSection'
+import EthccConnectCard from '../components/profile/EthccConnectCard'
 import { Card } from '../components/ui/card'
 import { Button } from '../components/ui/button'
-import { Wallet } from 'lucide-react'
+import { Wallet, User } from 'lucide-react'
 import PageHeader from '../components/PageHeader'
 import { PAGE_COLORS } from '../config/pageColors'
-
-type View = 'overview' | 'interests' | 'niches' | 'platforms' | 'scores'
+import '@/components/styles/pages.css'
+import '@/components/styles/profile-sections.css'
 
 export default function ProfilePage() {
   const { authenticated, user } = usePrivy()
   const { login } = useLogin()
-  const [searchParams] = useSearchParams()
-  const [view, setView] = useState<View>('overview')
+  const { linkWallet } = useLinkAccount({ onSuccess: () => window.location.reload() })
+  const { viewAsAddress, isViewingAs, clearViewAs } = useViewAs()
+  const address = viewAsAddress || user?.wallet?.address || ''
+  const { selectedTopics, selectedCategories, removeTopic } = useTopicSync()
+  const navigate = useNavigate()
+  const { getStatus } = usePlatformConnections()
+  const { ethccWallet, signals: ethccSignals, loading: ethccLoading, setWallet, clearWallet } = useEthccData()
+  const { score: trustCompositeScore } = useTrustScore(address || undefined)
+  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, ethccSignals, trustCompositeScore)
+  const topicScores = scores?.topics ?? []
+  const { items: activityItems, loading: activityLoading } = useUserActivity(address || undefined)
+  const { claims: topClaims, loading: claimsLoading } = useTopClaims(address || undefined)
 
-  // Read ?view= from URL (e.g. /profile?view=scores)
-  useEffect(() => {
-    const urlView = searchParams.get('view')
-    if (urlView && ['overview', 'interests', 'niches', 'platforms', 'scores'].includes(urlView)) {
-      setView(urlView as View)
-    }
-  }, [searchParams])
-
-  const address = user?.wallet?.address ?? ''
-  const { getDisplay, getAvatar } = useEnsNames(address ? [address as `0x${string}`] : [])
-  const { profile } = useUserProfile(address || undefined)
-  const { stats: discoveryStats } = useDiscoveryScore(address || undefined)
-
-  const {
-    selectedDomains,
-    selectedNiches,
-    toggleDomain,
-    toggleNiche,
-  } = useDomainSelection()
-
-  const {
-    getStatus,
-    getConnection,
-    connect,
-    disconnect,
-    startChallenge,
-    verifyChallengeCode,
-    connectedCount,
-  } = usePlatformConnections()
-
-  const scores = useReputationScores(getStatus, selectedDomains, selectedNiches)
-  const domainScores = scores?.domains ?? []
-
-  const {
-    isModalOpen,
-    openShareModal,
-    closeShareModal,
-    shareUrl,
-    ogImageUrl,
-    isLoading: shareLoading,
-    error: shareError,
-    handleCopyLink,
-    handleShareOnX,
-    copied,
-  } = useShareProfile({
-    walletAddress: address,
-    domainScores,
-    connectedCount,
-    totalCertifications: 0,
-  })
-
-  // Not authenticated — show connect prompt
-  if (!authenticated) {
+  if (!authenticated && !isViewingAs) {
     return (
       <Card className="p-8 text-center">
         <Wallet className="h-10 w-10 mx-auto text-muted-foreground/40" />
@@ -97,107 +52,92 @@ export default function ProfilePage() {
     )
   }
 
-  const stats = [
-    { label: 'Domains', value: String(selectedDomains.length) },
-    { label: 'Niches', value: String(selectedNiches.length) },
-    { label: 'Platforms', value: String(connectedCount) },
-  ]
-
-  const handleNavigate = (tab: string) => {
-    if (tab === 'domains') setView('interests')
-    else if (tab === 'niches') setView('niches')
-    else if (tab === 'platforms') setView('platforms')
-    else if (tab === 'scores') setView('scores')
-    else setView('overview')
-  }
-
-  const pcKey = view === 'scores' ? '/profile/scores' : view === 'platforms' ? '/profile/platforms' : '/profile'
-  const pc = PAGE_COLORS[pcKey]
+  const pc = PAGE_COLORS['/profile']
+  const shortAddr = address ? address.slice(0, 6) + '...' + address.slice(-4) : ''
 
   return (
     <div>
-      <PageHeader color={pc.color} glow={pc.glow} title={pc.title} subtitle={pc.subtitle} />
-      <div className="space-y-6" style={{ padding: '16px 8px' }}>
+      <PageHeader color={pc.color} glow={pc.glow} title={isViewingAs ? shortAddr : pc.title} subtitle={isViewingAs ? 'Viewing profile' : pc.subtitle} />
 
-      <ProfileHeader
-        walletAddress={address}
-        ensName={address ? (() => { const d = getDisplay(address as `0x${string}`); return d.includes('...') ? undefined : d })() : undefined}
-        avatar={address ? getAvatar(address as `0x${string}`) : undefined}
-        socialLinked={connectedCount > 0}
-        signals={discoveryStats?.totalCertifications ?? 0}
-        onShare={openShareModal}
-        sharing={shareLoading}
-      />
-
-      {view === 'overview' && (
-        <OverviewTab
-          selectedDomains={selectedDomains}
-          selectedNiches={selectedNiches}
-          getStatus={getStatus}
-          domainScores={domainScores}
-          onNavigate={handleNavigate}
-          onToggleNiche={toggleNiche}
-        />
+      {/* View-as banner */}
+      {isViewingAs && (
+        <Card className="pp-wallet-banner" style={{ borderColor: '#627EEA40', background: '#627EEA08' }}>
+          <User className="h-5 w-5" style={{ color: '#627EEA' }} />
+          <div className="pp-wallet-banner-text">
+            <p className="text-sm font-semibold">Viewing as {shortAddr}</p>
+            <p className="text-xs text-muted-foreground">Read-only mode — you are viewing another user's profile.</p>
+          </div>
+          <Button size="sm" variant="outline" onClick={clearViewAs}>
+            Back to my profile
+          </Button>
+        </Card>
       )}
 
-      {view === 'interests' && (
-        <DomainSelector
-          selectedDomains={selectedDomains}
-          onToggle={toggleDomain}
-          onContinue={() => setView('niches')}
-          onBack={() => setView('overview')}
-        />
+      {/* Link wallet banner */}
+      {!isViewingAs && !address && (
+        <Card className="pp-wallet-banner">
+          <Wallet className="h-5 w-5 text-muted-foreground" />
+          <div className="pp-wallet-banner-text">
+            <p className="text-sm font-semibold">Read-only mode</p>
+            <p className="text-xs text-muted-foreground">Link a wallet to interact, support claims, and build your reputation.</p>
+          </div>
+          <Button size="sm" onClick={() => linkWallet()}>
+            <Wallet className="h-3.5 w-3.5 mr-1" />
+            Link Wallet
+          </Button>
+        </Card>
       )}
 
-      {view === 'niches' && (
-        <NicheSelector
-          selectedDomains={selectedDomains}
-          selectedNiches={selectedNiches}
-          onToggleNiche={toggleNiche}
-          onBack={() => setView('interests')}
-          onContinue={() => setView('overview')}
-        />
-      )}
+      <div className="pp-sections page-content page-enter">
 
-      {view === 'platforms' && (
-        <PlatformGrid
-          selectedNiches={selectedNiches}
-          getStatus={getStatus}
-          getConnection={getConnection}
-          onConnect={connect}
-          onDisconnect={disconnect}
-          onStartChallenge={startChallenge}
-          onVerifyChallenge={verifyChallengeCode}
-          onBack={() => setView('overview')}
-        />
-      )}
+        {/* EthCC Wallet — own profile only */}
+        {!isViewingAs && (
+          <section className="pp-section">
+            <EthccConnectCard
+              ethccWallet={ethccWallet}
+              signals={ethccSignals}
+              loading={ethccLoading}
+              onConnect={setWallet}
+              onDisconnect={clearWallet}
+            />
+          </section>
+        )}
 
-      {view === 'scores' && (
-        <ScoreView
-          selectedDomains={selectedDomains}
-          selectedNiches={selectedNiches}
-          getStatus={getStatus}
-          badges={discoveryStats ? {
-            pioneer: discoveryStats.pioneerCount,
-            explorer: discoveryStats.explorerCount,
-            contributor: discoveryStats.contributorCount,
-            trusted: discoveryStats.trustedCount,
-          } : undefined}
-          onBack={() => setView('overview')}
-        />
-      )}
+        {/* Top Claims */}
+        {(claimsLoading || topClaims.length > 0) && (
+          <section className="pp-section">
+            <h3 className="pp-section-title">Top Claims</h3>
+            <TopClaimsSection
+              claims={topClaims}
+              loading={claimsLoading}
+              walletAddress={address}
+              hideplatformPositions={isViewingAs}
+            />
+          </section>
+        )}
 
-      <ShareProfileModal
-        isOpen={isModalOpen}
-        onClose={closeShareModal}
-        shareUrl={shareUrl}
-        ogImageUrl={ogImageUrl}
-        isLoading={shareLoading}
-        error={shareError}
-        onCopyLink={handleCopyLink}
-        onShareOnX={handleShareOnX}
-        copied={copied}
-      />
+        {/* Interests */}
+        <section className="pp-section">
+          <h3 className="pp-section-title">{isViewingAs ? 'Interests' : 'My Interests'}</h3>
+          <InterestsGrid
+            selectedTopics={selectedTopics}
+            selectedCategories={selectedCategories}
+            topicScores={topicScores}
+            onAddTopic={isViewingAs ? undefined : () => navigate('/profile/topics')}
+            onRemoveTopic={isViewingAs ? undefined : removeTopic}
+          />
+        </section>
+
+        {/* Last Activity */}
+        <section className="pp-section">
+          <h3 className="pp-section-title">Last Activity</h3>
+          <LastActivitySection
+            items={activityItems}
+            loading={activityLoading}
+            walletAddress={address}
+          />
+        </section>
+
       </div>
     </div>
   )

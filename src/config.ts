@@ -2,11 +2,14 @@ import type { Address } from 'viem'
 
 // ── Network ──
 export const RPC_URL = 'https://rpc.intuition.systems'
-export const GRAPHQL_URL = 'https://mainnet.intuition.sh/v1/graphql'
+export const GRAPHQL_URL = import.meta.env.DEV ? '/v1/graphql' : 'https://mainnet.intuition.sh/v1/graphql'
 export const EXPLORER_URL = 'https://explorer.intuition.systems'
 
 // ── Sofia Proxy Contract ──
 export const SOFIA_PROXY_ADDRESS: Address = '0x26F81d723Ad1648194FAA4b7E235105Fd1212c6c'
+
+// ── MultiVault Contract (direct calls for redeem / getShares) ──
+export const MULTIVAULT_ADDRESS: Address = '0x6E35cF57A41fA15eA0EaE9C33e751b01A784Fe7e'
 export const BLOCK_CHUNK = 50_000n
 export const REFRESH_INTERVAL = 120_000 // 2 min
 
@@ -26,6 +29,10 @@ export const PRIVY_CLIENT_ID = import.meta.env.VITE_PRIVY_CLIENT_ID as string
 
 // ── OG Image Service ──
 export const OG_BASE_URL = (import.meta.env.VITE_OG_BASE_URL as string) || 'https://sofia-og.vercel.app'
+
+// ── MCP Trust Engine ──
+export const MCP_TRUST_URL = import.meta.env.VITE_MCP_TRUST_URL as string
+  || (import.meta.env.DEV ? '/mcp-trust' : 'https://mcp-trust.intuition.box')
 
 // ── Predicate IDs (mainnet) ──
 export const PREDICATE_IDS = {

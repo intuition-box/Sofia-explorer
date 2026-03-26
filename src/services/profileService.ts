@@ -7,18 +7,23 @@
 
 import {
   useGetUserPositionsQuery,
+  useGetUserSignalsCountQuery,
   type GetUserPositionsQuery,
 } from '@0xsofia/dashboard-graphql'
+import { SUBJECT_IDS } from '../config'
 
 // ── Types ──
 
 export interface UserPosition {
+  termId: string
   shares: string
   currentSharePrice: string
   isTriple: boolean
   predicateLabel?: string
   objectLabel?: string
   objectUrl?: string
+  tripleSubjectId?: string
+  tripleObjectId?: string
   atomLabel?: string
   atomUrl?: string
 }
@@ -49,12 +54,15 @@ export async function fetchUserProfile(
   })()
 
   const positions: UserPosition[] = data.positions.map((p: PositionRaw) => ({
+    termId: p.vault?.term?.atom?.term_id ?? p.vault?.term?.triple?.term_id ?? '',
     shares: p.shares,
     currentSharePrice: p.vault?.current_share_price,
     isTriple: !!p.vault?.term?.triple,
     predicateLabel: p.vault?.term?.triple?.predicate?.label,
     objectLabel: p.vault?.term?.triple?.object?.label ?? p.vault?.term?.atom?.label,
     objectUrl: p.vault?.term?.triple?.object?.value?.thing?.url ?? p.vault?.term?.atom?.value?.thing?.url,
+    tripleSubjectId: p.vault?.term?.triple?.subject?.term_id,
+    tripleObjectId: p.vault?.term?.triple?.object?.term_id,
     atomLabel: p.vault?.term?.atom?.label,
     atomUrl: p.vault?.term?.atom?.value?.thing?.url,
   }))
@@ -76,6 +84,13 @@ export async function fetchUserProfile(
     })
     .filter((v: string | undefined): v is string => !!v)
 
+  // Signals count — same logic as the extension (terms_aggregate with subject "I")
+  const signalsData = await useGetUserSignalsCountQuery.fetcher({
+    accountId: walletAddress,
+    subjectId: SUBJECT_IDS.I,
+  })()
+  const signalsCount = signalsData.signalsCount.aggregate?.count ?? 0
+
   // Total staked value
   const totalStaked = data.positions.reduce((sum: number, p: PositionRaw) => {
     const shares = parseFloat(p.shares) || 0
@@ -87,7 +102,7 @@ export async function fetchUserProfile(
   return {
     positions,
     totalPositions: data.total.aggregate?.count ?? 0,
-    totalCertifications: certifications.length,
+    totalCertifications: signalsCount,
     totalAtomPositions: atomPositions.length,
     totalStaked: roundedStaked,
     verifiedPlatforms: [...new Set(verifiedPlatforms)] as string[],

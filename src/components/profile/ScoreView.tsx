@@ -1,6 +1,6 @@
 import { useReputationScores } from '../../hooks/useReputationScores'
 import type { ConnectionStatus } from '../../types/reputation'
-import { DOMAIN_BY_ID } from '../../config/taxonomy'
+import { TOPIC_BY_ID } from '../../config/taxonomy'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
 import { Progress } from '../ui/progress'
@@ -21,21 +21,21 @@ const BADGE_CONFIG = [
 ]
 
 interface ScoreViewProps {
-  selectedDomains: string[]
-  selectedNiches: string[]
+  selectedTopics: string[]
+  selectedCategories: string[]
   getStatus: (platformId: string) => ConnectionStatus
   badges?: BadgeCounts
   onBack: () => void
 }
 
 export default function ScoreView({
-  selectedDomains,
-  selectedNiches,
+  selectedTopics,
+  selectedCategories,
   getStatus,
   badges,
   onBack,
 }: ScoreViewProps) {
-  const scores = useReputationScores(getStatus, selectedDomains, selectedNiches)
+  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories)
 
   return (
     <div className="space-y-6">
@@ -61,20 +61,20 @@ export default function ScoreView({
         </Card>
       )}
 
-      {(!scores || scores.domains.length === 0) && (
+      {(!scores || scores.topics.length === 0) && (
         <Card className="p-6 text-center text-sm text-muted-foreground">
           Connect platforms to see your reputation scores.
         </Card>
       )}
 
-      {scores && scores.domains.length > 0 && (
+      {scores && scores.topics.length > 0 && (
         <div className="grid gap-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
-          {scores.domains.map((ds) => {
-            const domain = DOMAIN_BY_ID.get(ds.domainId)
+          {scores.topics.map((ds) => {
+            const topic = TOPIC_BY_ID.get(ds.topicId)
             return (
-              <Card key={ds.domainId} className="p-4">
+              <Card key={ds.topicId} className="p-4">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="font-medium text-sm">{domain?.label ?? ds.domainId}</span>
+                  <span className="font-medium text-sm">{topic?.label ?? ds.topicId}</span>
                   <span className="text-lg font-bold">{ds.score}</span>
                 </div>
                 <Progress value={ds.score} className="h-2" />

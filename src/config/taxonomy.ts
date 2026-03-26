@@ -1,12 +1,12 @@
 /**
- * Sofia Taxonomy — 14 Domains x 88 Categories x 300+ Niches
+ * Sofia Taxonomy v2 — 14 Topics x 151 Categories x 300+ Niches
  * Source: docs/prompt/sofia_taxonomy.xlsx
- * Single source of truth for behavioral reputation domains
+ * Single source of truth for behavioral reputation topics
  */
 
-import type { Domain } from "../types/reputation"
+import type { Topic } from "../types/reputation"
 
-export const SOFIA_DOMAINS: Domain[] = [
+export const SOFIA_TOPICS: Topic[] = [
   // =========================================================================
   // 1. TECH & DEV
   // =========================================================================
@@ -157,6 +157,56 @@ export const SOFIA_DOMAINS: Domain[] = [
           { id: "internal-tools", label: "Internal tools" },
         ],
       },
+      {
+        id: "game-dev",
+        label: "Game Development",
+        niches: [
+          { id: "unity-unreal", label: "Unity & Unreal Engine" },
+          { id: "godot-indie", label: "Godot & Indie engines" },
+          { id: "game-jam", label: "Game jams" },
+          { id: "game-optimization", label: "Game optimization & tooling" },
+        ],
+      },
+      {
+        id: "data-engineering",
+        label: "Data Engineering",
+        niches: [
+          { id: "data-pipelines", label: "Data pipelines (Spark, Airflow)" },
+          { id: "data-warehousing", label: "Data warehousing (dbt, BigQuery)" },
+          { id: "stream-processing", label: "Stream processing (Kafka, Flink)" },
+          { id: "analytics-engineering", label: "Analytics engineering" },
+        ],
+      },
+      {
+        id: "system-design",
+        label: "System Design & Architecture",
+        niches: [
+          { id: "distributed-systems", label: "Distributed systems" },
+          { id: "scalability-patterns", label: "Scalability patterns" },
+          { id: "software-architecture", label: "Software architecture" },
+          { id: "design-patterns", label: "Design patterns & best practices" },
+        ],
+      },
+      {
+        id: "dev-tools",
+        label: "Developer Tools & DX",
+        niches: [
+          { id: "cli-tools", label: "CLI tools & shell" },
+          { id: "ide-extensions", label: "IDE extensions & plugins" },
+          { id: "debugging-profiling", label: "Debugging & profiling" },
+          { id: "dx-tooling", label: "DX tooling & workflows" },
+        ],
+      },
+      {
+        id: "technical-writing",
+        label: "Technical Writing & Docs",
+        niches: [
+          { id: "api-docs", label: "API documentation" },
+          { id: "dev-guides", label: "Developer guides & tutorials" },
+          { id: "knowledge-base", label: "Knowledge base authoring" },
+          { id: "docs-as-code", label: "Docs-as-code workflows" },
+        ],
+      },
     ],
   },
 
@@ -280,6 +330,46 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "vintage-upcycling",
             label: "Vintage & upcycling",
           },
+        ],
+      },
+      {
+        id: "type-design",
+        label: "Type Design & Lettering",
+        niches: [
+          { id: "typeface-design", label: "Typeface design" },
+          { id: "lettering", label: "Lettering & hand lettering" },
+          { id: "calligraphy", label: "Calligraphy" },
+          { id: "type-systems", label: "Type systems & variable fonts" },
+        ],
+      },
+      {
+        id: "creative-direction",
+        label: "Creative Direction",
+        niches: [
+          { id: "art-direction", label: "Art direction" },
+          { id: "campaign-design", label: "Campaign & editorial design" },
+          { id: "brand-identity", label: "Brand identity" },
+          { id: "creative-strategy", label: "Creative strategy" },
+        ],
+      },
+      {
+        id: "ar-vr-spatial",
+        label: "AR/VR & Spatial Design",
+        niches: [
+          { id: "augmented-reality", label: "Augmented reality" },
+          { id: "virtual-reality", label: "Virtual reality" },
+          { id: "spatial-ui", label: "Spatial interfaces (Apple Vision)" },
+          { id: "immersive-xr", label: "Immersive XR experiences" },
+        ],
+      },
+      {
+        id: "generative-art",
+        label: "Generative & Algorithmic Art",
+        niches: [
+          { id: "creative-coding", label: "Creative coding (p5.js, Processing)" },
+          { id: "touchdesigner", label: "TouchDesigner & real-time visuals" },
+          { id: "algorithmic-aesthetics", label: "Algorithmic aesthetics" },
+          { id: "data-art", label: "Data art & visualization art" },
         ],
       },
     ],
@@ -449,6 +539,46 @@ export const SOFIA_DOMAINS: Domain[] = [
           { id: "genre-history", label: "History of genres" },
         ],
       },
+      {
+        id: "music-business",
+        label: "Music Business & Industry",
+        niches: [
+          { id: "labels-publishing", label: "Labels & publishing" },
+          { id: "sync-licensing", label: "Sync licensing & royalties" },
+          { id: "music-distribution", label: "Music distribution" },
+          { id: "artist-management", label: "Artist management" },
+        ],
+      },
+      {
+        id: "live-performance",
+        label: "Live Performance & Touring",
+        niches: [
+          { id: "concert-production", label: "Concert production" },
+          { id: "live-sets", label: "Live sets & DJ sets" },
+          { id: "touring-logistics", label: "Touring & logistics" },
+          { id: "booking-promotion", label: "Booking & promotion" },
+        ],
+      },
+      {
+        id: "music-therapy",
+        label: "Music Healing & Therapy",
+        niches: [
+          { id: "sound-healing", label: "Sound healing & bowls" },
+          { id: "music-therapy-clinical", label: "Clinical music therapy" },
+          { id: "binaural-beats", label: "Binaural beats & frequencies" },
+          { id: "therapeutic-listening", label: "Therapeutic listening" },
+        ],
+      },
+      {
+        id: "beatboxing",
+        label: "Beatboxing & Vocal Percussion",
+        niches: [
+          { id: "human-beatbox", label: "Human beatbox" },
+          { id: "loop-station", label: "Loop station performance" },
+          { id: "vocal-percussion", label: "Vocal percussion" },
+          { id: "acappella-groups", label: "A cappella groups" },
+        ],
+      },
     ],
   },
 
@@ -593,6 +723,36 @@ export const SOFIA_DOMAINS: Domain[] = [
           { id: "arcade", label: "Arcade & Cabinets" },
         ],
       },
+      {
+        id: "tabletop-rpg",
+        label: "Tabletop RPG",
+        niches: [
+          { id: "dnd-pathfinder", label: "D&D & Pathfinder" },
+          { id: "ttrpg-design", label: "TTRPG design & homebrew" },
+          { id: "worldbuilding-ttrpg", label: "Worldbuilding" },
+          { id: "tabletop-storytelling", label: "Tabletop storytelling" },
+        ],
+      },
+      {
+        id: "speedrunning",
+        label: "Speedrunning",
+        niches: [
+          { id: "any-percent", label: "Any% & categories" },
+          { id: "glitch-hunting", label: "Glitch hunting" },
+          { id: "routing", label: "Routing & optimization" },
+          { id: "speedrun-community", label: "Speedrun community & events" },
+        ],
+      },
+      {
+        id: "game-design",
+        label: "Game Design & Narrative",
+        niches: [
+          { id: "game-design-theory", label: "Game design theory" },
+          { id: "level-design", label: "Level design" },
+          { id: "narrative-design", label: "Narrative design & game writing" },
+          { id: "game-studies", label: "Game studies & criticism" },
+        ],
+      },
     ],
   },
 
@@ -615,6 +775,7 @@ export const SOFIA_DOMAINS: Domain[] = [
       {
         id: "defi",
         label: "DeFi",
+        termId: "0x31d170b3efaa2820d0d6b0c53c7232618ec74495871ed32907a1c9028ce78a8c",
         niches: [
           {
             id: "yield-farming",
@@ -695,6 +856,7 @@ export const SOFIA_DOMAINS: Domain[] = [
       {
         id: "web3-infra-dev",
         label: "Infrastructure & Dev",
+        termId: "0x24a3480abc66ae94bba8bf4b8952ac6784a7e539ed440ac3901cb3142e9108bf",
         niches: [
           {
             id: "smart-contracts",
@@ -742,6 +904,116 @@ export const SOFIA_DOMAINS: Domain[] = [
             label: "Interoperable assets",
           },
           { id: "vr-ar-web3", label: "VR/AR Web3" },
+        ],
+      },
+      {
+        id: "rwa-tokenisation",
+        label: "RWA Tokenisation",
+        termId: "0xdf1b7a70c58270ea101372e5026a6c483b20c8be7bb80684fd5b6c832c510eeb",
+        niches: [
+          { id: "rwa-real-estate", label: "Real estate tokenisation" },
+          { id: "rwa-commodities", label: "Commodities & bonds" },
+          { id: "rwa-compliance", label: "Compliance & regulation" },
+        ],
+      },
+      {
+        id: "stablecoins-payments",
+        label: "Stablecoins & Payments",
+        termId: "0x3192914ddee59330c9b4f453efb940d407578859cb87feb585d4062ac10f89c7",
+        niches: [
+          { id: "stablecoin-design", label: "Stablecoin design" },
+          { id: "cross-border-payments", label: "Cross-border payments" },
+          { id: "cbdc", label: "CBDC & digital currencies" },
+        ],
+      },
+      {
+        id: "cypherpunk-privacy",
+        label: "Cypherpunk & Privacy",
+        termId: "0x6bbbb75ab72b3be504b59c7c5728bbf0212368a5456249843cd11ce1e124a019",
+        niches: [
+          { id: "privacy-protocols", label: "Privacy protocols" },
+          { id: "mixers-zk-privacy", label: "Mixers & ZK privacy" },
+          { id: "encryption-comms", label: "Encrypted communications" },
+        ],
+      },
+      {
+        id: "layer-2s",
+        label: "Layer 2s",
+        termId: "0x77c6ad9f79a11f242cf7a8d6f4a3e5f8e9c35cab04708198a4c2af1ab71da98a",
+        niches: [
+          { id: "optimistic-rollups", label: "Optimistic rollups" },
+          { id: "zk-rollups", label: "ZK rollups" },
+          { id: "l2-bridges", label: "Bridges & interoperability" },
+        ],
+      },
+      {
+        id: "security-web3",
+        label: "Security",
+        termId: "0x44f497066d7ade71154420d3cd075c3a2b02b9f2446301cbf154cdd5f9c5d50f",
+        niches: [
+          { id: "smart-contract-audits", label: "Smart contract audits" },
+          { id: "bug-bounties", label: "Bug bounties" },
+          { id: "security-tooling", label: "Security tooling" },
+        ],
+      },
+      {
+        id: "applied-cryptography",
+        label: "Applied Cryptography",
+        termId: "0xa294407354c71d4ad9fd5088726a36a6e3bebc3be70f2b968cec0d601e9a8a7f",
+        niches: [
+          { id: "mpc", label: "MPC & threshold signatures" },
+          { id: "fhe", label: "Fully homomorphic encryption" },
+          { id: "post-quantum", label: "Post-quantum cryptography" },
+        ],
+      },
+      {
+        id: "zk-tee",
+        label: "Zero Knowledge & TEE",
+        termId: "0xa1ace10f77b5b560038429d8012862db14a5664bcd53f0b55da75f4cb99ac29d",
+        niches: [
+          { id: "zk-circuits", label: "ZK circuits & provers" },
+          { id: "tee-enclaves", label: "TEE & secure enclaves" },
+          { id: "zk-identity", label: "ZK identity & credentials" },
+        ],
+      },
+      {
+        id: "ai-agents-web3",
+        label: "AI Agents & Automation",
+        termId: "0xf3cc343ac2af82d0490e23e39e2e1fc29f279e26aee49bd95914260720e6d671",
+        niches: [
+          { id: "onchain-ai-agents", label: "On-chain AI agents" },
+          { id: "ai-defi-automation", label: "AI-powered DeFi" },
+          { id: "decentralized-ai", label: "Decentralized AI networks" },
+        ],
+      },
+      {
+        id: "ethstaker",
+        label: "EthStaker",
+        termId: "0x60792f8e7c11bf88b026587c24ee338f02f883a306d947a0448b998e966f1d93",
+        niches: [
+          { id: "solo-staking", label: "Solo staking" },
+          { id: "liquid-staking", label: "Liquid staking" },
+          { id: "dvt", label: "DVT & distributed validators" },
+        ],
+      },
+      {
+        id: "web3-research",
+        label: "Research",
+        termId: "0xe164fa08db1c673380211f9e2afb036b4ecc019b96c3a0d2cb82679aa83723dc",
+        niches: [
+          { id: "mechanism-design", label: "Mechanism design" },
+          { id: "token-economics", label: "Token economics" },
+          { id: "consensus-research", label: "Consensus research" },
+        ],
+      },
+      {
+        id: "built-on-ethereum",
+        label: "Built on Ethereum",
+        termId: "0x2dde4c9f1365a17450ca4d651a7c3d3752ccc63ed6e9f4492b8a635c06dbc985",
+        niches: [
+          { id: "evm-ecosystem", label: "EVM ecosystem" },
+          { id: "ethereum-tooling", label: "Ethereum tooling" },
+          { id: "eth-standards", label: "EIPs & standards" },
         ],
       },
     ],
@@ -905,6 +1177,46 @@ export const SOFIA_DOMAINS: Domain[] = [
           { id: "etymology", label: "Etymology" },
         ],
       },
+      {
+        id: "economics",
+        label: "Economics & Social Sciences",
+        niches: [
+          { id: "macroeconomics", label: "Macroeconomics & political economy" },
+          { id: "sociology", label: "Sociology & anthropology" },
+          { id: "social-theory", label: "Social theory" },
+          { id: "development-economics", label: "Development economics" },
+        ],
+      },
+      {
+        id: "data-science",
+        label: "Data Science & Statistics",
+        niches: [
+          { id: "statistical-analysis", label: "Statistical analysis" },
+          { id: "data-visualization", label: "Data visualization" },
+          { id: "ml-applications", label: "ML applications" },
+          { id: "scientific-computing", label: "Scientific computing" },
+        ],
+      },
+      {
+        id: "chemistry",
+        label: "Chemistry & Materials",
+        niches: [
+          { id: "organic-chemistry", label: "Organic chemistry" },
+          { id: "materials-science", label: "Materials science" },
+          { id: "experimental-science", label: "Experimental sciences" },
+          { id: "applied-chemistry", label: "Applied chemistry" },
+        ],
+      },
+      {
+        id: "cognitive-science",
+        label: "Cognitive Science",
+        niches: [
+          { id: "consciousness-studies", label: "Consciousness studies" },
+          { id: "embodied-cognition", label: "Embodied cognition" },
+          { id: "hci", label: "Human-computer interaction" },
+          { id: "cognitive-psychology", label: "Cognitive psychology" },
+        ],
+      },
     ],
   },
 
@@ -1055,6 +1367,46 @@ export const SOFIA_DOMAINS: Domain[] = [
           },
         ],
       },
+      {
+        id: "water-sports",
+        label: "Water Sports",
+        niches: [
+          { id: "swimming-competitive", label: "Swimming (competitive)" },
+          { id: "surfing", label: "Surfing" },
+          { id: "diving-sailing", label: "Diving & sailing" },
+          { id: "paddleboarding", label: "Paddleboarding & kayaking" },
+        ],
+      },
+      {
+        id: "winter-sports",
+        label: "Winter Sports",
+        niches: [
+          { id: "skiing", label: "Skiing (alpine & nordic)" },
+          { id: "snowboarding-winter", label: "Snowboarding & freeride" },
+          { id: "ice-skating", label: "Ice skating & hockey" },
+          { id: "biathlon-alpine", label: "Biathlon & alpine sports" },
+        ],
+      },
+      {
+        id: "racket-sports",
+        label: "Racket Sports",
+        niches: [
+          { id: "tennis-padel", label: "Tennis & padel" },
+          { id: "badminton-squash", label: "Badminton & squash" },
+          { id: "table-tennis", label: "Table tennis" },
+          { id: "racket-competitive", label: "Competitive racket sports" },
+        ],
+      },
+      {
+        id: "sports-science",
+        label: "Sports Science & Performance",
+        niches: [
+          { id: "biomechanics", label: "Biomechanics" },
+          { id: "sports-nutrition", label: "Sports nutrition" },
+          { id: "recovery-protocols", label: "Recovery protocols & HRV" },
+          { id: "performance-analytics", label: "Performance analytics" },
+        ],
+      },
     ],
   },
 
@@ -1183,6 +1535,46 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "cultural-journalism",
             label: "Cultural journalism",
           },
+        ],
+      },
+      {
+        id: "documentary",
+        label: "Documentary & Investigative",
+        niches: [
+          { id: "documentary-filmmaking", label: "Documentary filmmaking" },
+          { id: "investigative-screen", label: "Investigative journalism on screen" },
+          { id: "docuseries", label: "Docuseries" },
+          { id: "faction-content", label: "Faction & hybrid content" },
+        ],
+      },
+      {
+        id: "screenwriting",
+        label: "Screenwriting & Story",
+        niches: [
+          { id: "script-writing", label: "Screenwriting" },
+          { id: "story-structure", label: "Story structure" },
+          { id: "narrative-craft", label: "Narrative craft" },
+          { id: "writing-for-screen", label: "Writing for screen & TV" },
+        ],
+      },
+      {
+        id: "vfx-postprod",
+        label: "VFX & Post-Production",
+        niches: [
+          { id: "visual-effects", label: "Visual effects & compositing" },
+          { id: "color-science", label: "Color science & grading" },
+          { id: "post-workflows", label: "Post-production workflows" },
+          { id: "motion-tracking", label: "Motion tracking & matchmove" },
+        ],
+      },
+      {
+        id: "podcast-audio",
+        label: "Podcast & Audio Storytelling",
+        niches: [
+          { id: "narrative-podcasts", label: "Narrative podcasts" },
+          { id: "audio-drama", label: "Audio drama & fiction" },
+          { id: "sound-storytelling", label: "Sound storytelling" },
+          { id: "podcast-production", label: "Podcast production" },
         ],
       },
     ],
@@ -1328,6 +1720,46 @@ export const SOFIA_DOMAINS: Domain[] = [
           { id: "deep-work", label: "Deep work" },
         ],
       },
+      {
+        id: "legal-ip",
+        label: "Legal & IP",
+        niches: [
+          { id: "startup-law", label: "Startup law" },
+          { id: "intellectual-property", label: "Intellectual property" },
+          { id: "contracts-compliance", label: "Contracts & compliance" },
+          { id: "business-formation", label: "Business formation" },
+        ],
+      },
+      {
+        id: "hr-talent",
+        label: "HR & Talent",
+        niches: [
+          { id: "recruiting", label: "Recruiting & hiring" },
+          { id: "team-building", label: "Team building" },
+          { id: "org-culture", label: "Organizational culture" },
+          { id: "employer-branding", label: "Employer branding" },
+        ],
+      },
+      {
+        id: "operations",
+        label: "Operations & Logistics",
+        niches: [
+          { id: "supply-chain", label: "Supply chain" },
+          { id: "process-optimization", label: "Process optimization" },
+          { id: "operational-efficiency", label: "Operational efficiency" },
+          { id: "business-systems", label: "Business systems" },
+        ],
+      },
+      {
+        id: "impact-social",
+        label: "Impact & Social Enterprise",
+        niches: [
+          { id: "social-entrepreneurship", label: "Social entrepreneurship" },
+          { id: "b-corps", label: "B-corps & certification" },
+          { id: "esg-investing", label: "ESG investing" },
+          { id: "purpose-driven", label: "Purpose-driven models" },
+        ],
+      },
     ],
   },
 
@@ -1440,6 +1872,66 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "card-manipulation",
             label: "Card manipulation",
           },
+        ],
+      },
+      {
+        id: "musical-opera",
+        label: "Musical Theater & Opera",
+        niches: [
+          { id: "musical-theater", label: "Musical theater (Broadway, West End)" },
+          { id: "opera", label: "Opera & operetta" },
+          { id: "lyrical-singing", label: "Lyrical singing & classical voice" },
+          { id: "musical-composition", label: "Musical composition for stage" },
+        ],
+      },
+      {
+        id: "spoken-word",
+        label: "Spoken Word & Poetry Slam",
+        niches: [
+          { id: "slam-poetry", label: "Slam poetry" },
+          { id: "oral-storytelling", label: "Oral storytelling" },
+          { id: "spoken-word-performance", label: "Spoken word performance" },
+          { id: "poetry-public", label: "Poetry in public spaces" },
+        ],
+      },
+      {
+        id: "stagecraft",
+        label: "Live Production & Stagecraft",
+        niches: [
+          { id: "sound-lighting", label: "Sound & lighting engineering" },
+          { id: "scenography", label: "Scenography & set design" },
+          { id: "technical-production", label: "Technical show production" },
+          { id: "stage-management", label: "Stage management" },
+        ],
+      },
+      {
+        id: "puppetry",
+        label: "Puppetry & Object Theater",
+        niches: [
+          { id: "marionettes", label: "Marionettes" },
+          { id: "shadow-puppetry", label: "Shadow puppetry" },
+          { id: "bunraku", label: "Bunraku & traditional puppetry" },
+          { id: "object-performance", label: "Object performance" },
+        ],
+      },
+      {
+        id: "folk-performance",
+        label: "Cultural & Folk Performance",
+        niches: [
+          { id: "traditional-dances", label: "Traditional dances" },
+          { id: "carnival", label: "Carnival & parades" },
+          { id: "folklore", label: "Folklore" },
+          { id: "popular-festivals", label: "Popular festivals" },
+        ],
+      },
+      {
+        id: "drag-cabaret",
+        label: "Drag & Cabaret",
+        niches: [
+          { id: "drag-performance", label: "Drag performance" },
+          { id: "burlesque", label: "Burlesque" },
+          { id: "cabaret-shows", label: "Cabaret shows" },
+          { id: "variety-shows", label: "Variety shows" },
         ],
       },
     ],
@@ -1563,6 +2055,56 @@ export const SOFIA_DOMAINS: Domain[] = [
             id: "wildlife-protection",
             label: "Wildlife protection",
           },
+        ],
+      },
+      {
+        id: "marine",
+        label: "Marine & Oceanography",
+        niches: [
+          { id: "ocean-exploration", label: "Ocean exploration" },
+          { id: "marine-biology", label: "Marine biology" },
+          { id: "scuba-diving", label: "Scuba diving" },
+          { id: "ocean-conservation", label: "Ocean conservation" },
+        ],
+      },
+      {
+        id: "geology",
+        label: "Geology & Earth Sciences",
+        niches: [
+          { id: "geology-mineralogy", label: "Geology & mineralogy" },
+          { id: "volcanology", label: "Volcanology" },
+          { id: "paleontology", label: "Paleontology" },
+          { id: "earth-science", label: "Earth system science" },
+        ],
+      },
+      {
+        id: "meteorology",
+        label: "Meteorology & Climate Science",
+        niches: [
+          { id: "weather-observation", label: "Weather observation" },
+          { id: "climate-modeling", label: "Climate modeling" },
+          { id: "atmospheric-science", label: "Atmospheric science" },
+          { id: "amateur-meteorology", label: "Amateur meteorology" },
+        ],
+      },
+      {
+        id: "urban-nature",
+        label: "Urban Nature & Rewilding",
+        niches: [
+          { id: "urban-ecology", label: "Urban ecology" },
+          { id: "rewilding", label: "Rewilding projects" },
+          { id: "biophilic-cities", label: "Biophilic cities & green spaces" },
+          { id: "urban-biodiversity", label: "Urban biodiversity" },
+        ],
+      },
+      {
+        id: "foraging",
+        label: "Foraging & Ethnobotany",
+        niches: [
+          { id: "wild-plants", label: "Wild plant identification" },
+          { id: "foraging-practice", label: "Foraging practice" },
+          { id: "ethnobotany", label: "Ethnobotany" },
+          { id: "herbalism", label: "Herbalism & plant medicine" },
         ],
       },
     ],
@@ -1700,6 +2242,56 @@ export const SOFIA_DOMAINS: Domain[] = [
           },
         ],
       },
+      {
+        id: "wine-spirits",
+        label: "Wine & Fine Spirits",
+        niches: [
+          { id: "wine-tasting", label: "Wine tasting & oenology" },
+          { id: "natural-wine", label: "Natural wine" },
+          { id: "whisky-spirits", label: "Whisky & fine spirits" },
+          { id: "sommellerie", label: "Sommellerie" },
+        ],
+      },
+      {
+        id: "travel",
+        label: "Travel & Slow Life",
+        niches: [
+          { id: "slow-travel", label: "Slow travel" },
+          { id: "digital-nomadism", label: "Digital nomadism" },
+          { id: "van-life", label: "Van life" },
+          { id: "cultural-exploration", label: "Cultural exploration" },
+        ],
+      },
+      {
+        id: "beauty",
+        label: "Beauty & Body Care",
+        niches: [
+          { id: "skincare", label: "Skincare" },
+          { id: "natural-cosmetics", label: "Natural cosmetics" },
+          { id: "hair-care", label: "Hair care" },
+          { id: "clean-beauty", label: "Clean beauty" },
+        ],
+      },
+      {
+        id: "sustainable-living",
+        label: "Sustainable & Ethical Living",
+        niches: [
+          { id: "ethical-consumption", label: "Ethical consumption" },
+          { id: "zero-waste-lifestyle", label: "Zero waste lifestyle" },
+          { id: "slow-fashion", label: "Slow fashion" },
+          { id: "circular-economy", label: "Circular economy" },
+        ],
+      },
+      {
+        id: "thrift-vintage",
+        label: "Thrift & Vintage",
+        niches: [
+          { id: "thrift-shopping", label: "Thrift shopping" },
+          { id: "vintage-hunting", label: "Vintage hunting" },
+          { id: "flea-markets", label: "Flea markets & brocantes" },
+          { id: "upcycling-secondhand", label: "Upcycling & secondhand" },
+        ],
+      },
     ],
   },
 
@@ -1829,6 +2421,46 @@ export const SOFIA_DOMAINS: Domain[] = [
           },
         ],
       },
+      {
+        id: "comics",
+        label: "Comics & Graphic Novels",
+        niches: [
+          { id: "comic-creation", label: "Comic creation" },
+          { id: "graphic-novels", label: "Graphic novels" },
+          { id: "manga-creation", label: "Manga creation" },
+          { id: "sequential-art", label: "Sequential art & visual storytelling" },
+        ],
+      },
+      {
+        id: "translation",
+        label: "Translation & Localization",
+        niches: [
+          { id: "literary-translation", label: "Literary translation" },
+          { id: "localization", label: "Localization" },
+          { id: "subtitling", label: "Subtitling" },
+          { id: "intercultural-adaptation", label: "Intercultural adaptation" },
+        ],
+      },
+      {
+        id: "audiobooks",
+        label: "Audiobooks & Spoken Word",
+        niches: [
+          { id: "audiobook-narration", label: "Audiobook narration" },
+          { id: "literary-podcasts", label: "Literary podcasts" },
+          { id: "audio-storytelling-lit", label: "Audio storytelling" },
+          { id: "voice-acting-lit", label: "Voice acting for literature" },
+        ],
+      },
+      {
+        id: "zines",
+        label: "Zines & Self-Publishing",
+        niches: [
+          { id: "zine-making", label: "Zine making" },
+          { id: "self-publishing", label: "Self-publishing" },
+          { id: "small-press", label: "Small press & indie distribution" },
+          { id: "diy-editorial", label: "DIY editorial" },
+        ],
+      },
     ],
   },
 
@@ -1943,6 +2575,56 @@ export const SOFIA_DOMAINS: Domain[] = [
           },
         ],
       },
+      {
+        id: "learning",
+        label: "Learning & Autodidactism",
+        niches: [
+          { id: "self-directed-learning", label: "Self-directed learning" },
+          { id: "speed-reading", label: "Speed reading & memory" },
+          { id: "zettelkasten", label: "Zettelkasten & knowledge management" },
+          { id: "learning-techniques", label: "Learning techniques" },
+        ],
+      },
+      {
+        id: "career",
+        label: "Career & Professional Growth",
+        niches: [
+          { id: "career-transitions", label: "Career transitions" },
+          { id: "skill-building", label: "Skill building" },
+          { id: "professional-dev", label: "Professional development" },
+          { id: "career-design", label: "Career design" },
+        ],
+      },
+      {
+        id: "somatic",
+        label: "Body & Somatic Practices",
+        niches: [
+          { id: "breathwork", label: "Breathwork" },
+          { id: "somatic-therapy", label: "Somatic therapy" },
+          { id: "body-awareness", label: "Body awareness" },
+          { id: "nervous-system", label: "Nervous system regulation" },
+        ],
+      },
+      {
+        id: "emotional-intelligence",
+        label: "Emotional Intelligence",
+        niches: [
+          { id: "empathy", label: "Empathy & compassion" },
+          { id: "emotional-regulation", label: "Emotional regulation" },
+          { id: "self-awareness", label: "Self-awareness" },
+          { id: "nvc", label: "Nonviolent communication" },
+        ],
+      },
+      {
+        id: "habits",
+        label: "Habit & Behavior Change",
+        niches: [
+          { id: "habit-formation", label: "Habit formation" },
+          { id: "behavior-design", label: "Behavior design" },
+          { id: "atomic-habits", label: "Atomic habits & systems" },
+          { id: "lifestyle-optimization", label: "Lifestyle optimization" },
+        ],
+      },
     ],
   },
 ]
@@ -1951,20 +2633,20 @@ export const SOFIA_DOMAINS: Domain[] = [
 // DERIVED HELPERS
 // =============================================================================
 
-export const DOMAIN_BY_ID = new Map(
-  SOFIA_DOMAINS.map((d) => [d.id, d])
+export const TOPIC_BY_ID = new Map(
+  SOFIA_TOPICS.map((d) => [d.id, d])
 )
 
-export const ALL_CATEGORIES = SOFIA_DOMAINS.flatMap((d) =>
-  d.categories.map((c) => ({ ...c, domainId: d.id }))
+export const ALL_CATEGORIES = SOFIA_TOPICS.flatMap((d) =>
+  d.categories.map((c) => ({ ...c, topicId: d.id }))
 )
 
-export const ALL_NICHES = SOFIA_DOMAINS.flatMap((d) =>
+export const ALL_NICHES = SOFIA_TOPICS.flatMap((d) =>
   d.categories.flatMap((c) =>
     c.niches.map((n) => ({
       ...n,
       categoryId: c.id,
-      domainId: d.id,
+      topicId: d.id,
     }))
   )
 )
@@ -1973,34 +2655,38 @@ export const NICHE_BY_ID = new Map(
   ALL_NICHES.map((n) => [n.id, n])
 )
 
-export function getNichesForDomain(
-  domainId: string
+export const CATEGORY_BY_ID = new Map(
+  ALL_CATEGORIES.map((c) => [c.id, c])
+)
+
+export function getNichesForTopic(
+  topicId: string
 ): typeof ALL_NICHES {
-  return ALL_NICHES.filter((n) => n.domainId === domainId)
+  return ALL_NICHES.filter((n) => n.topicId === topicId)
 }
 
-export function getCategoriesForDomain(
-  domainId: string
+export function getCategoriesForTopic(
+  topicId: string
 ): typeof ALL_CATEGORIES {
-  return ALL_CATEGORIES.filter((c) => c.domainId === domainId)
+  return ALL_CATEGORIES.filter((c) => c.topicId === topicId)
 }
 
-export function getDomainForNiche(
+export function getTopicForNiche(
   nicheId: string
-): Domain | undefined {
+): Topic | undefined {
   const niche = NICHE_BY_ID.get(nicheId)
-  return niche ? DOMAIN_BY_ID.get(niche.domainId) : undefined
+  return niche ? TOPIC_BY_ID.get(niche.topicId) : undefined
 }
 
 export function getSuggestedPlatforms(
-  nicheIds: string[]
+  categoryIds: string[]
 ): string[] {
-  const domainIds = new Set(
-    nicheIds
-      .map((id) => NICHE_BY_ID.get(id)?.domainId)
+  const topicIds = new Set(
+    categoryIds
+      .map((id) => CATEGORY_BY_ID.get(id)?.topicId)
       .filter(Boolean)
   )
-  return SOFIA_DOMAINS.filter((d) => domainIds.has(d.id))
+  return SOFIA_TOPICS.filter((d) => topicIds.has(d.id))
     .flatMap((d) => d.primaryPlatforms)
     .filter((v, i, a) => a.indexOf(v) === i)
 }

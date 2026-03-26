@@ -1,10 +1,13 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
+import { usePrivy, useWallets } from '@privy-io/react-auth'
 import type { PlatformConnection, ConnectionStatus } from '../types/reputation'
+import { PLATFORM_CATALOG } from '../config/platformCatalog'
 import {
   startOAuthFlow,
   exchangeOAuthCode,
   requestChallenge,
   verifyChallenge,
+  connectWithSIWE,
   getConnectionStrategy,
 } from '../services/oauthService'
 
@@ -29,6 +32,8 @@ function saveToStorage(connections: Map<string, PlatformConnection>) {
 }
 
 export function usePlatformConnections() {
+  const { user } = usePrivy()
+  const { wallets } = useWallets()
   const [connections, setConnections] = useState<Map<string, PlatformConnection>>(loadFromStorage)
 
   useEffect(() => {
@@ -51,14 +56,15 @@ export function usePlatformConnections() {
   )
 
   /**
-   * Connect via OAuth popup (oauth2 + oauth1 platforms).
+   * Connect a platform — routes to the correct flow based on authType.
    */
   const connect = useCallback(
     async (platformId: string) => {
       const strategy = getConnectionStrategy(platformId)
+      const platform = PLATFORM_CATALOG.find((p) => p.id === platformId)
 
+      // ── auto (authType: none) ──
       if (strategy === 'auto') {
-        // No auth needed (e.g. bandcamp)
         updateConnection(platformId, {
           status: 'connected',
           connectedAt: Date.now(),
@@ -66,11 +72,88 @@ export function usePlatformConnections() {
         return
       }
 
-      if (strategy !== 'oauth_popup') {
-        // username/siwe/siwf — handled by other methods
+      // ── Web3 public (Analyze) — auto-connect via wallet address ──
+      if (strategy === 'username' && platform?.targetTopics.includes('web3-crypto')) {
+        const walletAddress = user?.wallet?.address
+        if (!walletAddress) return
+        updateConnection(platformId, {
+          status: 'connected',
+          connectedAt: Date.now(),
+          userId: walletAddress,
+          username: walletAddress,
+        })
         return
       }
 
+      // ── username — handled by startChallenge, not here ──
+      if (strategy === 'username') {
+        // PlatformGrid shows username input → calls startChallenge
+        return
+      }
+
+      // ── SIWE — sign message with wallet ──
+      if (strategy === 'siwe') {
+        const wallet = wallets[0]
+        if (!wallet) return
+        updateConnection(platformId, { status: 'connecting', error: undefined })
+
+        try {
+          const provider = await wallet.getEthereumProvider()
+          const message = `Connect ${platform?.name ?? platformId} to Sofia\n\nWallet: ${wallet.address}\nTimestamp: ${new Date().toISOString()}`
+          const signature = await provider.request({
+            method: 'personal_sign',
+            params: [message, wallet.address],
+          })
+          const result = await connectWithSIWE(platformId, wallet.address, signature as string, message)
+          if (result.success) {
+            updateConnection(platformId, {
+              status: 'connected',
+              connectedAt: Date.now(),
+              userId: result.userId ?? wallet.address,
+              username: result.username ?? wallet.address,
+            })
+          } else {
+            updateConnection(platformId, { status: 'error', error: result.error || 'SIWE failed' })
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : 'SIWE failed'
+          updateConnection(platformId, { status: msg.includes('reject') ? 'disconnected' : 'error', error: msg.includes('reject') ? undefined : msg })
+        }
+        return
+      }
+
+      // ── SIWF — same as SIWE for now, backend differentiates ──
+      if (strategy === 'siwf') {
+        const wallet = wallets[0]
+        if (!wallet) return
+        updateConnection(platformId, { status: 'connecting', error: undefined })
+
+        try {
+          const provider = await wallet.getEthereumProvider()
+          const message = `Connect Farcaster to Sofia\n\nWallet: ${wallet.address}\nTimestamp: ${new Date().toISOString()}`
+          const signature = await provider.request({
+            method: 'personal_sign',
+            params: [message, wallet.address],
+          })
+          const result = await connectWithSIWE(platformId, wallet.address, signature as string, message)
+          if (result.success) {
+            updateConnection(platformId, {
+              status: 'connected',
+              connectedAt: Date.now(),
+              userId: result.userId ?? wallet.address,
+              username: result.username,
+            })
+          } else {
+            updateConnection(platformId, { status: 'error', error: result.error || 'SIWF failed' })
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : 'SIWF failed'
+          updateConnection(platformId, { status: msg.includes('reject') ? 'disconnected' : 'error', error: msg.includes('reject') ? undefined : msg })
+        }
+        return
+      }
+
+      // ── OAuth popup (oauth2 + oauth1) ──
       updateConnection(platformId, {
         status: 'connecting',
         connectedAt: Date.now(),
@@ -106,7 +189,7 @@ export function usePlatformConnections() {
         }
       }
     },
-    [updateConnection],
+    [updateConnection, user, wallets],
   )
 
   /**
