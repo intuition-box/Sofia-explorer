@@ -62,7 +62,7 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
 
   // Resolve avatar & display name: Google profile > ENS > fallback
   const googleAccount = user?.google
-  const profileAvatar = googleAccount?.profilePictureUrl || ensAvatar || ''
+  const profileAvatar = (googleAccount as any)?.profilePictureUrl || ensAvatar || ''
   const profileName = googleAccount?.name || ensName || googleAccount?.email || user?.email?.address || displayAddress || 'User'
 
   return (
