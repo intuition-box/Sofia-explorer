@@ -5,8 +5,8 @@ import { createAvatar } from '@dicebear/core'
 import { glass } from '@dicebear/collection'
 import { useGetAccountLabelsQuery } from '@0xsofia/dashboard-graphql'
 
-// ENS client — always proxy through Nginx/Vite to avoid CORS
-const ENS_RPC_URL = '/eth-rpc'
+// ENS client — proxy through Vite in dev to avoid CORS, direct in prod
+const ENS_RPC_URL = import.meta.env.DEV ? '/eth-rpc' : 'https://cloudflare-eth.com'
 const ensClient = createPublicClient({
   chain: mainnet,
   transport: http(ENS_RPC_URL),
