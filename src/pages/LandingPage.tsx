@@ -24,25 +24,25 @@ export default function LandingPage() {
 
   const features = [
     {
-      icon: <Shield className="h-5 w-5" />,
+      icon: <Shield style={{ width: '1.04vw', height: '1.04vw' }} />,
       color: 'oklch(0.65 0.15 250)',
       title: 'Reputation',
       desc: 'Build verifiable scores from your real activity',
     },
     {
-      icon: <Vote className="h-5 w-5" />,
+      icon: <Vote style={{ width: '1.04vw', height: '1.04vw' }} />,
       color: 'oklch(0.65 0.15 150)',
       title: 'Vote',
       desc: 'Support or oppose claims on-chain',
     },
     {
-      icon: <Flame className="h-5 w-5" />,
+      icon: <Flame style={{ width: '1.04vw', height: '1.04vw' }} />,
       color: 'oklch(0.65 0.18 30)',
       title: 'Streaks',
       desc: 'Earn rewards for daily certifications',
     },
     {
-      icon: <Link2 className="h-5 w-5" />,
+      icon: <Link2 style={{ width: '1.04vw', height: '1.04vw' }} />,
       color: 'oklch(0.65 0.15 300)',
       title: 'EthCC Import',
       desc: 'Link your EthCC wallet to boost your score',
@@ -63,7 +63,7 @@ export default function LandingPage() {
           {/* CTA */}
           <div className="lp-cta">
             <button className="lp-btn-connect" onClick={() => login()}>
-              <Wallet className="h-4 w-4" />
+              <Wallet style={{ width: '0.83vw', height: '0.83vw' }} />
               Connect Wallet
             </button>
 

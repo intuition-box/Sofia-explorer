@@ -50,9 +50,12 @@ function getSnapshotStable(): TopicSelectionState {
 export function useTopicSelection() {
   const state = useSyncExternalStore(subscribe, getSnapshotStable)
 
+  const MAX_TOPICS = 3
+
   const toggleTopic = useCallback((topicId: string) => {
     const current = getSnapshot()
     const isSelected = current.selectedTopics.includes(topicId)
+    if (!isSelected && current.selectedTopics.length >= MAX_TOPICS) return
     save({
       selectedTopics: isSelected
         ? current.selectedTopics.filter((d) => d !== topicId)
