@@ -1,6 +1,13 @@
 /* ── Sidebar ── */
-.sb-aside { width: 320px; background: var(--sidebar); border-right: 1px solid var(--border); padding-top: 71px; }
+.sb-aside { width: 320px; background: var(--sidebar); border-right: 1px solid var(--border); padding-top: 71px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 .sb-inner { min-height: calc(100vh - 71px); }
+
+/* Overlay mode (tablet / mobile) */
+.sb-aside.sb-overlay { z-index: 50; padding-top: 56px; }
+.sb-aside.sb-closed { transform: translateX(-100%); }
+
+/* Backdrop */
+.sb-backdrop { position: fixed; inset: 0; z-index: 49; background: rgba(0, 0, 0, 0.5); }
 
 /* ── Locked items ── */
 .sb-locked {

@@ -8,6 +8,7 @@ import CartDrawer from './components/CartDrawer'
 import ProfileDrawer from './components/ProfileDrawer'
 import WeightModal from './components/WeightModal'
 import { useCart } from './hooks/useCart'
+import { useSidebarState } from './hooks/useSidebarState'
 import LandingPage from './pages/LandingPage'
 import DashboardPage from './pages/DashboardPage'
 import LeaderboardPage from './pages/LeaderboardPage'
@@ -39,6 +40,7 @@ export default function App() {
   const isCallback = location.pathname === '/auth/callback'
   const isLanding = location.pathname === '/'
   const cart = useCart()
+  const sidebar = useSidebarState()
   const isProfilePage = location.pathname.startsWith('/profile')
   const [cartOpen, setCartOpen] = useState(false)
   const [weightModalOpen, setWeightModalOpen] = useState(false)
@@ -71,9 +73,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onCartClick={() => setCartOpen(o => !o)} />
-      <Sidebar />
-      <RightSidebar hidden={isProfilePage || cartOpen} />
+      <Header onCartClick={() => setCartOpen(o => !o)} onMenuClick={sidebar.toggleLeft} showMenu={!sidebar.isDesktop} compact={!sidebar.isDesktop} />
+      <Sidebar isOpen={sidebar.isDesktop || sidebar.leftOpen} onClose={sidebar.closeLeft} isOverlay={!sidebar.isDesktop} />
+      <RightSidebar hidden={isProfilePage || cartOpen || !sidebar.isDesktop} />
 
       <CartDrawer
         items={cart.items}
@@ -96,7 +98,7 @@ export default function App() {
         onSuccess={handleDepositSuccess}
       />
 
-      <main className={isProfilePage ? 'main-content main-content--profile' : 'main-content'} style={{ zoom: 1.25 }}>
+      <main className={`main-content${isProfilePage ? ' main-content--profile' : ''}${!sidebar.isDesktop ? ' main-content--no-sidebar' : ''}`} style={{ zoom: sidebar.isDesktop ? 1.25 : 1 }}>
         <Routes>
           {/* Public routes */}
           <Route path="/feed" element={<DashboardPage />} />

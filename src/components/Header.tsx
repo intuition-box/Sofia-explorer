@@ -3,7 +3,7 @@ import { usePrivy, useLogin, useLogout, useLinkAccount } from '@privy-io/react-a
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { isAddress } from 'viem'
 import { Button } from "./ui/button";
-import { Search, Bell, Home, Wallet, LogOut, Sun, Moon, User } from "lucide-react";
+import { Search, Bell, Home, Wallet, LogOut, Sun, Moon, User, Menu } from "lucide-react";
 import { useTheme } from '../hooks/useTheme'
 import { useEnsNames } from '../hooks/useEnsNames'
 import { useCart } from '../hooks/useCart'
@@ -18,7 +18,14 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
 
-export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
+interface HeaderProps {
+  onCartClick?: () => void
+  onMenuClick?: () => void
+  showMenu?: boolean
+  compact?: boolean
+}
+
+export function Header({ onCartClick, onMenuClick, showMenu, compact }: HeaderProps) {
   const { ready, authenticated, user } = usePrivy()
   const { login } = useLogin()
   const { logout } = useLogout()
@@ -66,10 +73,15 @@ export function Header({ onCartClick }: { onCartClick?: () => void } = {}) {
   const profileName = googleAccount?.name || ensName || googleAccount?.email || user?.email?.address || displayAddress || 'User'
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b" style={{ zoom: 1.25 }}>
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b" style={{ zoom: compact ? 1 : 1.25 }}>
       <div className="flex h-14 items-center justify-between px-4 w-full">
         {/* Left side - Logo and Search */}
         <div className="flex items-center space-x-4 flex-1 min-w-0">
+          {showMenu && (
+            <Button variant="ghost" size="icon" className="h-9 w-9 flex-shrink-0" onClick={onMenuClick}>
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
           <div className="flex-shrink-0">
             <Link to="/feed" className="flex items-center gap-2">
               <img src={theme === 'dark' ? '/logo.png' : '/logo_invert.png'} alt="Sofia" className="h-6 w-6" />
