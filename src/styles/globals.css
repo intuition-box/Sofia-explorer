@@ -187,6 +187,7 @@
 html {
   font-size: var(--font-size);
   font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Segoe UI', sans-serif;
+  overflow-x: hidden;
 }
 
 /* Display heading utility */

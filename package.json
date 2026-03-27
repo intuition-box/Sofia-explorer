@@ -63,7 +63,8 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "cd packages/graphql && bun run build && cd ../.. && tsc -b && vite build",
+    "build": "cd packages/graphql && bun run build && cd ../.. && bun i --no-save && vite build",
+    "typecheck": "tsc -b",
     "preview": "vite preview"
   }
 }

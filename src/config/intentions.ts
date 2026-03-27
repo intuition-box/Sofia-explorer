@@ -12,6 +12,7 @@ export const INTENTION_COLORS: Record<string, string> = {
   Music: '#E0896A',
   Attending: '#6DC4A8',
   Valued: '#E0A06A',
+  'is following': '#6DC4A8',
 }
 
 /** Map on-chain predicate ID → display intention label */
@@ -36,6 +37,7 @@ export const LABEL_TO_INTENTION: Record<string, string> = {
   'visits for music': 'Music',
   attending: 'Attending',
   'has value': 'Valued',
+  follow: 'is following',
 }
 
 /** Quest badge config: tag label → { display name, category } */

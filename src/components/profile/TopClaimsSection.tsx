@@ -13,6 +13,8 @@ import AtomDetailDialog from '../AtomDetailDialog'
 import { TopClaimSkeleton } from './ProfileSkeletons'
 import { useState } from 'react'
 import { formatEther } from 'viem'
+import { getFaviconUrl } from '@/utils/favicon'
+import { extractDomain } from '@/utils/formatting'
 
 interface TopClaimsSectionProps {
   claims: TopClaim[]
@@ -42,9 +44,8 @@ function TopClaimCard({ claim, walletAddress }: { claim: TopClaim; walletAddress
   const totalMcap = formatEth(String(claim.totalMarketCap))
   const posCount = claim.stats.supportCount + claim.stats.opposeCount
   const [boardOpen, setBoardOpen] = useState(false)
-  const favicon = claim.objectUrl
-    ? `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=${encodeURIComponent(claim.objectUrl)}&size=64`
-    : undefined
+  const domain = claim.objectUrl ? extractDomain(claim.objectUrl) : ''
+  const favicon = domain ? getFaviconUrl(domain) : undefined
 
   return (
     <>

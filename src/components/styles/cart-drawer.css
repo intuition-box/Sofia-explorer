@@ -16,3 +16,20 @@
   opacity: 1;
   pointer-events: auto;
 }
+
+/* Mobile: full-width cart */
+@media (max-width: 767px) {
+  .cd-aside {
+    width: 100%;
+    top: 56px;
+    height: calc(100vh - 56px);
+    border-left: none;
+  }
+}
+/* Tablet: slightly narrower */
+@media (min-width: 768px) and (max-width: 1279px) {
+  .cd-aside {
+    top: 56px;
+    height: calc(100vh - 56px);
+  }
+}

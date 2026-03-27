@@ -5,6 +5,7 @@ import {
 import { GRAPHQL_URL } from '@/config'
 import { getPlatformsByTopic } from '@/config/platformCatalog'
 import { extractDomain } from '@/utils/formatting'
+import { getFaviconUrl } from '@/utils/favicon'
 import { isValidTriple, tripleToItem } from './trendingService'
 import { INTENTION_COLORS } from '@/config/intentions'
 import type { IntentCategory, TrendingItemLive, TrendingPlatform } from '@/types'
@@ -191,7 +192,7 @@ export async function fetchTrendingByDomain(topicId: string): Promise<TrendingPl
       platformDomain: host,
       platformName: entry.name,
       platformSlug: slug,
-      favicon: slug ? `/favicons/${slug}.png` : `https://www.google.com/s2/favicons?domain=${host}&sz=32`,
+      favicon: slug ? `/favicons/${slug}.png` : getFaviconUrl(host, 32),
       totalCertifiers: entry.totalCertifiers,
       intentions: [...entry.intentionCounts.entries()]
         .sort((a, b) => b[1] - a[1])

@@ -2,6 +2,7 @@ import { PREDICATE_TO_INTENTION, LABEL_TO_INTENTION, QUEST_BADGES } from '../con
 import { GRAPHQL_URL } from '../config'
 import { ATOM_ID_TO_TOPIC } from '../config/atomIds'
 import { extractDomain, cleanLabel } from '../utils/formatting'
+import { getFaviconUrl } from '../utils/favicon'
 import type { CircleItem } from './circleService'
 
 interface FeedEvent {
@@ -177,7 +178,7 @@ export function processEvents(
         title,
         url,
         domain,
-        favicon: domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=64` : '',
+        favicon: domain ? getFaviconUrl(domain) : '',
         certifier,
         certifierAddress,
         intentions: intention ? [intention] : [],
