@@ -2,7 +2,9 @@
 
 .lp-split {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
 }
 
 /* ── Left panel ── */
@@ -11,7 +13,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 2.1vw;
   position: relative;
   overflow: hidden;
   background: #02000E;
@@ -33,7 +35,7 @@
 .lp-left-inner {
   display: flex;
   flex-direction: column;
-  max-width: 420px;
+  max-width: 22vw;
   width: 100%;
   position: relative;
   z-index: 1;
@@ -41,12 +43,12 @@
 
 /* Tagline */
 .lp-tagline {
-  font-size: 28px;
+  font-size: 1.46vw;
   font-weight: 400;
   letter-spacing: 0.1em;
   line-height: 1.2;
   color: #ffffff;
-  margin-bottom: 36px;
+  margin-bottom: 1.875vw;
   text-align: center;
 }
 
@@ -54,19 +56,19 @@
 .lp-cta {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.625vw;
 }
 
 .lp-btn-connect {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 0.42vw;
   width: 100%;
-  padding: 14px 24px;
-  font-size: 14px;
+  padding: 0.73vw 1.25vw;
+  font-size: 0.73vw;
   font-weight: 700;
-  border-radius: 10px;
+  border-radius: 0.52vw;
   border: none;
   cursor: pointer;
   background: #ffffff;
@@ -82,7 +84,7 @@
 .lp-separator {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0.625vw;
 }
 
 .lp-separator-line {
@@ -92,7 +94,7 @@
 }
 
 .lp-separator-text {
-  font-size: 12px;
+  font-size: 0.625vw;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.5);
   text-transform: lowercase;
@@ -103,12 +105,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 0.52vw;
   width: 100%;
-  padding: 14px 24px;
-  font-size: 14px;
+  padding: 0.73vw 1.25vw;
+  font-size: 0.73vw;
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: 0.52vw;
   cursor: pointer;
   background: transparent;
   color: #ffffff;
@@ -122,18 +124,18 @@
 }
 
 .lp-google-icon {
-  width: 18px;
-  height: 18px;
+  width: 0.94vw;
+  height: 0.94vw;
   flex-shrink: 0;
 }
 
 /* Explore button */
 .lp-btn-explore {
   width: 100%;
-  padding: 14px 24px;
-  font-size: 14px;
+  padding: 0.73vw 1.25vw;
+  font-size: 0.73vw;
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: 0.52vw;
   cursor: pointer;
   background: transparent;
   color: rgba(255, 255, 255, 0.7);
@@ -148,19 +150,19 @@
 
 /* Privy mention */
 .lp-privy-mention {
-  margin-top: 20px;
-  font-size: 11px;
+  margin-top: 1.04vw;
+  font-size: 0.57vw;
   color: rgba(255, 255, 255, 0.3);
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 0.31vw;
 }
 
 .lp-privy-icon {
-  width: 14px;
-  height: 14px;
+  width: 0.73vw;
+  height: 0.73vw;
   flex-shrink: 0;
 }
 
@@ -184,7 +186,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px;
+  padding: 2.1vw;
   overflow: hidden;
 }
 
@@ -192,31 +194,31 @@
   background: rgb(255, 198, 176);
 }
 
-/* Decorative square (matches PageHeader .ph-deco) */
+/* Decorative square */
 .lp-deco {
   position: absolute;
-  right: -163px;
-  bottom: -368px;
+  right: -8.49vw;
+  bottom: -19.17vw;
   transform: rotate(4deg);
-  width: 1120px;
-  height: 1120px;
-  border-radius: 112px;
+  width: 58.33vw;
+  height: 58.33vw;
+  border-radius: 5.83vw;
   background: rgba(0, 0, 0, 0.12);
   z-index: 0;
 }
 
 /* Right tagline */
 .lp-right-tagline {
-  font-size: 30px;
+  font-size: 1.56vw;
   font-weight: 400;
   letter-spacing: -0.03em;
   line-height: 1.2;
   color: #1a1a1a;
-  margin-bottom: 12px;
+  margin-bottom: 0.625vw;
   position: relative;
   z-index: 1;
   text-align: center;
-  max-width: 440px;
+  max-width: 23vw;
 }
 
 .dark .lp-right-tagline {
@@ -224,15 +226,15 @@
 }
 
 .lp-right-subtitle {
-  font-size: 14px;
+  font-size: 0.73vw;
   font-weight: 400;
   color: rgba(0, 0, 0, 0.5);
   line-height: 1.6;
-  margin-bottom: 36px;
+  margin-bottom: 1.875vw;
   position: relative;
   z-index: 1;
   text-align: center;
-  max-width: 440px;
+  max-width: 23vw;
 }
 
 .dark .lp-right-subtitle {
@@ -243,9 +245,9 @@
 .lp-right-features {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 0.625vw;
   width: 100%;
-  max-width: 440px;
+  max-width: 23vw;
   position: relative;
   z-index: 1;
 }
@@ -253,9 +255,9 @@
 .lp-right-feature {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 16px 18px;
-  border-radius: 14px;
+  gap: 0.73vw;
+  padding: 0.83vw 0.94vw;
+  border-radius: 0.73vw;
   background: rgba(255, 255, 255, 0.45);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.5);
@@ -275,12 +277,12 @@
 }
 
 .lp-right-feature-icon {
-  width: 40px;
-  height: 40px;
+  width: 2.08vw;
+  height: 2.08vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 0.52vw;
   flex-shrink: 0;
   color: #340218;
 }
@@ -288,18 +290,18 @@
 .lp-right-feature-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0.1vw;
   min-width: 0;
 }
 
 .lp-right-feature-title {
-  font-size: 13px;
+  font-size: 0.68vw;
   font-weight: 700;
   color: #1a1a1a;
 }
 
 .lp-right-feature-desc {
-  font-size: 11px;
+  font-size: 0.57vw;
   font-weight: 400;
   color: rgba(0, 0, 0, 0.5);
   line-height: 1.4;
@@ -317,20 +319,73 @@
 @media (max-width: 900px) {
   .lp-split {
     flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  .lp-left {
+    min-height: 50vh;
+    min-height: 50dvh;
+    padding: 6vw;
+  }
+  .lp-left-inner {
+    max-width: 70vw;
+  }
+  .lp-tagline {
+    font-size: 4.5vw;
+  }
+  .lp-btn-connect,
+  .lp-btn-google,
+  .lp-btn-explore {
+    font-size: 2.5vw;
+    padding: 2.5vw 4vw;
+    border-radius: 1.8vw;
+  }
+  .lp-separator-text {
+    font-size: 2vw;
+  }
+  .lp-privy-mention {
+    font-size: 1.8vw;
   }
   .lp-right {
     min-height: 50vh;
+    min-height: 50dvh;
+    padding: 6vw;
   }
-}
-
-@media (max-width: 640px) {
-  .lp-left {
-    padding: 32px 24px;
+  .lp-right-tagline {
+    font-size: 4vw;
+    max-width: 70vw;
   }
-  .lp-tagline {
-    font-size: 22px;
+  .lp-right-subtitle {
+    font-size: 2.5vw;
+    max-width: 70vw;
   }
-  .lp-right {
-    padding: 32px 24px;
+  .lp-right-features {
+    grid-template-columns: 1fr;
+    max-width: 70vw;
+  }
+  .lp-right-feature {
+    padding: 2.5vw 3vw;
+    gap: 2.5vw;
+    border-radius: 2.5vw;
+  }
+  .lp-right-feature-icon {
+    width: 7vw;
+    height: 7vw;
+    border-radius: 1.5vw;
+  }
+  .lp-right-feature-title {
+    font-size: 2.2vw;
+  }
+  .lp-right-feature-desc {
+    font-size: 1.8vw;
+  }
+  .lp-google-icon {
+    width: 3vw;
+    height: 3vw;
+  }
+  .lp-privy-icon {
+    width: 2.5vw;
+    height: 2.5vw;
   }
 }
