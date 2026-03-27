@@ -45,7 +45,7 @@ export default function DomainSelector({
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Select your topics</h2>
-        <Badge variant="secondary" className="text-sm px-3 py-1">{selectedTopics.length} selected</Badge>
+        <Badge variant="secondary" className="text-sm px-3 py-1">{selectedTopics.length} / 3</Badge>
       </div>
 
       <div className="grid gap-4 mt-4 ds-grid">
@@ -54,18 +54,23 @@ export default function DomainSelector({
           const confirmed = hasPosition?.(topic.id) ?? false
           const pending = isPending?.(topic.id) ?? false
           const nicheCount = topic.categories.reduce((s, c) => s + c.niches.length, 0)
+          const atLimit = selectedTopics.length >= 3 && !isSelected
 
           return (
             <Card
               key={topic.id}
-              className={`p-6 cursor-pointer transition-all hover:shadow-md ${
+              className={`p-6 transition-all ${
+                atLimit
+                  ? 'opacity-40 cursor-not-allowed'
+                  : 'cursor-pointer hover:shadow-md'
+              } ${
                 isSelected
                   ? confirmed
                     ? 'ring-2 ring-emerald-500 bg-emerald-500/5'
                     : 'ring-2 ring-primary bg-primary/5'
                   : ''
               }`}
-              onClick={() => onToggle(topic.id)}
+              onClick={() => !atLimit && onToggle(topic.id)}
             >
               <div className="flex items-start justify-between">
                 <span className="text-3xl">{TOPIC_ICONS[topic.id] || '📌'}</span>
