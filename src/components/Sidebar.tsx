@@ -11,11 +11,12 @@ const ETHCC_DATE = new Date('2026-03-30T09:00:00+02:00')
 
 function getTimeLeft() {
   const diff = SEASON_END.getTime() - Date.now()
-  if (diff <= 0) return { days: 0, hours: 0, minutes: 0 }
+  if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 }
   return {
     days: Math.floor(diff / (1000 * 60 * 60 * 24)),
     hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
     minutes: Math.floor((diff / (1000 * 60)) % 60),
+    seconds: Math.floor((diff / 1000) % 60),
   }
 }
 
@@ -54,7 +55,7 @@ export function Sidebar({ isOpen = true, onClose, isOverlay = false }: SidebarPr
     const timer = setInterval(() => {
       setTimeLeft(getTimeLeft())
       setEthccLeft(getEthccTimeLeft())
-    }, 60_000)
+    }, 1_000)
     return () => clearInterval(timer)
   }, [])
 
@@ -200,10 +201,10 @@ export function Sidebar({ isOpen = true, onClose, isOverlay = false }: SidebarPr
 
         {/* Season Countdown */}
         <div className="rounded-lg border sb-countdown">
-          <p className="sb-countdown-label">Beta Season ends in</p>
           <p className="sb-countdown-time">
-            {timeLeft.days}d : {pad(timeLeft.hours)}h : {pad(timeLeft.minutes)}m
+            {timeLeft.days}d {pad(timeLeft.hours)}h {pad(timeLeft.minutes)}m {pad(timeLeft.seconds)}s
           </p>
+          <p className="sb-countdown-label">remaining — Alpha Reward Program is live</p>
           <p className="sb-countdown-hint">
             The top spots are being claimed right now.
           </p>

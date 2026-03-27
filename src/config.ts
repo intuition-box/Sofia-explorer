@@ -14,10 +14,10 @@ export const BLOCK_CHUNK = 50_000n
 export const REFRESH_INTERVAL = 120_000 // 2 min
 
 // ── Season Config (modifier ici pour changer de saison) ──
-export const SEASON_NAME = 'Beta'
-export const SEASON_START = new Date('2026-02-21T08:34:18Z')
-export const SEASON_END = new Date('2026-04-05T00:00:00Z')
-export const SEASON_START_BLOCK = 2349484n
+export const SEASON_NAME = 'Alpha Tester Reward Program'
+export const SEASON_START = new Date('2026-03-27T00:00:00Z')
+export const SEASON_END = new Date('2026-04-27T00:00:00Z')
+export const SEASON_START_BLOCK = 2379165n
 
 // ── Beta Season Pool vault ──
 export const SEASON_POOL_TERM_ID = '0xd1315af387fa4148375918e4917466d2ba36c49d07c547c9e04c881b76437d10'
