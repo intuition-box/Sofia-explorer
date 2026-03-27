@@ -225,6 +225,22 @@
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Mobile: full-width profile drawer */
+@media (max-width: 767px) {
+  .pd-aside {
+    width: 100%;
+    top: 56px;
+    height: calc(100vh - 56px);
+    border-left: none;
+  }
+}
+@media (min-width: 768px) and (max-width: 1279px) {
+  .pd-aside {
+    top: 56px;
+    height: calc(100vh - 56px);
+  }
+}
+
 /* Share button */
 .pd-share-btn {
   gap: 6px;

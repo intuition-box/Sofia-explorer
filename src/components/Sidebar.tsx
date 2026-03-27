@@ -37,7 +37,13 @@ const TOPIC_ICONS: Record<string, string> = {
   'food-lifestyle': '🍽️', literature: '📚', 'personal-dev': '🧠',
 }
 
-export function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean
+  onClose?: () => void
+  isOverlay?: boolean
+}
+
+export function Sidebar({ isOpen = true, onClose, isOverlay = false }: SidebarProps) {
   const location = useLocation()
   const { authenticated } = usePrivy()
   const { selectedTopics } = useTopicSelection()
@@ -51,6 +57,11 @@ export function Sidebar() {
     }, 60_000)
     return () => clearInterval(timer)
   }, [])
+
+  // Close overlay sidebar on route change
+  useEffect(() => {
+    if (isOverlay) onClose?.()
+  }, [location.pathname])
 
   const navItems = [
     { to: '/feed', icon: Home, label: 'Home', public: true },
@@ -66,8 +77,12 @@ export function Sidebar() {
   ]
 
   return (
-    <aside className="fixed left-0 top-0 h-screen overflow-y-auto z-40 sb-aside">
-      <div className="p-4 space-y-6 sb-inner" style={{ zoom: 1.25 }}>
+    <>
+    {isOverlay && isOpen && (
+      <div className="sb-backdrop" onClick={onClose} />
+    )}
+    <aside className={`fixed left-0 top-0 h-screen overflow-y-auto z-40 sb-aside${isOverlay ? ' sb-overlay' : ''}${!isOpen ? ' sb-closed' : ''}`}>
+      <div className="p-4 space-y-6 sb-inner" style={{ zoom: isOverlay ? 1 : 1.25 }}>
         {/* Navigation */}
         <div>
           <h3 className="mb-3 px-2 text-sm font-medium text-foreground">
@@ -198,5 +213,6 @@ export function Sidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }
