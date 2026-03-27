@@ -2,7 +2,7 @@ import type { Address } from 'viem'
 
 // ── Network ──
 export const RPC_URL = 'https://rpc.intuition.systems'
-export const GRAPHQL_URL = import.meta.env.DEV ? '/v1/graphql' : 'https://mainnet.intuition.sh/v1/graphql'
+export const GRAPHQL_URL = '/v1/graphql'
 export const EXPLORER_URL = 'https://explorer.intuition.systems'
 
 // ── Sofia Proxy Contract ──
@@ -31,8 +31,7 @@ export const PRIVY_CLIENT_ID = import.meta.env.VITE_PRIVY_CLIENT_ID as string
 export const OG_BASE_URL = (import.meta.env.VITE_OG_BASE_URL as string) || 'https://sofia-og.vercel.app'
 
 // ── MCP Trust Engine ──
-export const MCP_TRUST_URL = import.meta.env.VITE_MCP_TRUST_URL as string
-  || (import.meta.env.DEV ? '/mcp-trust' : 'https://mcp-trust.intuition.box')
+export const MCP_TRUST_URL = (import.meta.env.VITE_MCP_TRUST_URL as string) || '/mcp-trust'
 
 // ── Predicate IDs (mainnet) ──
 export const PREDICATE_IDS = {
