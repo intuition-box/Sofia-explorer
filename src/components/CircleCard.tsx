@@ -8,18 +8,18 @@ import { TOPIC_META } from '@/config/topicMeta'
 import { SOFIA_TOPICS } from '@/config/taxonomy'
 import { timeAgo } from '@/utils/formatting'
 
-/** Verb phrase displayed before the colored intention word */
-const INTENTION_VERB: Record<string, string> = {
+/** Connector phrase displayed after the title for each intention */
+const INTENTION_CONNECTOR: Record<string, string> = {
   Trusted: '',
   Distrusted: '',
-  Work: 'visits for',
-  Learning: 'visits for',
-  Fun: 'visits for',
-  Inspiration: 'visits for',
-  Buying: 'visits for',
-  Music: 'listens to',
+  Work: 'is for',
+  Learning: 'is for',
+  Fun: 'is for',
+  Inspiration: 'is for',
+  Buying: 'is for',
+  Music: 'is for',
   Attending: 'is',
-  Valued: 'has',
+  Valued: 'has value',
 }
 
 interface CircleCardProps {
@@ -32,6 +32,7 @@ interface CircleCardProps {
 
 export default function CircleCard({ item, displayName, avatar, isPrivate, onDeposit }: CircleCardProps) {
   const shownName = isPrivate ? 'Someone' : displayName
+  const isTrustIntent = item.intentions.every((i) => i === 'Trusted' || i === 'Distrusted')
 
   return (
     <Card className="p-4 flex flex-col gap-4 hover:shadow-md transition-shadow">
@@ -61,25 +62,46 @@ export default function CircleCard({ item, displayName, avatar, isPrivate, onDep
         )}
       </div>
 
-      {/* Phrase: user + verb + colored intentions + title */}
+      {/* Phrase */}
       <p className="text-sm leading-relaxed">
         <span className="font-semibold">{shownName}</span>
         {' '}
-        {item.intentions.map((intent, i) => {
-          const verb = INTENTION_VERB[intent] ?? ''
-          const intentColor = INTENTION_COLORS[intent] ?? 'var(--foreground)'
-          return (
-            <span key={intent}>
-              {i > 0 && <span className="text-muted-foreground">{i === item.intentions.length - 1 ? ' & ' : ', '}</span>}
-              {verb && <span className="text-muted-foreground">{verb} </span>}
-              <IntentionTooltip termId={item.intentionVaults[intent]?.termId} color={intentColor}>
-                <span style={{ color: intentColor, fontWeight: 600 }}>{intent.toLowerCase()}</span>
-              </IntentionTooltip>
-            </span>
-          )
-        })}
-        {' '}
-        <span className="font-semibold">{item.title}</span>
+        {isTrustIntent ? (
+          <>
+            {item.intentions.map((intent, i) => {
+              const intentColor = INTENTION_COLORS[intent] ?? 'var(--foreground)'
+              return (
+                <span key={intent}>
+                  {i > 0 && <span className="text-muted-foreground">{i === item.intentions.length - 1 ? ' & ' : ', '}</span>}
+                  <IntentionTooltip termId={item.intentionVaults[intent]?.termId} color={intentColor}>
+                    <span style={{ color: intentColor, fontWeight: 600 }}>{intent.toLowerCase()}</span>
+                  </IntentionTooltip>
+                </span>
+              )
+            })}
+            {' '}
+            <span className="font-semibold">{item.title}</span>
+          </>
+        ) : (
+          <>
+            <span className="text-muted-foreground">claims </span>
+            <span className="font-semibold">{item.title}</span>
+            {' '}
+            {item.intentions.map((intent, i) => {
+              const connector = INTENTION_CONNECTOR[intent] ?? ''
+              const intentColor = INTENTION_COLORS[intent] ?? 'var(--foreground)'
+              return (
+                <span key={intent}>
+                  {i > 0 && <span className="text-muted-foreground">{i === item.intentions.length - 1 ? ' & ' : ', '}</span>}
+                  {i === 0 && connector && <span className="text-muted-foreground">{connector} </span>}
+                  <IntentionTooltip termId={item.intentionVaults[intent]?.termId} color={intentColor}>
+                    <span style={{ color: intentColor, fontWeight: 600 }}>{intent.toLowerCase()}</span>
+                  </IntentionTooltip>
+                </span>
+              )
+            })}
+          </>
+        )}
       </p>
       {/* Topic context badges */}
       {item.topicContexts?.length > 0 && (
