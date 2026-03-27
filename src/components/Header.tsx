@@ -3,7 +3,7 @@ import { usePrivy, useLogin, useLogout, useLinkAccount } from '@privy-io/react-a
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { isAddress } from 'viem'
 import { Button } from "./ui/button";
-import { Search, Bell, Home, Wallet, LogOut, Sun, Moon, User, Menu } from "lucide-react";
+import { Search, Bell, Home, Wallet, LogOut, Sun, Moon, User, Menu, PanelRight } from "lucide-react";
 import { useTheme } from '../hooks/useTheme'
 import { useEnsNames } from '../hooks/useEnsNames'
 import { useCart } from '../hooks/useCart'
@@ -23,9 +23,11 @@ interface HeaderProps {
   onMenuClick?: () => void
   showMenu?: boolean
   compact?: boolean
+  onProfileDrawerClick?: () => void
+  showProfileDrawer?: boolean
 }
 
-export function Header({ onCartClick, onMenuClick, showMenu, compact }: HeaderProps) {
+export function Header({ onCartClick, onMenuClick, showMenu, compact, onProfileDrawerClick, showProfileDrawer }: HeaderProps) {
   const { ready, authenticated, user } = usePrivy()
   const { login } = useLogin()
   const { logout } = useLogout()
@@ -131,6 +133,13 @@ export function Header({ onCartClick, onMenuClick, showMenu, compact }: HeaderPr
             {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             <span className="sr-only">Toggle theme</span>
           </Button>
+
+          {showProfileDrawer && (
+            <Button variant="ghost" size="icon" className="h-9 w-9" onClick={onProfileDrawerClick}>
+              <PanelRight className="h-5 w-5" />
+              <span className="sr-only">Profile panel</span>
+            </Button>
+          )}
 
           {ready && !authenticated && (
             <Button size="sm" onClick={() => login()} className="ml-2">

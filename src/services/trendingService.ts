@@ -5,6 +5,7 @@ import {
 import { PREDICATE_IDS } from '@/config'
 import type { IntentCategory, TrendingItemLive } from '@/types'
 import { extractDomain } from '@/utils/formatting'
+import { getFaviconUrl } from '@/utils/favicon'
 
 type TrendingTripleRaw = GetTrendingByPredicateQuery['triples'][number]
 
@@ -40,7 +41,7 @@ export function tripleToItem(triple: TrendingTripleRaw, category: IntentCategory
     label: label || domain,
     url: `https://${domain}`,
     domain,
-    favicon: `https://www.google.com/s2/favicons?domain=${domain}&sz=32`,
+    favicon: getFaviconUrl(domain, 32),
     certifiers: triple.all_positions.length,
     termId: triple.term_id ?? undefined,
     counterTermId: triple.counter_term_id ?? undefined,

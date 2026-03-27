@@ -9,6 +9,7 @@
 import { GRAPHQL_URL } from '@/config'
 import { TOPIC_ATOM_IDS } from '@/config/atomIds'
 import { extractDomain } from '@/utils/formatting'
+import { getFaviconUrl } from '@/utils/favicon'
 
 // ── Types ──
 
@@ -135,7 +136,7 @@ export async function fetchTopicCertifications(
       termId: triple.term_id,
       platformLabel: obj?.value?.thing?.name || obj?.label || domain,
       domain,
-      favicon: obj?.image || (domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=64` : ''),
+      favicon: obj?.image || (domain ? getFaviconUrl(domain) : ''),
       url: thingUrl,
       intention: triple.predicate?.label || '',
       positionCount: totalPositionCount,
