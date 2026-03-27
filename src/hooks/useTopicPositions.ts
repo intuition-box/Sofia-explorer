@@ -19,7 +19,7 @@ export function useTopicPositions(selectedTopics: string[]) {
   const { wallets } = useWallets()
   const wallet = wallets[0]
 
-  const { data: positions, isLoading, refetch } = useQuery<TopicPositionMap>({
+  const { data: positions, isLoading, isSuccess, refetch } = useQuery<TopicPositionMap>({
     queryKey: ['topic-positions', wallet?.address, selectedTopics],
     queryFn: async () => {
       if (!wallet?.address || selectedTopics.length === 0) return {}
@@ -52,9 +52,9 @@ export function useTopicPositions(selectedTopics: string[]) {
     positions: positions ?? {},
     /** true if a topic has an on-chain position (shares > 0) */
     hasPosition: (topicId: string) => (positions?.[topicId] ?? 0n) > 0n,
-    /** true if a topic is selected locally but has no on-chain position */
+    /** true if a topic is selected locally but has no on-chain position (only after successful fetch) */
     isPending: (topicId: string) =>
-      selectedTopics.includes(topicId) && (positions?.[topicId] ?? 0n) === 0n,
+      isSuccess && selectedTopics.includes(topicId) && (positions?.[topicId] ?? 0n) === 0n,
     isLoading,
     refetch,
   }

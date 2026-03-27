@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { fetchAllActivity } from '../services/activityService'
+import { fetchWithRetry } from '../utils/fetchRetry'
 import type { CircleItem } from '../services/circleService'
 
 const BATCH_SIZE = 200
@@ -18,7 +19,7 @@ export function useAllActivity() {
     offsetRef.current = 0
 
     try {
-      const data = await fetchAllActivity(BATCH_SIZE, 0)
+      const data = await fetchWithRetry(() => fetchAllActivity(BATCH_SIZE, 0))
       setItems(data)
       offsetRef.current = BATCH_SIZE
       setHasMore(data.length > 0)
