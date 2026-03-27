@@ -32,7 +32,7 @@ interface CircleCardProps {
 
 export default function CircleCard({ item, displayName, avatar, isPrivate, onDeposit }: CircleCardProps) {
   const shownName = isPrivate ? 'Someone' : displayName
-  const isTrustIntent = item.intentions.every((i) => i === 'Trusted' || i === 'Distrusted')
+  const isDirectVerb = item.intentions.every((i) => i === 'Trusted' || i === 'Distrusted' || i === 'is following')
 
   return (
     <Card className="p-4 flex flex-col gap-4 hover:shadow-md transition-shadow">
@@ -66,7 +66,7 @@ export default function CircleCard({ item, displayName, avatar, isPrivate, onDep
       <p className="text-sm leading-relaxed">
         <span className="font-semibold">{shownName}</span>
         {' '}
-        {isTrustIntent ? (
+        {isDirectVerb ? (
           <>
             {item.intentions.map((intent, i) => {
               const intentColor = INTENTION_COLORS[intent] ?? 'var(--foreground)'

@@ -91,17 +91,19 @@ export function Header({ onCartClick, onMenuClick, showMenu, compact, onProfileD
             </Link>
           </div>
 
-          <div className="relative max-w-sm w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="search"
-              placeholder="Search wallet or ENS..."
-              value={searchValue}
-              onChange={(e) => setSearchValue(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="w-full h-9 rounded-full bg-muted pl-10 pr-4 text-sm outline-none focus:bg-background focus:ring-2 focus:ring-ring transition-colors"
-            />
-          </div>
+          {(location.pathname === '/feed' || location.pathname.startsWith('/profile')) && (
+            <div className="relative max-w-sm w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="search"
+                placeholder="Search wallet or ENS..."
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                className="w-full h-9 rounded-full bg-muted pl-10 pr-4 text-sm outline-none focus:bg-background focus:ring-2 focus:ring-ring transition-colors"
+              />
+            </div>
+          )}
         </div>
 
         {/* Right side - Navigation + Auth */}

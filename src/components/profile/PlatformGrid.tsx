@@ -113,6 +113,10 @@ export default function PlatformGrid({
         <h2 className="text-lg font-bold flex-1">Platforms ({catalog.length})</h2>
       </div>
 
+      <div className="rounded-lg border px-4 py-3 text-sm text-muted-foreground" style={{ background: 'color-mix(in oklab, var(--accent) 6%, var(--background))' }}>
+        Platform connections are coming soon. For now, use <strong className="text-foreground">Certify</strong> to signal your favorite platforms via the Sofia extension.
+      </div>
+
       <div className="relative">
         <Search className="absolute h-4 w-4 text-muted-foreground" style={{ left: 12, top: '50%', transform: 'translateY(-50%)' }} />
         <Input
@@ -210,29 +214,16 @@ export default function PlatformGrid({
                         const info = getConnectInfo(platform.authType, platform.targetTopics)
                         if (!info) return null
 
-                        const isPending = status === 'pending_verification'
                         return (
                           <Button
                             size="sm"
-                            variant={isConnected ? 'outline' : 'default'}
+                            variant="outline"
                             className="pg-action-btn"
-                            disabled={isConnecting || isPending}
-                            onClick={() => {
-                              if (isConnected) {
-                                onDisconnect(platform.id)
-                              } else if (info.icon === 'username') {
-                                setShowUsernameFor(showUsernameFor === platform.id ? null : platform.id)
-                              } else {
-                                onConnect(platform.id)
-                              }
-                            }}
+                            disabled
+                            title="Coming soon"
                           >
-                            {isConnecting && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
-                            {isConnected && <Check className="h-3 w-3 mr-1" />}
-                            {!isConnected && !isConnecting && info.icon === 'wallet' && <Wallet className="h-3 w-3 mr-1" />}
-                            {!isConnected && !isConnecting && info.icon === 'username' && <UserPlus className="h-3 w-3 mr-1" />}
-                            {!isConnected && !isConnecting && info.icon === 'oauth' && <Link className="h-3 w-3 mr-1" />}
-                            {isConnected ? STATUS_LABELS[status] : info.label}
+                            <Link className="h-3 w-3 mr-1" />
+                            Connect
                           </Button>
                         )
                       })()}
