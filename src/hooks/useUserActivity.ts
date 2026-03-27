@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { fetchUserActivity } from '../services/domainActivityService'
+import { fetchWithRetry } from '../utils/fetchRetry'
 import type { CircleItem } from '../services/circleService'
 
 const BATCH_SIZE = 200
@@ -23,7 +24,7 @@ export function useUserActivity(walletAddress: string | undefined) {
     offsetRef.current = 0
 
     try {
-      const data = await fetchUserActivity(walletAddress, BATCH_SIZE, 0)
+      const data = await fetchWithRetry(() => fetchUserActivity(walletAddress!, BATCH_SIZE, 0))
       setItems(data)
       offsetRef.current = BATCH_SIZE
       setHasMore(data.length > 0)

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { fetchCircleFeed, type CircleItem } from '../services/circleService'
+import { fetchWithRetry } from '../utils/fetchRetry'
 
 const BATCH_SIZE = 200
 
@@ -19,7 +20,7 @@ export function useCircleFeed(walletAddress: string | undefined) {
     offsetRef.current = 0
 
     try {
-      const data = await fetchCircleFeed(walletAddress, BATCH_SIZE, 0)
+      const data = await fetchWithRetry(() => fetchCircleFeed(walletAddress!, BATCH_SIZE, 0))
       setItems(data)
       offsetRef.current = BATCH_SIZE
       setHasMore(data.length > 0)
