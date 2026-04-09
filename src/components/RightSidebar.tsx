@@ -23,7 +23,7 @@ export function RightSidebar({ hidden = false }: { hidden?: boolean }) {
     <aside className={`fixed right-0 top-0 overflow-y-auto z-40 rs-aside ${hidden ? 'rs-hidden' : ''}`}>
       <div className="p-4 space-y-6" style={{ zoom: 1.25 }}>
         {/* Suggested Accounts */}
-        <Card>
+        <Card style={{ gap: 0 }}>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
               <Star className="h-4 w-4" />
