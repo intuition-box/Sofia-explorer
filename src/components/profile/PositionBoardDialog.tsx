@@ -167,7 +167,7 @@ export default function PositionBoardDialog({
             <div className="pbd-dual-boards">
               {/* Support leaderboard */}
               <div className="pbd-leaderboard">
-                <div className="pbd-lb-section-title" style={{ color: '#22C55E' }}>
+                <div className="pbd-lb-section-title" style={{ color: '#86EFAC' }}>
                   <TrendingUp className="h-3.5 w-3.5" /> Support
                 </div>
                 <div className="pbd-lb-header">
@@ -200,7 +200,7 @@ export default function PositionBoardDialog({
 
               {/* Oppose leaderboard */}
               <div className="pbd-leaderboard">
-                <div className="pbd-lb-section-title" style={{ color: '#EF4444' }}>
+                <div className="pbd-lb-section-title" style={{ color: '#FCA5A5' }}>
                   <TrendingDown className="h-3.5 w-3.5" /> Oppose
                 </div>
                 <div className="pbd-lb-header">
