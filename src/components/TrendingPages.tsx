@@ -21,7 +21,7 @@ export default function TrendingPages() {
   const { items, loading, error } = useTrending()
 
   return (
-    <Card>
+    <Card style={{ gap: 0 }}>
       <CardHeader className="pb-3">
         <CardTitle className="text-sm tp-title">
           <TrendingUp className="h-4 w-4" />

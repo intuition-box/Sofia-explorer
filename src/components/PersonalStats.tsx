@@ -2,10 +2,9 @@ import { useState } from 'react'
 import type { Address } from 'viem'
 import type { UserStats } from '../types'
 import { OG_BASE_URL } from '../config'
-import { Card } from './ui/card'
-import { Button } from './ui/button'
-import { Badge } from './ui/badge'
+import { useEnsNames } from '../hooks/useEnsNames'
 import { formatTrust } from '../utils/formatting'
+import './styles/personal-stats.css'
 
 interface PersonalStatsProps {
   userStats: UserStats
@@ -13,6 +12,12 @@ interface PersonalStatsProps {
   totalPoolStakers: number | null
   walletAddress: Address
   displayName: string
+}
+
+type StatRow = {
+  label: string
+  value: string
+  variant?: 'positive' | 'negative'
 }
 
 export default function PersonalStats({
@@ -24,6 +29,7 @@ export default function PersonalStats({
 }: PersonalStatsProps) {
   const { isAlphaTester, alphaData, alphaRank, poolData, poolRank } = userStats
   const [sharing, setSharing] = useState(false)
+  const { getDisplay, getAvatar } = useEnsNames([walletAddress])
 
   async function handleShare() {
     if (!alphaData || !alphaRank) return
@@ -67,76 +73,121 @@ export default function PersonalStats({
 
   if (!isAlphaTester) {
     return (
-      <Card className="p-6 text-center">
-        <p className="font-medium">You are not part of the Alpha Tester Program</p>
-        <p className="text-sm text-muted-foreground mt-1">
-          Start using Sofia to appear on the leaderboard
-        </p>
-      </Card>
+      <section className="ps-card">
+        <div className="ps-bar">
+          <span className="ps-bar-title">Your Standing</span>
+        </div>
+        <div className="ps-empty">
+          <div className="ps-empty-title">Not in the Alpha Tester Program</div>
+          <div className="ps-empty-sub">Start using Sofia to claim your spot on the leaderboard.</div>
+        </div>
+      </section>
     )
   }
 
-  type StatCard = { label: string; value: string; sub?: string; variant?: 'positive' | 'negative' }
+  const rank = alphaRank!
+  const rankClass = rank === 1 ? 'ps-rank ps-rank--1' : rank === 2 ? 'ps-rank ps-rank--2' : rank === 3 ? 'ps-rank ps-rank--3' : 'ps-rank'
 
-  const alphaCards: StatCard[] = [
-    { label: 'Alpha Rank', value: `#${alphaRank}` },
+  const alphaRows: StatRow[] = [
     { label: 'Transactions', value: alphaData!.tx.toLocaleString() },
     { label: 'Intentions', value: alphaData!.intentions.toLocaleString() },
     { label: 'Pioneer', value: String(alphaData!.pioneer) },
     { label: 'Trust Volume', value: formatTrust(alphaData!.trustVolume) },
   ]
 
-  const poolCards: StatCard[] = []
+  const poolRows: StatRow[] = []
   if (poolData && poolRank) {
-    poolCards.push(
+    poolRows.push(
       { label: 'Pool Rank', value: `#${poolRank}` },
-      { label: 'Pool P&L', value: `${poolData.pnl >= 0n ? '+' : ''}${formatTrust(poolData.pnl)}`, variant: poolData.pnl >= 0n ? 'positive' : 'negative' },
-      { label: 'Pool P&L %', value: `${poolData.pnlPercent >= 0 ? '+' : ''}${poolData.pnlPercent.toFixed(1)}%`, variant: poolData.pnlPercent >= 0 ? 'positive' : 'negative' },
+      {
+        label: 'P&L',
+        value: `${poolData.pnl >= 0n ? '+' : ''}${formatTrust(poolData.pnl)}`,
+        variant: poolData.pnl >= 0n ? 'positive' : 'negative',
+      },
+      {
+        label: 'P&L %',
+        value: `${poolData.pnlPercent >= 0 ? '+' : ''}${poolData.pnlPercent.toFixed(1)}%`,
+        variant: poolData.pnlPercent >= 0 ? 'positive' : 'negative',
+      },
     )
   }
-
-  function renderCard(card: StatCard) {
-    return (
-      <div key={card.label} className="flex flex-col items-center justify-center rounded-lg border p-4 text-center">
-        <span className={`text-lg font-bold ${card.variant === 'positive' ? 'text-green-600' : card.variant === 'negative' ? 'text-red-500' : ''}`}>
-          {card.value}
-        </span>
-        <span className="text-xs text-muted-foreground mt-1">{card.label}</span>
-        {card.sub && (
-          <Badge variant="secondary" className="mt-1 text-[10px]">
-            {card.sub}
-          </Badge>
-        )}
-      </div>
-    )
-  }
-
-  const cols = alphaCards.length
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-5">
-        <h3 className="font-medium text-base">Your Stats</h3>
-        <Button size="sm" variant="outline" onClick={handleShare} disabled={sharing}>
-          {sharing ? 'Sharing...' : 'Share'}
-        </Button>
+    <section className="ps-card">
+      <div className="ps-bar">
+        <span className="ps-bar-title">Your Standing</span>
+        <button
+          className="ps-share-btn"
+          onClick={handleShare}
+          disabled={sharing}
+          aria-label="Share on X"
+        >
+          <svg viewBox="0 0 1200 1227" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+            <path d="M714.163 519.284 1160.89 0h-105.86L667.137 450.887 357.328 0H0l468.492 681.821L0 1226.37h105.866l409.625-476.152 327.181 476.152H1200L714.137 519.284h.026ZM569.165 687.828l-47.468-67.894-377.686-540.24h162.604l304.797 435.991 47.468 67.894 396.2 566.721H892.476L569.165 687.854v-.026Z"/>
+          </svg>
+          {sharing ? 'Sharing…' : 'Share on X'}
+        </button>
       </div>
-      <div className="space-y-5">
-        <div>
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Alpha Tester</p>
-          <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
-            {alphaCards.map(renderCard)}
+
+      <div className="ps-body">
+        {/* Player zone */}
+        <div className="ps-player">
+          <div className="ps-rank-wrap">
+            <div className={rankClass}>
+              <span className="ps-rank-hash">#</span>
+              <span>{rank}</span>
+            </div>
+            <span className="ps-rank-of">of {totalAlphaTesters.toLocaleString()}</span>
+          </div>
+
+          <div className="ps-divider" />
+
+          <div className="ps-identity">
+            <img src={getAvatar(walletAddress)} alt="" className="ps-avatar" />
+            <span className="ps-name">{getDisplay(walletAddress) || displayName}</span>
+            <span className="ps-pill">
+              <span className="ps-pill-dot" /> Alpha Tester
+            </span>
           </div>
         </div>
-        {poolCards.length > 0 && (
-          <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Season Pool</p>
-            <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
-              {poolCards.map(renderCard)}
+
+        {/* Stats zone */}
+        <div className={'ps-stats' + (poolRows.length > 0 ? ' ps-stats--split' : '')}>
+          <div className="ps-stats-col">
+            <div className="ps-section-title">Season Performance</div>
+            <div className="ps-stat-list">
+              {alphaRows.map((r) => (
+                <div key={r.label} className="ps-stat-row">
+                  <span className="ps-stat-label">{r.label}</span>
+                  <span className="ps-stat-value">{r.value}</span>
+                </div>
+              ))}
             </div>
           </div>
-        )}
+
+          {poolRows.length > 0 && (
+            <div className="ps-stats-col">
+              <div className="ps-section-title">Season Pool</div>
+              <div className="ps-stat-list">
+                {poolRows.map((r) => (
+                  <div key={r.label} className="ps-stat-row">
+                    <span className="ps-stat-label">{r.label}</span>
+                    <span
+                      className={
+                        'ps-stat-value' +
+                        (r.variant === 'positive' ? ' ps-stat-value--positive' : '') +
+                        (r.variant === 'negative' ? ' ps-stat-value--negative' : '')
+                      }
+                    >
+                      {r.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-    </Card>
+    </section>
   )
 }
