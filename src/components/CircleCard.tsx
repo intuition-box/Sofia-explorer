@@ -129,7 +129,7 @@ export default function CircleCard({ item, displayName, avatar, isPrivate, onDep
       {/* Actions */}
       <div className="flex items-center gap-2">
         <Button
-          variant="outline" size="sm" className="text-xs h-7 gap-1"
+          variant="outline" size="sm" className="text-xs h-7 gap-1 btn-hover-support"
           disabled={Object.keys(item.intentionVaults).length === 0}
           onClick={() => onDeposit?.('support', item)}
         >
@@ -137,7 +137,7 @@ export default function CircleCard({ item, displayName, avatar, isPrivate, onDep
           Support
         </Button>
         <Button
-          variant="outline" size="sm" className="text-xs h-7 gap-1"
+          variant="outline" size="sm" className="text-xs h-7 gap-1 btn-hover-oppose"
           disabled={!Object.values(item.intentionVaults).some(v => v.counterTermId)}
           onClick={() => onDeposit?.('oppose', item)}
         >
