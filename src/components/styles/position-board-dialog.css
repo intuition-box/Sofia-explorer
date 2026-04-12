@@ -269,21 +269,21 @@
 }
 
 .pbd-btn-support {
-  background: color-mix(in oklab, #22C55E 15%, transparent);
-  color: #22C55E;
-  border: 1px solid color-mix(in oklab, #22C55E 30%, transparent);
+  background: color-mix(in oklab, #86EFAC 15%, transparent);
+  color: #86EFAC;
+  border: 1px solid color-mix(in oklab, #86EFAC 35%, transparent);
 }
 .pbd-btn-support:hover:not(:disabled) {
-  background: color-mix(in oklab, #22C55E 25%, transparent);
+  background: color-mix(in oklab, #86EFAC 28%, transparent);
 }
 
 .pbd-btn-oppose {
-  background: color-mix(in oklab, #EF4444 15%, transparent);
-  color: #EF4444;
-  border: 1px solid color-mix(in oklab, #EF4444 30%, transparent);
+  background: color-mix(in oklab, #FCA5A5 15%, transparent);
+  color: #FCA5A5;
+  border: 1px solid color-mix(in oklab, #FCA5A5 35%, transparent);
 }
 .pbd-btn-oppose:hover:not(:disabled) {
-  background: color-mix(in oklab, #EF4444 25%, transparent);
+  background: color-mix(in oklab, #FCA5A5 28%, transparent);
 }
 
 .pbd-btn-support:disabled,

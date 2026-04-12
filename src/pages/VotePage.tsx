@@ -95,7 +95,7 @@ export default function VotePage() {
       intention: type === 'support' ? 'Support' : 'Oppose',
       title,
       favicon: '',
-      intentionColor: type === 'support' ? '#22C55E' : '#EF4444',
+      intentionColor: type === 'support' ? '#86EFAC' : '#FCA5A5',
     })
   }
 
@@ -173,12 +173,12 @@ export default function VotePage() {
               {/* Vote bar */}
               <div className="space-y-2">
                 <div className="flex justify-between text-xs">
-                  <span className="text-green-500">Support {supportPercent}%</span>
-                  <span className="text-red-500">Oppose {100 - supportPercent}%</span>
+                  <span style={{ color: '#86EFAC' }}>Support {supportPercent}%</span>
+                  <span style={{ color: '#FCA5A5' }}>Oppose {100 - supportPercent}%</span>
                 </div>
                 <div className="h-2 rounded-full bg-muted overflow-hidden flex">
-                  <div className="transition-all" style={{ width: `${supportPercent}%`, backgroundColor: '#22C55E' }} />
-                  <div style={{ backgroundColor: '#EF4444', flex: 1 }} />
+                  <div className="transition-all" style={{ width: `${supportPercent}%`, backgroundColor: '#86EFAC' }} />
+                  <div style={{ backgroundColor: '#FCA5A5', flex: 1 }} />
                 </div>
                 <div className="flex justify-between text-xs text-muted-foreground">
                   <span>{formatMarketCap(claim.supportMarketCap)} · {claim.supportCount}</span>
@@ -189,20 +189,20 @@ export default function VotePage() {
               {/* Vote buttons */}
               <div className="flex gap-3 pt-2">
                 <Button
-                  className="flex-1"
+                  className="flex-1 btn-hover-support"
                   variant="outline"
                   disabled={!!userVote && userVote !== 'support'}
-                  style={userVote === 'support' ? { borderColor: '#22C55E', color: '#22C55E', background: 'rgba(34,197,94,0.1)' } : undefined}
+                  style={userVote === 'support' ? { borderColor: '#86EFAC', color: '#86EFAC', background: 'rgba(134,239,172,0.12)' } : undefined}
                   onClick={(e) => { e.stopPropagation(); handleVote('support') }}
                 >
                   <ThumbsUp className="h-4 w-4 mr-2" />
                   {userVote === 'support' ? 'Supported' : 'Support'}
                 </Button>
                 <Button
-                  className="flex-1"
+                  className="flex-1 btn-hover-oppose"
                   variant="outline"
                   disabled={!!userVote && userVote !== 'oppose'}
-                  style={userVote === 'oppose' ? { borderColor: '#EF4444', color: '#EF4444', background: 'rgba(239,68,68,0.1)' } : undefined}
+                  style={userVote === 'oppose' ? { borderColor: '#FCA5A5', color: '#FCA5A5', background: 'rgba(252,165,165,0.12)' } : undefined}
                   onClick={(e) => { e.stopPropagation(); handleVote('oppose') }}
                 >
                   <ThumbsDown className="h-4 w-4 mr-2" />
@@ -278,7 +278,7 @@ export default function VotePage() {
                   </div>
                 </div>
                 <div className="text-right ml-3">
-                  <span className="text-sm font-bold text-green-500">{pct}%</span>
+                  <span className="text-sm font-bold" style={{ color: '#86EFAC' }}>{pct}%</span>
                 </div>
               </div>
             </Card>

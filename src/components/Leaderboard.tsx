@@ -10,6 +10,17 @@ import { Button } from './ui/button'
 import { formatTrust } from '../utils/formatting'
 import './styles/leaderboard.css'
 
+function RankCell({ rank }: { rank: number }) {
+  if (rank <= 3) {
+    return (
+      <td className="lb-rank">
+        <span className={`lb-rank-badge lb-rank-${rank}`}>{rank}</span>
+      </td>
+    )
+  }
+  return <td className="lb-rank">{rank}</td>
+}
+
 type AlphaSortOption = 'TX' | 'Intentions' | 'Pioneer' | 'Trust Volume'
 type PoolSortOption = 'Shares' | 'Current Value' | 'P&L' | 'P&L %'
 type TrustSortOption = 'Score' | 'Confidence' | 'Paths'
@@ -143,20 +154,23 @@ export default function Leaderboard({
             <tr className="lb-border-row">
               <th className="lb-rank-head">#</th>
               <th className="lb-cell-head">User</th>
-              {columns.map((col) => (
-                <th
-                  key={col.key}
-                  className="lb-cell-head-num"
-                  onClick={() =>
-                    isAlpha
-                      ? setAlphaSortBy(col.key as AlphaSortOption)
-                      : setPoolSortBy(col.key as PoolSortOption)
-                  }
-                >
-                  {col.label}
-                  {(isAlpha ? alphaSortBy : poolSortBy) === col.key && ' ▼'}
-                </th>
-              ))}
+              {columns.map((col) => {
+                const active = (isAlpha ? alphaSortBy : poolSortBy) === col.key
+                return (
+                  <th
+                    key={col.key}
+                    className={`lb-cell-head-num${active ? ' lb-sort-active' : ''}`}
+                    onClick={() =>
+                      isAlpha
+                        ? setAlphaSortBy(col.key as AlphaSortOption)
+                        : setPoolSortBy(col.key as PoolSortOption)
+                    }
+                  >
+                    {col.label}
+                    {active && ' ▼'}
+                  </th>
+                )
+              })}
             </tr>
           </thead>
           )}
@@ -165,16 +179,19 @@ export default function Leaderboard({
             <tr className="lb-border-row">
               <th className="lb-rank-head">#</th>
               <th className="lb-cell-head">User</th>
-              {TRUST_COLUMNS.map((col) => (
-                <th
-                  key={col.key}
-                  className="lb-cell-head-num"
-                  onClick={() => setTrustSortBy(col.key)}
-                >
-                  {col.label}
-                  {trustSortBy === col.key && ' ▼'}
-                </th>
-              ))}
+              {TRUST_COLUMNS.map((col) => {
+                const active = trustSortBy === col.key
+                return (
+                  <th
+                    key={col.key}
+                    className={`lb-cell-head-num${active ? ' lb-sort-active' : ''}`}
+                    onClick={() => setTrustSortBy(col.key)}
+                  >
+                    {col.label}
+                    {active && ' ▼'}
+                  </th>
+                )
+              })}
             </tr>
           </thead>
           )}
@@ -198,13 +215,12 @@ export default function Leaderboard({
 
             {!loading && !error && isAlpha &&
               sortedAlpha.map((user, i) => {
+                const rank = i + 1
                 const isSelf = connectedAddress && user.address.toLowerCase() === connectedAddress.toLowerCase()
+                const cls = "lb-border-row" + (isSelf ? " lb-self-row" : "") + (rank <= 3 ? " lb-top-row" : "")
                 return (
-                  <tr
-                    key={user.address}
-                    className={"lb-border-row" + (isSelf ? " lb-self-row" : "")}
-                  >
-                    <td className="lb-rank">{i + 1}</td>
+                  <tr key={user.address} className={cls}>
+                    <RankCell rank={rank} />
                     <td className="lb-cell">
                       <a
                         href={`${EXPLORER_URL}/address/${user.address}`}
@@ -230,14 +246,13 @@ export default function Leaderboard({
 
             {!loading && !error && isTrust &&
               sortedTrust.map((entry, i) => {
+                const rank = i + 1
                 const addr = entry.address as Address
                 const isSelf = connectedAddress && addr.toLowerCase() === connectedAddress.toLowerCase()
+                const cls = "lb-border-row" + (isSelf ? " lb-self-row" : "") + (rank <= 3 ? " lb-top-row" : "")
                 return (
-                  <tr
-                    key={addr}
-                    className={"lb-border-row" + (isSelf ? " lb-self-row" : "")}
-                  >
-                    <td className="lb-rank">{i + 1}</td>
+                  <tr key={addr} className={cls}>
+                    <RankCell rank={rank} />
                     <td className="lb-cell">
                       <a
                         href={`${EXPLORER_URL}/address/${addr}`}
@@ -262,13 +277,12 @@ export default function Leaderboard({
 
             {!loading && !error && activeTab === 'pool' &&
               sortedPool.map((pos, i) => {
+                const rank = i + 1
                 const isSelf = connectedAddress && pos.address.toLowerCase() === connectedAddress.toLowerCase()
+                const cls = "lb-border-row" + (isSelf ? " lb-self-row" : "") + (rank <= 3 ? " lb-top-row" : "")
                 return (
-                  <tr
-                    key={pos.address}
-                    className={"lb-border-row" + (isSelf ? " lb-self-row" : "")}
-                  >
-                    <td className="lb-rank">{i + 1}</td>
+                  <tr key={pos.address} className={cls}>
+                    <RankCell rank={rank} />
                     <td className="lb-cell">
                       <a
                         href={`${EXPLORER_URL}/address/${pos.address}`}
