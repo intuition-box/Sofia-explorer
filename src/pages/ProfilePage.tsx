@@ -6,12 +6,10 @@ import { usePlatformConnections } from '../hooks/usePlatformConnections'
 import { useReputationScores } from '../hooks/useReputationScores'
 import { useUserActivity } from '../hooks/useUserActivity'
 import { useTopClaims } from '../hooks/useTopClaims'
-import { useEthccData } from '../hooks/useEthccData'
 import { useTrustScore } from '../hooks/useTrustScore'
 import LastActivitySection from '../components/profile/LastActivitySection'
 import InterestsGrid from '../components/profile/InterestsGrid'
 import TopClaimsSection from '../components/profile/TopClaimsSection'
-import EthccConnectCard from '../components/profile/EthccConnectCard'
 import { Card } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Wallet, User } from 'lucide-react'
@@ -29,9 +27,8 @@ export default function ProfilePage() {
   const { selectedTopics, selectedCategories, removeTopic } = useTopicSync()
   const navigate = useNavigate()
   const { getStatus } = usePlatformConnections()
-  const { ethccWallet, signals: ethccSignals, loading: ethccLoading, setWallet, clearWallet } = useEthccData()
   const { score: trustCompositeScore } = useTrustScore(address || undefined)
-  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, ethccSignals, trustCompositeScore)
+  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, null, trustCompositeScore)
   const topicScores = scores?.topics ?? []
   const { items: activityItems, loading: activityLoading } = useUserActivity(address || undefined)
   const { claims: topClaims, loading: claimsLoading } = useTopClaims(address || undefined)
@@ -89,19 +86,6 @@ export default function ProfilePage() {
       )}
 
       <div className="pp-sections page-content page-enter">
-
-        {/* EthCC Wallet — own profile only */}
-        {!isViewingAs && (
-          <section className="pp-section">
-            <EthccConnectCard
-              ethccWallet={ethccWallet}
-              signals={ethccSignals}
-              loading={ethccLoading}
-              onConnect={setWallet}
-              onDisconnect={clearWallet}
-            />
-          </section>
-        )}
 
         {/* Top Claims */}
         {(claimsLoading || topClaims.length > 0) && (

@@ -12,6 +12,100 @@
 .page-loader { min-height: calc(100vh - 200px); padding-top: 20vh; }
 .page-loader-sm { min-height: 300px; }
 
+/* ── Home feed: Quest card with bleeding Sofia hero logo ── */
+.qc-card {
+  --quest-color: var(--foreground);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 14px;
+  border: 1px solid color-mix(in oklab, var(--quest-color) 28%, var(--border));
+  background:
+    linear-gradient(
+      100deg,
+      color-mix(in oklab, var(--card) 98%, transparent) 0%,
+      color-mix(in oklab, var(--card) 90%, transparent) 55%,
+      color-mix(in oklab, var(--quest-color) 14%, var(--card)) 100%
+    );
+  transition:
+    transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+.qc-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    140% 110% at 108% 50%,
+    color-mix(in oklab, var(--quest-color) 32%, transparent) 0%,
+    transparent 58%
+  );
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity 0.3s ease;
+}
+.qc-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--quest-color) 55%, var(--border));
+  box-shadow:
+    0 22px 52px -24px color-mix(in oklab, var(--quest-color) 65%, transparent),
+    0 1px 0 color-mix(in oklab, var(--quest-color) 22%, transparent) inset;
+}
+.qc-card:hover::before {
+  opacity: 1;
+}
+
+.qc-hero {
+  position: absolute;
+  top: 50%;
+  right: -18%;
+  width: 68%;
+  max-width: 300px;
+  aspect-ratio: 1;
+  transform: translateY(-50%) rotate(-8deg);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.24;
+  filter: drop-shadow(0 14px 32px color-mix(in oklab, var(--quest-color) 55%, transparent));
+  transition:
+    opacity 0.35s ease,
+    transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.qc-hero svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.qc-card:hover .qc-hero {
+  opacity: 0.42;
+  transform: translateY(-50%) rotate(-3deg) scale(1.06);
+}
+
+.qc-card > :not(.qc-hero) {
+  position: relative;
+  z-index: 2;
+}
+
+.qc-eyebrow {
+  font-family: 'Oswald', system-ui, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--quest-color) 70%, var(--muted-foreground));
+}
+
+.qc-title {
+  font-family: 'Oswald', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  color: var(--quest-color);
+}
+
 /* ── Vote page ── */
 .vp-claim-card { padding: 28px; display: flex; flex-direction: column; gap: 20px; }
 .vp-claim-card--hover { cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; }
