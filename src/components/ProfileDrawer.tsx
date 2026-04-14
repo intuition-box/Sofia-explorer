@@ -64,8 +64,8 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
 
   return (
     <>
-      <aside className={`fixed right-0 overflow-hidden pd-aside ${isOpen ? 'pd-open' : ''}`}>
-        <div className="flex flex-col h-full overflow-y-auto">
+      <aside className={`absolute right-0 overflow-hidden pd-aside ${isOpen ? 'pd-open' : ''}`}>
+        <div className="flex flex-col">
 
           {/* Banner — avatar + name + share */}
           <div className="pd-banner">
@@ -106,7 +106,7 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
 
           {/* Trust Score */}
           {trustScore !== null && (
-            <div className="px-3 pt-2 pb-0">
+            <div className="px-3 pt-8 pb-0">
               <div className="pd-trust-card">
                 <div className="pd-trust-header">
                   <span className="pd-trust-label">Trust Score</span>
@@ -119,7 +119,7 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
             </div>
           )}
           {trustScoreLoading && (
-            <div className="px-3 pt-2 pb-0">
+            <div className="px-3 pt-8 pb-0">
               <div className="pd-trust-card">
                 <span className="pd-trust-label" style={{ opacity: 0.5 }}>Loading trust score...</span>
               </div>
@@ -149,7 +149,7 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
 
           {/* Trust Circle */}
           <div className="px-3 pt-8 pb-7 flex-1">
-            <p className="pd-section-title" style={{ padding: 20, marginBottom: 10 }}>
+            <p className="pd-section-title" style={{ padding: '24px 20px 0', marginBottom: 4 }}>
               My Trust Circle
               {!trustLoading && <span className="pd-circle-count">{trustCircle.length}</span>}
             </p>
