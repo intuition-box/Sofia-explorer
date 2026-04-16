@@ -804,7 +804,7 @@ export const TOPIC_SCORING_MODELS: Record<string, TopicScoringModel> = {
 
 // === SCORING PRINCIPLES (GLOBAL CONSTANTS) ===
 
-const SCORING_PRINCIPLES = {
+export const SCORING_PRINCIPLES = {
   /** Regularite > Burst: 2x/jour pendant 30j = 3x mieux que 60x en 1 jour */
   BURST_PENALTY_THRESHOLD: 0.2,
   /** Creation > Consommation: uploader score 10x plus qu'ecouter */
