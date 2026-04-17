@@ -282,9 +282,11 @@ export async function linkPlatformToWallet(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        walletAddress,
-        platform: platformId,
-        oauthToken,
+        inputData: {
+          walletAddress,
+          platform: platformId,
+          oauthToken,
+        },
       }),
     },
   )
