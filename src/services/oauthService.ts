@@ -39,6 +39,9 @@ export interface ConnectResult {
   platformId: string
   userId?: string
   username?: string
+  accessToken?: string
+  refreshToken?: string
+  expiresIn?: number
   error?: string
 }
 
