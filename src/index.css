@@ -1740,6 +1740,12 @@
     }
   }
 
+  @media (hover: hover) {
+    .dark\:hover\:bg-accent:is(.dark *):hover {
+      background-color: var(--accent);
+    }
+  }
+
   .dark\:focus-visible\:ring-destructive\/40:is(.dark *):focus-visible {
     --tw-ring-color: var(--destructive);
   }
@@ -2219,5 +2225,19 @@ html {
   to {
     opacity: var(--tw-exit-opacity, 1);
     transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0) scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), var(--tw-exit-scale, 1)) rotate(var(--tw-exit-rotate, 0));
+  }
+}
+
+/* Intent hover colors for Support / Oppose buttons (CircleCard) */
+@media (hover: hover) {
+  .btn-hover-support:hover {
+    background-color: #a7f3d0; /* emerald-200 pastel */
+    color: #064e3b;            /* emerald-900 */
+    border-color: #6ee7b7;     /* emerald-300 */
+  }
+  .btn-hover-oppose:hover {
+    background-color: #fecaca; /* red-200 pastel */
+    color: #7f1d1d;            /* red-900 */
+    border-color: #fca5a5;     /* red-300 */
   }
 }

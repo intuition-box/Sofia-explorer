@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useTaxonomy } from '@/hooks/useTaxonomy'
 import { computeReputationProfile } from '@/services/reputationScoreService'
 import type { ConnectionStatus, UserReputationProfile, EthccSofiaSignals } from '@/types/reputation'
+import type { SignalResult } from '@/types/signals'
 
 export function useReputationScores(
   getStatus: (platformId: string) => ConnectionStatus,
@@ -9,10 +10,11 @@ export function useReputationScores(
   selectedCategories: string[],
   ethccSignals?: EthccSofiaSignals | null,
   compositeScore?: number | null,
+  signals?: Map<string, SignalResult>,
 ): UserReputationProfile | null {
   return useMemo(
-    () => computeReputationProfile(getStatus, selectedTopics, selectedCategories, ethccSignals, compositeScore),
-    [getStatus, selectedTopics, selectedCategories, ethccSignals, compositeScore],
+    () => computeReputationProfile(getStatus, selectedTopics, selectedCategories, ethccSignals, compositeScore, signals),
+    [getStatus, selectedTopics, selectedCategories, ethccSignals, compositeScore, signals],
   )
 }
 

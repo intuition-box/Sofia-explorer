@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import type { StatsRibbonProps } from '../types'
-import { Card } from './ui/card'
+import './styles/stats-ribbon.css'
 
 function parseValue(str: string) {
   const match = str.match(/^([0-9.,\s]+)(.*)$/)
@@ -21,16 +21,19 @@ function easeOutExpo(t: number) {
   return t === 1 ? 1 : 1 - Math.pow(2, -10 * t)
 }
 
-function AnimatedValue({ value }: { value: string }) {
+function useAnimatedNumber(value: string) {
   const [display, setDisplay] = useState('0')
-  const ref = useRef<HTMLSpanElement>(null)
+  const ref = useRef<HTMLElement>(null)
   const animated = useRef(false)
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
     const { num, suffix, decimals } = parseValue(value)
-    if (num === 0) return
+    if (num === 0) {
+      setDisplay(formatValue(0, suffix, decimals))
+      return
+    }
     animated.current = false
 
     const observer = new IntersectionObserver(
@@ -55,8 +58,27 @@ function AnimatedValue({ value }: { value: string }) {
     return () => observer.disconnect()
   }, [value])
 
+  return { display, ref }
+}
+
+function HeroNumber({ value }: { value: string }) {
+  const { display, ref } = useAnimatedNumber(value)
+  // Split numeric part from trailing unit (e.g. "12.34 T")
+  const match = display.match(/^([\d.,\s]+)(.*)$/)
+  const numPart = match ? match[1].trim() : display
+  const unitPart = match ? match[2].trim() : ''
   return (
-    <span ref={ref} className="text-3xl font-bold tabular-nums">
+    <div ref={ref as React.RefObject<HTMLDivElement>} className="sr-hero-value">
+      <span>{numPart}</span>
+      {unitPart && <span className="sr-hero-unit">{unitPart}</span>}
+    </div>
+  )
+}
+
+function CellNumber({ value }: { value: string }) {
+  const { display, ref } = useAnimatedNumber(value)
+  return (
+    <span ref={ref as React.RefObject<HTMLSpanElement>} className="sr-cell-value">
       {display}
     </span>
   )
@@ -65,14 +87,57 @@ function AnimatedValue({ value }: { value: string }) {
 export default function StatsRibbon({ stats = [] }: StatsRibbonProps) {
   if (stats.length === 0) return null
 
+  // Pick the most prestige stat as hero — Trust Volume if present, else last
+  const heroIdx = (() => {
+    const ti = stats.findIndex((s) => /trust\s*volume/i.test(s.label))
+    return ti >= 0 ? ti : stats.length - 1
+  })()
+  const hero = stats[heroIdx]
+  const satellites = stats.filter((_, i) => i !== heroIdx).slice(0, 4)
+
+  const today = new Date().toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+
   return (
-    <div className="flex flex-wrap justify-center gap-4">
-      {stats.map((stat, i) => (
-        <Card key={i} className="flex flex-col items-center justify-center p-6 text-center min-w-[160px] flex-1">
-          <AnimatedValue value={stat.value} />
-          <span className="text-sm text-muted-foreground mt-2">{stat.label}</span>
-        </Card>
-      ))}
-    </div>
+    <section className="sr-card">
+      <div className="sr-bar">
+        <div className="sr-bar-left">
+          <span className="sr-pulse" aria-hidden />
+          <span><strong>Beta Season</strong> · Live</span>
+        </div>
+        <div className="sr-bar-right">
+          <span>Season Snapshot</span>
+          <span className="sr-bar-sep" aria-hidden />
+          <span>{today}</span>
+        </div>
+      </div>
+
+      <div className="sr-body">
+        {/* Hero stat */}
+        <div className="sr-hero">
+          <div>
+            <div className="sr-hero-label">{hero.label}</div>
+            <HeroNumber value={hero.value} />
+          </div>
+          <div className="sr-hero-foot">
+            <span>Aggregated on-chain · season total</span>
+            <span className="sr-hero-tag">Featured</span>
+          </div>
+        </div>
+
+        {/* Satellites */}
+        <div className="sr-grid">
+          {satellites.map((stat, i) => (
+            <div key={i} className="sr-cell">
+              <span className="sr-cell-label">{stat.label}</span>
+              <CellNumber value={stat.value} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }

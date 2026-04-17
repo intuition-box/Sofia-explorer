@@ -12,7 +12,7 @@
  *  - none (1):     Auto-connect (bandcamp — no auth)
  *
  * The dashboard NEVER holds client secrets or API keys — everything goes
- * through sofia-mastra backend at MASTRA_URL/api/oauth/*
+ * through sofia-mastra backend at MASTRA_URL/oauth/*
  */
 
 import type { AuthType } from '../types/reputation'
@@ -105,7 +105,7 @@ export function startOAuthFlow(platformId: string): Promise<string> {
     state,
   })
 
-  const url = `${MASTRA_URL}/api/oauth/${platformId}/authorize?${params}`
+  const url = `${MASTRA_URL}/oauth/${platformId}/authorize?${params}`
 
   return new Promise((resolve, reject) => {
     const popup = window.open(url, 'oauth_popup', 'width=600,height=700')
@@ -168,7 +168,7 @@ export async function exchangeOAuthCode(
   platformId: string,
   code: string,
 ): Promise<ConnectResult> {
-  const response = await fetch(`${MASTRA_URL}/api/oauth/${platformId}/callback`, {
+  const response = await fetch(`${MASTRA_URL}/oauth/${platformId}/callback`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ code, redirectUri: OAUTH_CALLBACK_URL }),
