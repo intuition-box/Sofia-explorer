@@ -9,6 +9,7 @@ import {
   verifyChallenge,
   connectWithSIWE,
   getConnectionStrategy,
+  linkPlatformToWallet,
 } from '../services/oauthService'
 
 const STORAGE_KEY = 'sofia_platform_connections'
@@ -165,6 +166,18 @@ export function usePlatformConnections() {
         const result = await exchangeOAuthCode(platformId, code)
 
         if (result.success) {
+          // Persist the token in mastra (encrypted storage) and create on-chain triple.
+          // Without this, signalFetcherWorkflow has no token to use and scoring stays at 0.
+          const walletAddress = user?.wallet?.address
+          if (walletAddress && result.accessToken) {
+            try {
+              await linkPlatformToWallet(walletAddress, platformId, result.accessToken)
+            } catch (linkErr) {
+              console.error(`[usePlatformConnections] linkPlatformToWallet failed for ${platformId}`, linkErr)
+              // Continue: user is still "connected" in UI, but signals won't be fetchable
+            }
+          }
+
           updateConnection(platformId, {
             status: 'connected',
             connectedAt: Date.now(),
