@@ -4,6 +4,7 @@ import { useDiscoveryScore } from '../hooks/useDiscoveryScore'
 import { useTopicSelection } from '../hooks/useDomainSelection'
 import { usePlatformConnections } from '../hooks/usePlatformConnections'
 import { useReputationScores } from '../hooks/useReputationScores'
+import { useSignals } from '../hooks/useSignals'
 import { useShareProfile } from '../hooks/useShareProfile'
 import { useTrustCircle } from '../hooks/useTrustCircle'
 import { useTrustScore } from '../hooks/useTrustScore'
@@ -26,7 +27,8 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
   const { selectedTopics, selectedCategories } = useTopicSelection()
   const { getStatus, connectedCount } = usePlatformConnections()
   const { score: trustScore, loading: trustScoreLoading } = useTrustScore(address || undefined)
-  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, undefined, trustScore)
+  const { signals } = useSignals(address || undefined)
+  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, undefined, trustScore, signals)
   const topicScores = scores?.topics ?? []
   const { accounts: trustCircle, loading: trustLoading } = useTrustCircle(address || undefined)
 

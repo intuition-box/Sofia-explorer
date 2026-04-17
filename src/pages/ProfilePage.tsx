@@ -8,6 +8,7 @@ import { useUserActivity } from '../hooks/useUserActivity'
 import { useTopClaims } from '../hooks/useTopClaims'
 import { useEthccData } from '../hooks/useEthccData'
 import { useTrustScore } from '../hooks/useTrustScore'
+import { useSignals } from '../hooks/useSignals'
 import LastActivitySection from '../components/profile/LastActivitySection'
 import InterestsGrid from '../components/profile/InterestsGrid'
 import TopClaimsSection from '../components/profile/TopClaimsSection'
@@ -31,7 +32,8 @@ export default function ProfilePage() {
   const { getStatus } = usePlatformConnections()
   const { ethccWallet, signals: ethccSignals, loading: ethccLoading, setWallet, clearWallet } = useEthccData()
   const { score: trustCompositeScore } = useTrustScore(address || undefined)
-  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, ethccSignals, trustCompositeScore)
+  const { signals } = useSignals(address || undefined)
+  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, ethccSignals, trustCompositeScore, signals)
   const topicScores = scores?.topics ?? []
   const { items: activityItems, loading: activityLoading } = useUserActivity(address || undefined)
   const { claims: topClaims, loading: claimsLoading } = useTopClaims(address || undefined)
