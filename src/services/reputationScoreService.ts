@@ -17,7 +17,6 @@ import type {
   ConnectionStatus,
   TopicScore,
   UserReputationProfile,
-  EthccSofiaSignals,
   SignalFormula,
   TopicScoringModel,
 } from '@/types/reputation'
@@ -42,6 +41,10 @@ const METRIC_COMPONENTS: Record<string, Record<string, keyof SignalFormula['weig
     langages_distincts: 'creation',
     repos_total: 'creation',
     anciennete_mois: 'anciennete',
+    followers: 'community',
+    following: 'community',
+    pull_requests_opened_30d: 'creation',
+    issues_opened_30d: 'creation',
   },
   youtube: {
     videos_postees: 'creation',
@@ -49,15 +52,26 @@ const METRIC_COMPONENTS: Record<string, Record<string, keyof SignalFormula['weig
     subscribers: 'community',
     videos_recentes_90j: 'regularity',
     anciennete_mois: 'anciennete',
+    avg_views_per_video: 'community',
+    avg_likes_per_video: 'community',
+    avg_comments_per_video: 'community',
+    playlists_count: 'creation',
+    // subscribers_hidden: intentionally unmapped (flag, not a score input)
   },
   spotify: {
     diversite_genres: 'regularity',
     playlists_creees: 'creation',
     top_artists_count: 'community',
+    followers: 'community',
+    top_tracks_count: 'community',
+    avg_track_popularity: 'community',
   },
   discord: {
     serveurs_specialises: 'community',
     roles_obtenus: 'community',
+    moderator_guilds: 'community',
+    owned_guilds: 'community',
+    anciennete_mois: 'anciennete',
   },
   twitch: {
     heures_stream_mois: 'regularity',
@@ -65,7 +79,14 @@ const METRIC_COMPONENTS: Record<string, Record<string, keyof SignalFormula['weig
     anciennete_mois: 'anciennete',
     is_affiliate: 'monetization',
     is_partner: 'monetization',
+    follows_count: 'community',
+    subs_count: 'monetization',
   },
+}
+
+// Flag metrics that are NOT score inputs (documented as unmapped)
+const METRIC_IGNORE: Record<string, Set<string>> = {
+  youtube: new Set(['subscribers_hidden']),
 }
 
 // ── Public API ──
@@ -74,7 +95,6 @@ export function computeReputationProfile(
   getStatus: (platformId: string) => ConnectionStatus,
   selectedTopics: string[],
   selectedCategories: string[],
-  ethccSignals?: EthccSofiaSignals | null,
   compositeScore?: number | null,
   signals?: Map<string, SignalResult>,
 ): UserReputationProfile | null {
@@ -97,40 +117,38 @@ export function computeReputationProfile(
     let totalScore = 0
     let platformsWithSignals = 0
 
+    // 1. Accumulate platform scores
     for (const platform of topicPlatforms) {
       const formula = FORMULA_BY_PLATFORM.get(platform.id)
       const signal = signals?.get(platform.id)
 
       if (signal?.success && signal.metrics && formula) {
-        // Real scoring with metrics
         const platformScore = computePlatformScore(formula, signal.metrics, model)
         totalScore += platformScore
         platformsWithSignals++
       }
-      // No fallback — platforms without real signals are excluded
+      // Platforms without real signals are excluded — no fallback points
     }
 
-    // Anti-fraud multipliers
-    if (platformsWithSignals === 1) {
-      totalScore *= SCORING_PRINCIPLES.SINGLE_SOURCE_PENALTY
-    } else if (platformsWithSignals >= 3) {
-      totalScore *= SCORING_PRINCIPLES.MULTI_SOURCE_BONUS
-    }
-
-    // EthCC bonus (unchanged)
-    if (ethccSignals) {
-      const topicSignal = ethccSignals.topicSignals[topic.id]
-      if (topicSignal) {
-        totalScore += topicSignal.topicCount * 3 + topicSignal.trackCount * 3
-      }
-    }
-
-    // Trust boost from composite score
+    // 2. Add trust boost from composite score
     if (compositeScore) {
       totalScore += Math.round(compositeScore * 0.2)
     }
 
-    // Cap at maxScore
+    // 3. Apply anti-fraud AFTER bonuses
+    //    (so a high trust score can't fully rescue a user with no real platform signals)
+    if (platformsWithSignals === 0) {
+      // Trust-only → capped low to reward actual platform data
+      totalScore = Math.min(totalScore, 15)
+    } else if (platformsWithSignals === 1) {
+      totalScore *= SCORING_PRINCIPLES.SINGLE_SOURCE_PENALTY
+    } else if (platformsWithSignals === 2) {
+      totalScore *= SCORING_PRINCIPLES.TWO_SOURCE_BONUS
+    } else {
+      totalScore *= SCORING_PRINCIPLES.MULTI_SOURCE_BONUS
+    }
+
+    // 4. Cap at maxScore
     const finalScore = model
       ? Math.min(model.maxScore, Math.round(totalScore))
       : Math.round(totalScore)
@@ -170,29 +188,34 @@ function computePlatformScore(
 ): number {
   const w = formula.weights
   const componentMap = METRIC_COMPONENTS[formula.platformId]
+  const ignore = METRIC_IGNORE[formula.platformId]
 
-  // Accumulate metrics into their respective scoring components
   const components = { creation: 0, regularity: 0, community: 0, monetization: 0, anciennete: 0 }
 
   if (componentMap) {
     for (const [key, value] of Object.entries(metrics)) {
+      if (!Number.isFinite(value)) continue
+      if (ignore?.has(key)) continue
       const component = componentMap[key]
       if (component) {
         components[component] += component === 'anciennete'
           ? Math.log(1 + value) * w.anciennete
           : value
+      } else if (import.meta.env.DEV) {
+        console.warn(
+          `[reputationScore] unmapped metric "${key}" for ${formula.platformId} (value=${value}). Add to METRIC_COMPONENTS.`,
+        )
       }
     }
   } else {
-    // Fallback: distribute all metrics evenly across components
-    const values = Object.values(metrics)
+    // Fallback for platforms without a mapping: distribute all metrics evenly
+    const values = Object.values(metrics).filter(Number.isFinite)
     const avg = values.length > 0 ? values.reduce((s, v) => s + v, 0) / values.length : 0
     components.creation = avg
     components.regularity = avg
     components.community = avg
   }
 
-  // Apply formula weights
   let score: number
   if (model) {
     score =
