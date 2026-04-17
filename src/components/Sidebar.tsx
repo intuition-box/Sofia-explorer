@@ -7,8 +7,6 @@ import { useTopicSelection } from '../hooks/useDomainSelection'
 import { SEASON_END } from '../config'
 import './styles/sidebar.css'
 
-const ETHCC_DATE = new Date('2026-03-30T09:00:00+02:00')
-
 function getTimeLeft() {
   const diff = SEASON_END.getTime() - Date.now()
   if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 }
@@ -20,15 +18,6 @@ function getTimeLeft() {
   }
 }
 
-function getEthccTimeLeft() {
-  const diff = ETHCC_DATE.getTime() - Date.now()
-  if (diff <= 0) return { days: 0, hours: 0, minutes: 0 }
-  return {
-    days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-    hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-    minutes: Math.floor((diff / (1000 * 60)) % 60),
-  }
-}
 const pad = (n: number) => String(n).padStart(2, '0')
 
 const TOPIC_ICONS: Record<string, string> = {
@@ -49,12 +38,10 @@ export function Sidebar({ isOpen = true, onClose, isOverlay = false }: SidebarPr
   const { authenticated } = usePrivy()
   const { selectedTopics } = useTopicSelection()
   const [timeLeft, setTimeLeft] = useState(getTimeLeft)
-  const [ethccLeft, setEthccLeft] = useState(getEthccTimeLeft)
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(getTimeLeft())
-      setEthccLeft(getEthccTimeLeft())
     }, 1_000)
     return () => clearInterval(timer)
   }, [])
@@ -179,25 +166,6 @@ export function Sidebar({ isOpen = true, onClose, isOverlay = false }: SidebarPr
             </div>
           </div>
         )}
-
-        {/* EthCC Countdown */}
-        <a
-          href="https://ethcc.io/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-lg border sb-countdown sb-ethcc"
-        >
-          <p className="sb-countdown-label">EthCC 9 starts in</p>
-          <p className="sb-countdown-time">
-            {ethccLeft.days}d : {pad(ethccLeft.hours)}h : {pad(ethccLeft.minutes)}m
-          </p>
-          <p className="sb-countdown-hint">
-            Cannes, March 30 – April 2 2026
-          </p>
-          <Button size="sm" className="sb-countdown-btn sb-ethcc-btn">
-            Join EthCC
-          </Button>
-        </a>
 
         {/* Season Countdown */}
         <div className="rounded-lg border sb-countdown">

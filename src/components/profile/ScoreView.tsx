@@ -39,7 +39,7 @@ export default function ScoreView({
 }: ScoreViewProps) {
   const { user } = usePrivy()
   const { signals } = useSignals(user?.wallet?.address)
-  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, undefined, undefined, signals)
+  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, undefined, signals)
 
   return (
     <div className="space-y-6">

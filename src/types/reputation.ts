@@ -140,35 +140,6 @@ export interface UserReputationProfile {
   lastUpdated: number
 }
 
-// === ETHCC ON-CHAIN SIGNALS ===
-
-export interface EthccTopicVote {
-  topicSlug: string
-  shares: string
-  topicId: string
-  categoryId: string
-}
-
-export interface EthccTrackInterest {
-  trackName: string
-  shares: string
-  topicId: string
-  categoryId: string
-}
-
-export interface TopicEthccSignal {
-  topicCount: number
-  trackCount: number
-  totalShares: string
-  categoryIds: string[]
-}
-
-export interface EthccSofiaSignals {
-  topicVotes: EthccTopicVote[]
-  trackInterests: EthccTrackInterest[]
-  topicSignals: Record<string, TopicEthccSignal>
-}
-
 // === TOPIC SCORING MODEL ===
 
 export interface TopicScoringModel {
