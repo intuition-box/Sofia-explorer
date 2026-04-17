@@ -28,7 +28,7 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
   const { getStatus, connectedCount } = usePlatformConnections()
   const { score: trustScore, loading: trustScoreLoading } = useTrustScore(address || undefined)
   const { signals } = useSignals(address || undefined)
-  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, undefined, trustScore, signals)
+  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, trustScore, signals)
   const topicScores = scores?.topics ?? []
   const { accounts: trustCircle, loading: trustLoading } = useTrustCircle(address || undefined)
 

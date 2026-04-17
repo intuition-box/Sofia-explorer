@@ -815,6 +815,8 @@ export const SCORING_PRINCIPLES = {
   MONETIZATION_MULTIPLIER_MAX: 5,
   /** Anti-fraude: score eleve mono-source = suspect */
   SINGLE_SOURCE_PENALTY: 0.5,
+  /** Two-source = mild positive signal, closes the 1→3 gap */
+  TWO_SOURCE_BONUS: 1.2,
   /** Multi-source = confiance maximale */
   MULTI_SOURCE_BONUS: 1.5,
   /** Anciennete = bonus logarithmique: log(mois_actifs) * 0.5 */

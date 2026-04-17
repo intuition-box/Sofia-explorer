@@ -43,7 +43,7 @@ export default function InterestPage() {
   const { selectedTopics, selectedCategories, toggleCategory } = useTopicSelection()
   const { getStatus } = usePlatformConnections()
   const { signals } = useSignals(user?.wallet?.address)
-  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, undefined, undefined, signals)
+  const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, undefined, signals)
   const topicScore = scores?.topics.find((d) => d.topicId === topicId)
 
   const walletAddress = user?.wallet?.address

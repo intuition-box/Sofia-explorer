@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePrivy, useLogin } from '@privy-io/react-auth'
 import { useTheme } from '@/hooks/useTheme'
-import { Shield, Vote, Flame, Link2, Wallet } from 'lucide-react'
+import { Shield, Vote, Flame, Wallet } from 'lucide-react'
 import '@/components/styles/landing.css'
 
 export default function LandingPage() {
@@ -40,12 +40,6 @@ export default function LandingPage() {
       color: 'oklch(0.65 0.18 30)',
       title: 'Streaks',
       desc: 'Earn rewards for daily certifications',
-    },
-    {
-      icon: <Link2 style={{ width: '1.04vw', height: '1.04vw' }} />,
-      color: 'oklch(0.65 0.15 300)',
-      title: 'EthCC Import',
-      desc: 'Link your EthCC wallet to boost your score',
     },
   ]
 
