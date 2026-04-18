@@ -39,8 +39,10 @@ export interface OnChainCategory {
 
 export interface TaxonomyData {
   topics: OnChainTopic[]
-  topicById: Map<string, OnChainTopic>
-  categoryById: Map<string, OnChainCategory>
+  // Plain Records (not Maps) so this object survives JSON.stringify
+  // used by the React Query persister (localStorage).
+  topicById: Record<string, OnChainTopic>
+  categoryById: Record<string, OnChainCategory>
   allCategories: OnChainCategory[]
 }
 
@@ -177,7 +179,7 @@ export async function fetchTaxonomy(): Promise<TaxonomyData> {
   }
 
   // Build categories from triples and attach to topics
-  const categoryById = new Map<string, OnChainCategory>()
+  const categoryById: Record<string, OnChainCategory> = {}
   const allCategories: OnChainCategory[] = []
 
   for (const triple of triples) {
@@ -196,7 +198,7 @@ export async function fetchTaxonomy(): Promise<TaxonomyData> {
       topicId: topicSlug,
     }
 
-    categoryById.set(catSlug, category)
+    categoryById[catSlug] = category
     allCategories.push(category)
 
     // Attach to topic
@@ -207,7 +209,8 @@ export async function fetchTaxonomy(): Promise<TaxonomyData> {
   }
 
   const topics = Array.from(topicMap.values())
-  const topicById = new Map(topics.map((t) => [t.id, t]))
+  const topicById: Record<string, OnChainTopic> = {}
+  for (const t of topics) topicById[t.id] = t
 
   return { topics, topicById, categoryById, allCategories }
 }
