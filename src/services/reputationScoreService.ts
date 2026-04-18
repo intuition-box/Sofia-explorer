@@ -82,6 +82,145 @@ const METRIC_COMPONENTS: Record<string, Record<string, keyof SignalFormula['weig
     follows_count: 'community',
     subs_count: 'monetization',
   },
+  reddit: {
+    comment_karma: 'community',
+    link_karma: 'creation',
+    total_karma: 'community',
+    subreddits_actifs: 'community',
+    anciennete_mois: 'anciennete',
+    trophies: 'community',
+    is_gold: 'monetization',
+    is_mod: 'community',
+  },
+  strava: {
+    activites_mois: 'regularity',
+    km_mois: 'regularity',
+    total_km: 'creation',
+    followers: 'community',
+    friend_count: 'community',
+    ytd_runs: 'creation',
+    ytd_rides: 'creation',
+    anciennete_mois: 'anciennete',
+    is_premium: 'monetization',
+  },
+  soundcloud: {
+    tracks_count: 'creation',
+    playlist_count: 'creation',
+    followers_count: 'community',
+    followings_count: 'community',
+    reposts_count: 'community',
+    public_favorites_count: 'community',
+    is_verified: 'monetization',
+  },
+  mixcloud: {
+    cloudcast_count: 'creation',
+    favorite_count: 'community',
+    follower_count: 'community',
+    following_count: 'community',
+    listen_count_50: 'community',
+    is_pro: 'monetization',
+    is_premium: 'monetization',
+    anciennete_mois: 'anciennete',
+  },
+  producthunt: {
+    posts_made: 'creation',
+    posts_voted: 'community',
+    followers_count: 'community',
+    followings_count: 'community',
+    anciennete_mois: 'anciennete',
+  },
+  orcid: {
+    works: 'creation',
+    peer_reviews: 'creation',
+    fundings: 'monetization',
+    educations: 'creation',
+    employments: 'creation',
+    anciennete_mois: 'anciennete',
+    is_verified_email: 'community',
+    is_verified_primary_email: 'community',
+  },
+  coinbase: {
+    assets_distinct: 'community',
+    accounts_total: 'community',
+    balance_usd: 'monetization',
+    anciennete_mois: 'anciennete',
+    has_legacy_id: 'anciennete',
+  },
+  ens: {
+    has_primary_ens: 'community',
+    domains_owned: 'community',
+    wrapped_domains: 'community',
+  },
+  lido: {
+    steth_balance_eth: 'monetization',
+    wsteth_balance_eth: 'monetization',
+    total_staked_eth: 'monetization',
+    is_staker: 'community',
+  },
+  aave: {
+    positions_count: 'community',
+    active_deposits: 'monetization',
+    active_borrows: 'monetization',
+    borrowed_reserves_count: 'community',
+    is_user: 'community',
+  },
+  uniswap: {
+    positions_total: 'community',
+    positions_active: 'monetization',
+    swaps_total: 'regularity',
+    swaps_30d: 'regularity',
+    swap_volume_usd: 'monetization',
+    is_lp: 'community',
+    is_trader: 'community',
+  },
+  snapshot: {
+    votes_total: 'community',
+    proposals_created: 'creation',
+    daos_active: 'community',
+    votes_90d: 'regularity',
+    proposals_90d: 'regularity',
+    is_voter: 'community',
+    is_proposer: 'creation',
+  },
+  'the-graph': {
+    is_curator: 'monetization',
+    is_delegator: 'monetization',
+    is_indexer: 'monetization',
+    signals_count: 'community',
+    stakes_count: 'community',
+  },
+  'wallet-siwe': {
+    eth_balance: 'monetization',
+    tx_count: 'regularity',
+    is_active: 'community',
+  },
+  lens: {
+    has_profile: 'community',
+    profile_count: 'community',
+    posts: 'creation',
+    comments: 'creation',
+    mirrors: 'community',
+    quotes: 'creation',
+    publications: 'creation',
+    followers: 'community',
+    following: 'community',
+    collects: 'monetization',
+    reactions_received: 'community',
+  },
+  farcaster: {
+    has_account: 'community',
+    fid: 'anciennete',
+    followers: 'community',
+    following: 'community',
+    verified_addresses: 'community',
+    is_power_badge: 'monetization',
+  },
+  opensea: {
+    nfts_owned: 'community',
+    distinct_collections: 'community',
+    is_verified: 'monetization',
+    has_profile: 'community',
+  },
 }
 
 // Flag metrics that are NOT score inputs (documented as unmapped)
@@ -96,7 +235,7 @@ export function computeReputationProfile(
   selectedTopics: string[],
   selectedCategories: string[],
   compositeScore?: number | null,
-  signals?: Map<string, SignalResult>,
+  signals?: Record<string, SignalResult>,
 ): UserReputationProfile | null {
   const connectedPlatforms = PLATFORM_CATALOG.filter(
     (p) => getStatus(p.id) === 'connected',
@@ -120,7 +259,7 @@ export function computeReputationProfile(
     // 1. Accumulate platform scores
     for (const platform of topicPlatforms) {
       const formula = FORMULA_BY_PLATFORM.get(platform.id)
-      const signal = signals?.get(platform.id)
+      const signal = signals?.[platform.id]
 
       if (signal?.success && signal.metrics && formula) {
         const platformScore = computePlatformScore(formula, signal.metrics, model)

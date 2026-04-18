@@ -40,11 +40,17 @@ export async function fetchPlatformSignals(
   }
 }
 
+/**
+ * Fetch metrics for all connected platforms.
+ *
+ * Returns a plain Record (not a Map) so the result can be serialized into
+ * React Query's localStorage persister — Maps don't survive JSON.stringify.
+ */
 export async function fetchAllSignals(
   platforms: string[],
   walletAddress: string,
-): Promise<Map<string, SignalResult>> {
-  const results = new Map<string, SignalResult>()
+): Promise<Record<string, SignalResult>> {
+  const results: Record<string, SignalResult> = {}
   // Fetch in parallel, max 3 concurrent to avoid overwhelming the backend
   const chunks = chunkArray(platforms, 3)
   for (const chunk of chunks) {
@@ -53,13 +59,13 @@ export async function fetchAllSignals(
     )
     responses.forEach((r, i) => {
       if (r.status === 'fulfilled') {
-        results.set(chunk[i], r.value)
+        results[chunk[i]] = r.value
       } else {
-        results.set(chunk[i], {
+        results[chunk[i]] = {
           success: false,
           platformId: chunk[i],
           error: 'fetch_failed',
-        })
+        }
       }
     })
   }
