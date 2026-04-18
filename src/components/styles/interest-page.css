@@ -63,6 +63,19 @@
   letter-spacing: 0.04em;
 }
 
+.ip-stat-refresh {
+  margin-left: 6px;
+  font-size: 14px;
+  color: var(--muted-foreground);
+  opacity: 0.6;
+  animation: ip-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes ip-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+
 /* ── Niches Detail ── */
 .ip-niches-grid {
   display: grid;

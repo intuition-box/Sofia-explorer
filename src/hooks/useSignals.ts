@@ -9,8 +9,9 @@ import { fetchAllSignals } from '@/services/signalService'
 import type { SignalResult } from '@/types/signals'
 
 interface UseSignalsResult {
-  signals: Map<string, SignalResult>
+  signals: Record<string, SignalResult>
   isLoading: boolean
+  isFetching: boolean
   error: string | null
   refetch: () => void
 }
@@ -24,17 +25,19 @@ export function useSignals(walletAddress: string | undefined): UseSignalsResult 
 
   const stableKey = connectedPlatforms.slice().sort().join(',')
 
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, isFetching, error, refetch } = useQuery({
     queryKey: ['signals', walletAddress, stableKey],
     queryFn: () => fetchAllSignals(connectedPlatforms, walletAddress!),
     enabled: !!walletAddress && connectedPlatforms.length > 0,
     staleTime: 60 * 60 * 1000,
-    gcTime: 2 * 60 * 60 * 1000,
+    // gcTime = 24h so the persister keeps the cache (see providers.tsx)
+    gcTime: 24 * 60 * 60 * 1000,
   })
 
   return {
-    signals: data ?? new Map(),
+    signals: data ?? {},
     isLoading,
+    isFetching,
     error: error ? String(error) : null,
     refetch,
   }

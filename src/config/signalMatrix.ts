@@ -492,6 +492,62 @@ export const SIGNAL_FORMULAS: SignalFormula[] = [
     },
     burstPenalty: -0.1,
   },
+  {
+    platformId: "ens",
+    formula:
+      "(has_primary_ens * 20) + (domains_owned * 5)"
+      + " + (wrapped_domains * 3)",
+    weights: {
+      creation: 2,
+      regularity: 1,
+      community: 5,
+      monetization: 1,
+      anciennete: 1,
+    },
+    burstPenalty: -0.05,
+  },
+  {
+    platformId: "lido",
+    formula:
+      "log(1 + total_staked_eth) * 10"
+      + " + (is_staker * 15)",
+    weights: {
+      creation: 1,
+      regularity: 1.2,
+      community: 2,
+      monetization: 5,
+      anciennete: 0.5,
+    },
+    burstPenalty: -0.05,
+  },
+  {
+    platformId: "aave",
+    formula:
+      "(active_deposits * 5) + (active_borrows * 8)"
+      + " + (positions_count * 2)",
+    weights: {
+      creation: 2,
+      regularity: 1.3,
+      community: 3,
+      monetization: 5,
+      anciennete: 0.5,
+    },
+    burstPenalty: -0.1,
+  },
+  {
+    platformId: "uniswap",
+    formula:
+      "(positions_active * 10) + log(1 + swap_volume_usd)"
+      + " + (swaps_30d * 1)",
+    weights: {
+      creation: 3,
+      regularity: 1.5,
+      community: 2,
+      monetization: 5,
+      anciennete: 0.5,
+    },
+    burstPenalty: -0.15,
+  },
 
   // === RESEAUX SOCIAUX ===
   {
