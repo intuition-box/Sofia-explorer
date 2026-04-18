@@ -14,6 +14,24 @@ import {
 
 const STORAGE_KEY = 'sofia_platform_connections'
 
+/**
+ * Platforms that don't need OAuth or a signed message — the Privy wallet
+ * address is sufficient and the backend reads the blockchain / public APIs
+ * directly. Must match WALLET_BASED_PLATFORMS on the mastra side.
+ */
+const WALLET_BASED_PLATFORMS = new Set<string>([
+  'ens',
+  'lido',
+  'aave',
+  'uniswap',
+  'snapshot',
+  'the-graph',
+  'wallet-siwe',
+  'lens',
+  'farcaster',
+  'opensea',
+])
+
 function loadFromStorage(): Map<string, PlatformConnection> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -63,6 +81,22 @@ export function usePlatformConnections() {
     async (platformId: string) => {
       const strategy = getConnectionStrategy(platformId)
       const platform = PLATFORM_CATALOG.find((p) => p.id === platformId)
+
+      // ── Wallet-based platforms (on-chain + API-key) ──
+      // These bypass OAuth and signature flows: the Privy wallet address is
+      // all the backend needs. Takes precedence over the strategy-based
+      // routing below (e.g. authType "siwe" or "api_key" is overridden here).
+      if (WALLET_BASED_PLATFORMS.has(platformId)) {
+        const walletAddress = user?.wallet?.address
+        if (!walletAddress) return
+        updateConnection(platformId, {
+          status: 'connected',
+          connectedAt: Date.now(),
+          userId: walletAddress,
+          username: walletAddress,
+        })
+        return
+      }
 
       // ── auto (authType: none) ──
       if (strategy === 'auto') {
