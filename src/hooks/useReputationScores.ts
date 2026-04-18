@@ -9,7 +9,7 @@ export function useReputationScores(
   selectedTopics: string[],
   selectedCategories: string[],
   compositeScore?: number | null,
-  signals?: Map<string, SignalResult>,
+  signals?: Record<string, SignalResult>,
 ): UserReputationProfile | null {
   return useMemo(
     () => computeReputationProfile(getStatus, selectedTopics, selectedCategories, compositeScore, signals),

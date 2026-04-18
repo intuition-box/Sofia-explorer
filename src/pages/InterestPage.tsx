@@ -42,7 +42,7 @@ export default function InterestPage() {
 
   const { selectedTopics, selectedCategories, toggleCategory } = useTopicSelection()
   const { getStatus } = usePlatformConnections()
-  const { signals } = useSignals(user?.wallet?.address)
+  const { signals, isFetching: signalsRefreshing } = useSignals(user?.wallet?.address)
   const scores = useReputationScores(getStatus, selectedTopics, selectedCategories, undefined, signals)
   const topicScore = scores?.topics.find((d) => d.topicId === topicId)
 
@@ -92,7 +92,12 @@ export default function InterestPage() {
           <h3 className="ip-section-title">Stats</h3>
           <div className="ip-stats-grid">
             <Card className="ip-stat-card">
-              <span className="ip-stat-value" style={{ color }}>{topicScore?.score ?? 0}</span>
+              <span className="ip-stat-value" style={{ color }}>
+                {topicScore?.score ?? 0}
+                {signalsRefreshing && (
+                  <span className="ip-stat-refresh" aria-label="Refreshing scores">&middot;&middot;&middot;</span>
+                )}
+              </span>
               <span className="ip-stat-label">Score</span>
             </Card>
             <Card className="ip-stat-card">

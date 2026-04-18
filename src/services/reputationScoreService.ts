@@ -235,7 +235,7 @@ export function computeReputationProfile(
   selectedTopics: string[],
   selectedCategories: string[],
   compositeScore?: number | null,
-  signals?: Map<string, SignalResult>,
+  signals?: Record<string, SignalResult>,
 ): UserReputationProfile | null {
   const connectedPlatforms = PLATFORM_CATALOG.filter(
     (p) => getStatus(p.id) === 'connected',
@@ -259,7 +259,7 @@ export function computeReputationProfile(
     // 1. Accumulate platform scores
     for (const platform of topicPlatforms) {
       const formula = FORMULA_BY_PLATFORM.get(platform.id)
-      const signal = signals?.get(platform.id)
+      const signal = signals?.[platform.id]
 
       if (signal?.success && signal.metrics && formula) {
         const platformScore = computePlatformScore(formula, signal.metrics, model)
