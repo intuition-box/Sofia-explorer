@@ -16,9 +16,15 @@ const CACHE_MAX_AGE = 24 * 60 * 60 * 1000 // 24h
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 60_000,
+      // Longer staleTime so rehydrated queries from the persister don't
+      // all refetch immediately on mount — that burst was causing 429s
+      // on mainnet GraphQL, which the browser reported as CORS errors
+      // (429 responses don't include CORS headers).
+      staleTime: 10 * 60 * 1000, // 10 min
       // gcTime must be >= maxAge for the persister to keep entries
       gcTime: CACHE_MAX_AGE,
+      // Avoid refetching every time the user switches tabs — the cache is fresh enough
+      refetchOnWindowFocus: false,
       retry: 3,
       retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10_000),
       throwOnError: false,
