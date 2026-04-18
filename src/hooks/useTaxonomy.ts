@@ -26,9 +26,11 @@ function buildStaticFallback(): TaxonomyData {
     })),
   }))
 
-  const topicById = new Map(topics.map((t) => [t.id, t]))
+  const topicById: Record<string, OnChainTopic> = {}
+  for (const t of topics) topicById[t.id] = t
   const allCategories = topics.flatMap((t) => t.categories)
-  const categoryById = new Map(allCategories.map((c) => [c.id, c]))
+  const categoryById: Record<string, OnChainCategory> = {}
+  for (const c of allCategories) categoryById[c.id] = c
 
   return { topics, topicById, categoryById, allCategories }
 }
@@ -49,11 +51,11 @@ export function useTaxonomy() {
 
   return {
     topics: taxonomy.topics,
-    topicById: (id: string) => taxonomy.topicById.get(id),
-    categoryById: (id: string) => taxonomy.categoryById.get(id),
+    topicById: (id: string) => taxonomy.topicById[id],
+    categoryById: (id: string) => taxonomy.categoryById[id],
     allCategories: taxonomy.allCategories,
     getCategoriesForTopic: (topicId: string) =>
-      taxonomy.topicById.get(topicId)?.categories || [],
+      taxonomy.topicById[topicId]?.categories || [],
     isLoading,
     isOnChain: data !== staticFallback,
     error: error ? String(error) : null,
