@@ -44,8 +44,13 @@ export function useTopicPositions(selectedTopics: string[]) {
     queryKey: address ? realtimeKeys.topicPositionsMap(address) : ['topic-positions-map', undefined],
     queryFn: () => seedTopicPositions(wallet!.address),
     enabled: authenticated && !!address,
-    staleTime: Infinity,
-    refetchOnMount: false,
+    // 10min is long enough to dedupe reloads in the same session; the WS
+    // pushes reset the timestamp via setQueryData so the effective
+    // freshness window is as-of the last delta. Not Infinity — otherwise
+    // a stale-empty cache from a first mount with RPC lag would lock
+    // the UI into "pending" forever.
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
   })
 

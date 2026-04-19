@@ -47,7 +47,6 @@ export function useClaimPositions(termId: string | undefined, limit = 100) {
     enabled: !!termId,
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
-    refetchOnMount: false,
     refetchOnWindowFocus: false,
   })
 

@@ -23,7 +23,6 @@ export function useUserActivity(walletAddress: string | undefined) {
     enabled: !!walletAddress,
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
-    refetchOnMount: false,
     refetchOnWindowFocus: false,
   })
 

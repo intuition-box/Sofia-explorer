@@ -7,7 +7,6 @@ export function useDebateClaims() {
     queryFn: fetchDebateClaims,
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
-    refetchOnMount: false,
     refetchOnWindowFocus: false,
   })
 
