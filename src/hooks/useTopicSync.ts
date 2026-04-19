@@ -12,6 +12,7 @@ import { usePrivy, useWallets } from '@privy-io/react-auth'
 import { useTopicSelection } from './useDomainSelection'
 import { useTopicPositions } from './useTopicPositions'
 import { useCart } from './useCart'
+import { useInterestsHydration } from './useInterestsHydration'
 import { redeemAtom } from '@/services/redeemService'
 import { TOPIC_ATOM_IDS } from '@/config/atomIds'
 import { TOPIC_META } from '@/config/topicMeta'
@@ -53,6 +54,8 @@ export interface RedeemState {
 }
 
 export function useTopicSync() {
+  useInterestsHydration()
+
   const { authenticated } = usePrivy()
   const { wallets } = useWallets()
   const wallet = wallets[0]

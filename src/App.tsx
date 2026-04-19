@@ -10,6 +10,7 @@ import WeightModal from './components/WeightModal'
 import { useCart } from './hooks/useCart'
 import { useSidebarState } from './hooks/useSidebarState'
 import { RealtimeSyncBoundary } from './hooks/useRealtimeSync'
+import { useInterestsHydration } from './hooks/useInterestsHydration'
 import LandingPage from './pages/LandingPage'
 import DashboardPage from './pages/DashboardPage'
 import LeaderboardPage from './pages/LeaderboardPage'
@@ -27,6 +28,11 @@ import OAuthCallbackPage from './pages/OAuthCallbackPage'
 import PublicProfilePage from './pages/PublicProfilePage'
 import { useViewAs } from './hooks/useViewAs'
 import './components/styles/layout.css'
+
+function InterestsHydrationBoundary() {
+  useInterestsHydration()
+  return null
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { ready, authenticated } = usePrivy()
@@ -79,6 +85,8 @@ export default function App() {
       {/* Opens the WS connection and subscribes to the user's positions.
           Invisible — pushes deltas into the React Query cache. */}
       <RealtimeSyncBoundary />
+      {/* Hydrates topics/categories from on-chain positions — union-merges into localStorage. */}
+      <InterestsHydrationBoundary />
       <Header onCartClick={() => setCartOpen(o => !o)} onMenuClick={sidebar.toggleLeft} showMenu={!sidebar.isDesktop} compact={!sidebar.isDesktop} onProfileDrawerClick={() => setProfileDrawerOpen(o => !o)} showProfileDrawer={!sidebar.isDesktop && isProfilePage} />
       <Sidebar isOpen={sidebar.isDesktop || sidebar.leftOpen} onClose={sidebar.closeLeft} isOverlay={!sidebar.isDesktop} />
       <RightSidebar hidden={isProfilePage || cartOpen || !sidebar.isDesktop} />

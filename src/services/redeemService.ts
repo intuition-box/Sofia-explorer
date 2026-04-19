@@ -65,6 +65,24 @@ export async function getSharesBatch(
   return new Map(results.map((r) => [r.termId, r.shares]))
 }
 
+/**
+ * Same as getSharesBatch but emits N requests at a time instead of N*total.
+ * Use for large termId sets (e.g. 161 categories) to avoid saturating the RPC.
+ */
+export async function getSharesBatchChunked(
+  account: string,
+  termIds: string[],
+  chunkSize = 25,
+): Promise<Map<string, bigint>> {
+  const out = new Map<string, bigint>()
+  for (let i = 0; i < termIds.length; i += chunkSize) {
+    const chunk = termIds.slice(i, i + chunkSize)
+    const part = await getSharesBatch(account, chunk)
+    for (const [k, v] of part) out.set(k, v)
+  }
+  return out
+}
+
 // ---------------------------------------------------------------------------
 // Redeem a single atom position (all shares)
 // ---------------------------------------------------------------------------
