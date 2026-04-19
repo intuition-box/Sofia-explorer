@@ -7,12 +7,15 @@ export function useDomainClaims(topicId: string | undefined) {
     queryKey: ['domainClaims', topicId],
     queryFn: () => fetchDomainClaims(topicId!),
     enabled: !!topicId,
-    staleTime: 120_000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   })
 
   return {
     claims: data ?? [],
-    loading: isLoading,
+    loading: isLoading && !data,
     error: error ? (error as Error).message : null,
   }
 }

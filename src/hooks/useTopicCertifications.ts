@@ -6,11 +6,14 @@ export function useTopicCertifications(topicId?: string, walletAddress?: string)
     queryKey: ['topic-certifications', topicId, walletAddress],
     queryFn: () => fetchTopicCertifications(topicId!, walletAddress),
     enabled: !!topicId,
-    staleTime: 120_000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   })
 
   return {
     certifications: data ?? [],
-    loading: isLoading,
+    loading: isLoading && !data,
   }
 }
