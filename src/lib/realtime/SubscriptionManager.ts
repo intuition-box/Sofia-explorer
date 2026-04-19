@@ -23,6 +23,15 @@ import {
   type WatchUserPositionsSubscription,
   type WatchUserPositionsSubscriptionVariables,
 } from '@0xsofia/dashboard-graphql'
+import {
+  derivePositionsByTopic,
+  derivePositionsByCategory,
+  derivePositionsByPlatform,
+  deriveVerifiedPlatforms,
+  deriveUserProfile,
+  deriveUserStats,
+  realtimeKeys,
+} from './derivations'
 
 /**
  * graphql-ws expects a query string. Our codegen emits either a DocumentNode
@@ -113,16 +122,24 @@ export class SubscriptionManager {
   private onPositionsUpdate(data: WatchUserPositionsSubscription) {
     const positions = data.positions ?? []
     const count = positions.length
+    const wallet = this.walletAddress
+    if (!wallet) return
 
-    // Phase 1: only the canonical key. Derivations feed the existing
-    // per-view query keys in Phase 2 (see derivations.ts).
-    this.queryClient.setQueryData(
-      ['positions', this.walletAddress],
-      positions,
-    )
+    const qc = this.queryClient
+
+    // Canonical raw positions.
+    qc.setQueryData(realtimeKeys.positions(wallet), positions)
+
+    // Derived views — each one is what a specific hook will read.
+    qc.setQueryData(realtimeKeys.topicPositionsMap(wallet), derivePositionsByTopic(positions))
+    qc.setQueryData(realtimeKeys.categoryPositionsMap(wallet), derivePositionsByCategory(positions))
+    qc.setQueryData(['platform-positions-map', wallet], derivePositionsByPlatform(positions))
+    qc.setQueryData(realtimeKeys.verifiedPlatforms(wallet), deriveVerifiedPlatforms(positions))
+    qc.setQueryData(realtimeKeys.userProfileDerived(wallet), deriveUserProfile(positions))
+    qc.setQueryData(realtimeKeys.userStats(wallet), deriveUserStats(positions))
 
     if (import.meta.env.DEV) {
-      console.log(`[WS positions] ${count} positions for ${this.walletAddress?.slice(0, 8)}…`)
+      console.log(`[WS positions] ${count} positions for ${wallet.slice(0, 8)}…`)
     }
   }
 }
