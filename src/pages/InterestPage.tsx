@@ -16,11 +16,12 @@ import { useCart } from '@/hooks/useCart'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { ArrowLeft, ThumbsUp, ThumbsDown, Plus, ExternalLink } from 'lucide-react'
+import { ArrowLeft, ThumbsUp, ThumbsDown, Plus, ExternalLink, Info } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import NicheDetailList from '@/components/profile/NicheDetailList'
 import TrendingCard from '@/components/TrendingCard'
 import PositionBoardDialog from '@/components/profile/PositionBoardDialog'
+import ScoreExplanationDialog from '@/components/ScoreExplanationDialog'
 import SofiaLoader from '@/components/ui/SofiaLoader'
 import '@/components/styles/interest-page.css'
 
@@ -52,6 +53,7 @@ export default function InterestPage() {
   const { certifications, loading: certsLoading } = useTopicCertifications(topicId, walletAddress)
   const cart = useCart()
   const [dialogClaim, setDialogClaim] = useState<typeof claims[number] | null>(null)
+  const [scoreDialogOpen, setScoreDialogOpen] = useState(false)
 
   // Prefetch all claim dialog data so modals open instantly
   usePrefetchClaimDialogs(claims, walletAddress)
@@ -91,14 +93,24 @@ export default function InterestPage() {
         <section className="ip-section">
           <h3 className="ip-section-title">Stats</h3>
           <div className="ip-stats-grid">
-            <Card className="ip-stat-card">
+            <Card
+              className="ip-stat-card ip-stat-card--clickable"
+              role="button"
+              tabIndex={0}
+              onClick={() => setScoreDialogOpen(true)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setScoreDialogOpen(true) }}
+              aria-label="Explain score"
+            >
               <span className="ip-stat-value" style={{ color }}>
                 {topicScore?.score ?? 0}
                 {signalsRefreshing && (
                   <span className="ip-stat-refresh" aria-label="Refreshing scores">&middot;&middot;&middot;</span>
                 )}
               </span>
-              <span className="ip-stat-label">Score</span>
+              <span className="ip-stat-label">
+                Score
+                <Info className="ip-stat-info" aria-hidden />
+              </span>
             </Card>
             <Card className="ip-stat-card">
               <span className="ip-stat-value">{nicheCount}</span>
@@ -319,6 +331,14 @@ export default function InterestPage() {
         </section>
 
       </div>
+
+      <ScoreExplanationDialog
+        open={scoreDialogOpen}
+        onOpenChange={setScoreDialogOpen}
+        topicLabel={topic.label}
+        topicColor={color}
+        explanation={topicScore?.explanation}
+      />
     </div>
   )
 }

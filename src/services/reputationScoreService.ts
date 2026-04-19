@@ -19,6 +19,9 @@ import type {
   UserReputationProfile,
   SignalFormula,
   TopicScoringModel,
+  ScoreBreakdown,
+  PlatformContribution,
+  TopicScoreExplanation,
 } from '@/types/reputation'
 import type { SignalResult } from '@/types/signals'
 
@@ -255,6 +258,7 @@ export function computeReputationProfile(
 
     let totalScore = 0
     let platformsWithSignals = 0
+    const contributions: PlatformContribution[] = []
 
     // 1. Accumulate platform scores
     for (const platform of topicPlatforms) {
@@ -262,39 +266,70 @@ export function computeReputationProfile(
       const signal = signals?.[platform.id]
 
       if (signal?.success && signal.metrics && formula) {
-        const platformScore = computePlatformScore(formula, signal.metrics, model)
+        const { score: platformScore, breakdown, topMetrics } =
+          computePlatformScoreDetailed(formula, signal.metrics, model)
         totalScore += platformScore
         platformsWithSignals++
+        contributions.push({
+          platformId: platform.id,
+          platformName: platform.name,
+          rawContribution: platformScore,
+          breakdown,
+          topMetrics,
+        })
       }
       // Platforms without real signals are excluded — no fallback points
     }
 
+    const platformSubtotal = totalScore
+
     // 2. Add trust boost from composite score
-    if (compositeScore) {
-      totalScore += Math.round(compositeScore * 0.2)
-    }
+    const trustBonus = compositeScore ? Math.round(compositeScore * 0.2) : 0
+    totalScore += trustBonus
 
     // 3. Apply anti-fraud AFTER bonuses
-    //    (so a high trust score can't fully rescue a user with no real platform signals)
+    let multiSourceMultiplier = 1
+    let multiSourceReason: string
     if (platformsWithSignals === 0) {
-      // Trust-only → capped low to reward actual platform data
       totalScore = Math.min(totalScore, 15)
+      multiSourceMultiplier = 0
+      multiSourceReason = 'No platform connected — trust-only score capped at 15.'
     } else if (platformsWithSignals === 1) {
-      totalScore *= SCORING_PRINCIPLES.SINGLE_SOURCE_PENALTY
+      multiSourceMultiplier = SCORING_PRINCIPLES.SINGLE_SOURCE_PENALTY
+      totalScore *= multiSourceMultiplier
+      multiSourceReason = 'Only 1 platform connected — single-source penalty (×0.5).'
     } else if (platformsWithSignals === 2) {
-      totalScore *= SCORING_PRINCIPLES.TWO_SOURCE_BONUS
+      multiSourceMultiplier = SCORING_PRINCIPLES.TWO_SOURCE_BONUS
+      totalScore *= multiSourceMultiplier
+      multiSourceReason = '2 platforms — cross-platform bonus (×1.2).'
     } else {
-      totalScore *= SCORING_PRINCIPLES.MULTI_SOURCE_BONUS
+      multiSourceMultiplier = SCORING_PRINCIPLES.MULTI_SOURCE_BONUS
+      totalScore *= multiSourceMultiplier
+      multiSourceReason = `${platformsWithSignals} platforms — multi-source bonus (×1.5).`
     }
 
-    // 4. Cap at maxScore
-    const finalScore = model
-      ? Math.min(model.maxScore, Math.round(totalScore))
-      : Math.round(totalScore)
+    const preCapScore = Math.round(totalScore)
+    const maxScore = model?.maxScore ?? 100
+    const finalScore = Math.min(maxScore, preCapScore)
+    const capped = preCapScore > maxScore
 
     const confidence = platformsWithSignals > 0
       ? Math.min(1, platformsWithSignals * SCORING_PRINCIPLES.CROSS_PLATFORM_MIN_CONFIDENCE)
       : 0
+
+    const explanation: TopicScoreExplanation = {
+      topicId: topic.id,
+      finalScore,
+      maxScore,
+      platformSubtotal: Math.round(platformSubtotal),
+      platformContributions: contributions,
+      trustBonus,
+      platformCount: platformsWithSignals,
+      multiSourceMultiplier,
+      multiSourceReason,
+      preCapScore,
+      capped,
+    }
 
     return {
       topicId: topic.id,
@@ -303,6 +338,7 @@ export function computeReputationProfile(
       topNiches: [],
       platformCount: platformsWithSignals,
       lastCalculated: Date.now(),
+      explanation,
     }
   })
 
@@ -320,16 +356,32 @@ export function computeReputationProfile(
 
 // ── Internal: per-platform score computation ──
 
-function computePlatformScore(
+/**
+ * Extended version that returns both the raw score and a breakdown suitable
+ * for the "why this score?" modal. The legacy computePlatformScore is kept
+ * for backwards compat and delegates here.
+ */
+function computePlatformScoreDetailed(
   formula: SignalFormula,
   metrics: Record<string, number>,
   model?: TopicScoringModel,
-): number {
+): {
+  score: number
+  breakdown: ScoreBreakdown
+  topMetrics: Array<{ key: string; value: number; component: keyof ScoreBreakdown }>
+} {
   const w = formula.weights
   const componentMap = METRIC_COMPONENTS[formula.platformId]
   const ignore = METRIC_IGNORE[formula.platformId]
 
-  const components = { creation: 0, regularity: 0, community: 0, monetization: 0, anciennete: 0 }
+  const components: ScoreBreakdown = {
+    creation: 0,
+    regularity: 0,
+    community: 0,
+    monetization: 0,
+    anciennete: 0,
+  }
+  const metricRows: Array<{ key: string; value: number; component: keyof ScoreBreakdown }> = []
 
   if (componentMap) {
     for (const [key, value] of Object.entries(metrics)) {
@@ -337,17 +389,14 @@ function computePlatformScore(
       if (ignore?.has(key)) continue
       const component = componentMap[key]
       if (component) {
-        components[component] += component === 'anciennete'
+        const added = component === 'anciennete'
           ? Math.log(1 + value) * w.anciennete
           : value
-      } else if (import.meta.env.DEV) {
-        console.warn(
-          `[reputationScore] unmapped metric "${key}" for ${formula.platformId} (value=${value}). Add to METRIC_COMPONENTS.`,
-        )
+        components[component] += added
+        metricRows.push({ key, value, component })
       }
     }
   } else {
-    // Fallback for platforms without a mapping: distribute all metrics evenly
     const values = Object.values(metrics).filter(Number.isFinite)
     const avg = values.length > 0 ? values.reduce((s, v) => s + v, 0) / values.length : 0
     components.creation = avg
@@ -372,8 +421,21 @@ function computePlatformScore(
       components.anciennete
   }
 
-  // Apply burst penalty (attenuated for MVP)
   score *= 1 + formula.burstPenalty * 0.5
+  const finalScore = Math.max(0, score)
 
-  return Math.max(0, score)
+  const topMetrics = metricRows
+    .slice()
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 3)
+
+  return { score: finalScore, breakdown: components, topMetrics }
+}
+
+function computePlatformScore(
+  formula: SignalFormula,
+  metrics: Record<string, number>,
+  model?: TopicScoringModel,
+): number {
+  return computePlatformScoreDetailed(formula, metrics, model).score
 }
