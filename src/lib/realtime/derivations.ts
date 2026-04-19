@@ -35,6 +35,10 @@ export const realtimeKeys = {
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
+//
+// We store shares as decimal strings in the cache — JSON.stringify throws on
+// BigInt, which would silently break the React Query persister. Consumers
+// read them back via sharesToBigInt() when they need arithmetic.
 
 function toBigInt(v: unknown): bigint {
   if (typeof v === 'bigint') return v
@@ -45,23 +49,31 @@ function toBigInt(v: unknown): bigint {
   return 0n
 }
 
+export function sharesToBigInt(v: unknown): bigint {
+  return toBigInt(v)
+}
+
+function addShares(a: string | undefined, b: unknown): string {
+  return (toBigInt(a) + toBigInt(b)).toString()
+}
+
 // ── Topic / category positions (atom-direct) ────────────────────────────────
 
 /**
  * Group shares by topic slug. Positions that target a topic atom directly
  * (not a triple) contribute to their slug's total.
  */
-export function derivePositionsByTopic(positions: Position[]): Record<string, bigint> {
+export function derivePositionsByTopic(positions: Position[]): Record<string, string> {
   const termIdToSlug = new Map<string, string>()
   for (const [slug, termId] of Object.entries(TOPIC_ATOM_IDS)) {
     termIdToSlug.set(termId, slug)
   }
-  const byTopic: Record<string, bigint> = {}
+  const byTopic: Record<string, string> = {}
   for (const p of positions) {
     if (!p.vault?.term?.atom) continue
     const slug = termIdToSlug.get(p.term_id)
     if (!slug) continue
-    byTopic[slug] = (byTopic[slug] ?? 0n) + toBigInt(p.shares)
+    byTopic[slug] = addShares(byTopic[slug], p.shares)
   }
   return byTopic
 }
@@ -69,17 +81,17 @@ export function derivePositionsByTopic(positions: Position[]): Record<string, bi
 /**
  * Group shares by category slug. Same logic as topics, different atom set.
  */
-export function derivePositionsByCategory(positions: Position[]): Record<string, bigint> {
+export function derivePositionsByCategory(positions: Position[]): Record<string, string> {
   const termIdToSlug = new Map<string, string>()
   for (const [slug, termId] of Object.entries(CATEGORY_ATOM_IDS)) {
     termIdToSlug.set(termId, slug)
   }
-  const byCategory: Record<string, bigint> = {}
+  const byCategory: Record<string, string> = {}
   for (const p of positions) {
     if (!p.vault?.term?.atom) continue
     const slug = termIdToSlug.get(p.term_id)
     if (!slug) continue
-    byCategory[slug] = (byCategory[slug] ?? 0n) + toBigInt(p.shares)
+    byCategory[slug] = addShares(byCategory[slug], p.shares)
   }
   return byCategory
 }
@@ -107,13 +119,13 @@ export function deriveVerifiedPlatforms(positions: Position[]): string[] {
  * Platform-atom direct positions (e.g. a deposit on the "github" atom).
  * Keyed by platform slug from ATOM_ID_TO_PLATFORM.
  */
-export function derivePositionsByPlatform(positions: Position[]): Record<string, bigint> {
-  const byPlatform: Record<string, bigint> = {}
+export function derivePositionsByPlatform(positions: Position[]): Record<string, string> {
+  const byPlatform: Record<string, string> = {}
   for (const p of positions) {
     if (!p.vault?.term?.atom) continue
     const slug = ATOM_ID_TO_PLATFORM.get(p.term_id)
     if (!slug) continue
-    byPlatform[slug] = (byPlatform[slug] ?? 0n) + toBigInt(p.shares)
+    byPlatform[slug] = addShares(byPlatform[slug], p.shares)
   }
   return byPlatform
 }
@@ -212,10 +224,10 @@ function bumpMap(
   slug: string,
   delta: bigint,
 ): void {
-  const current = (qc.getQueryData(key as unknown[]) as Record<string, bigint>) ?? {}
+  const current = (qc.getQueryData(key as unknown[]) as Record<string, string> | undefined) ?? {}
   const next = { ...current }
-  const updated = (next[slug] ?? 0n) + delta
-  if (updated > 0n) next[slug] = updated
+  const updated = toBigInt(next[slug]) + delta
+  if (updated > 0n) next[slug] = updated.toString()
   else delete next[slug]
   qc.setQueryData(key as unknown[], next)
 }

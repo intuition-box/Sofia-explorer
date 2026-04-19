@@ -1,16 +1,20 @@
 /**
  * useTopicPositions — reads the canonical per-topic share map maintained by
- * the realtime SubscriptionManager, and re-projects it for the caller's
- * selectedTopics. The queryFn still seeds the cache with a one-shot RPC
- * batch read so the UI has data before the first WS delta arrives; once
- * the WS starts pushing, its derivations overwrite this same key.
+ * the realtime SubscriptionManager. The cache stores shares as decimal
+ * strings (bigints aren't JSON-serializable, which would break the
+ * persister); we convert to bigint lazily on read.
+ *
+ * The queryFn seeds the cache with a one-shot RPC batch read so the UI has
+ * data before the first WS delta arrives; once the WS starts pushing, its
+ * derivations overwrite this same key.
  */
 
+import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePrivy, useWallets } from '@privy-io/react-auth'
 import { TOPIC_ATOM_IDS } from '@/config/atomIds'
 import { getSharesBatch } from '@/services/redeemService'
-import { realtimeKeys } from '@/lib/realtime/derivations'
+import { realtimeKeys, sharesToBigInt } from '@/lib/realtime/derivations'
 
 export interface TopicPositionMap {
   /** topicSlug → shares (0n means no position) */
@@ -19,12 +23,12 @@ export interface TopicPositionMap {
 
 const ALL_TOPIC_TERM_IDS = Object.values(TOPIC_ATOM_IDS)
 
-async function seedTopicPositions(address: string): Promise<TopicPositionMap> {
+async function seedTopicPositions(address: string): Promise<Record<string, string>> {
   const shares = await getSharesBatch(address, ALL_TOPIC_TERM_IDS)
-  const result: TopicPositionMap = {}
+  const result: Record<string, string> = {}
   for (const [slug, termId] of Object.entries(TOPIC_ATOM_IDS)) {
     const v = shares.get(termId) ?? 0n
-    if (v > 0n) result[slug] = v
+    if (v > 0n) result[slug] = v.toString()
   }
   return result
 }
@@ -36,28 +40,43 @@ export function useTopicPositions(selectedTopics: string[]) {
   const address = wallet?.address?.toLowerCase()
   const qc = useQueryClient()
 
-  const { data, isLoading, isSuccess, refetch } = useQuery<TopicPositionMap>({
+  const { data, isLoading, isSuccess, refetch } = useQuery<Record<string, string>>({
     queryKey: address ? realtimeKeys.topicPositionsMap(address) : ['topic-positions-map', undefined],
     queryFn: () => seedTopicPositions(wallet!.address),
     enabled: authenticated && !!address,
-    // WS takes over once connected — trust the cache and don't refetch.
     staleTime: Infinity,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   })
 
-  const positions = data ?? {}
+  const raw = data ?? {}
+
+  const hasPosition = useCallback(
+    (topicId: string) => sharesToBigInt(raw[topicId]) > 0n,
+    [raw],
+  )
+  const isPending = useCallback(
+    (topicId: string) =>
+      isSuccess && selectedTopics.includes(topicId) && sharesToBigInt(raw[topicId]) === 0n,
+    [isSuccess, selectedTopics, raw],
+  )
+
+  // Expose the bigint view for legacy consumers that iterate shares.
+  const positions: TopicPositionMap = {}
+  for (const [slug, s] of Object.entries(raw)) {
+    positions[slug] = sharesToBigInt(s)
+  }
+
+  const wrappedRefetch = useCallback(() => {
+    if (address) qc.invalidateQueries({ queryKey: realtimeKeys.topicPositionsMap(address) })
+    return refetch()
+  }, [address, qc, refetch])
 
   return {
     positions,
-    hasPosition: (topicId: string) => (positions[topicId] ?? 0n) > 0n,
-    isPending: (topicId: string) =>
-      isSuccess && selectedTopics.includes(topicId) && (positions[topicId] ?? 0n) === 0n,
+    hasPosition,
+    isPending,
     isLoading,
-    refetch: () => {
-      // Also re-seed so next fetch starts from RPC truth if WS lags.
-      if (address) qc.invalidateQueries({ queryKey: realtimeKeys.topicPositionsMap(address) })
-      return refetch()
-    },
+    refetch: wrappedRefetch,
   }
 }
