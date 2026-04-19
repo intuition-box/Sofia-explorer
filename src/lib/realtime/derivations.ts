@@ -1,10 +1,14 @@
 /**
  * Derivations — pure functions that convert raw subscription payloads into
- * the shapes consumed by existing hooks (useTopicPositions, useUserProfile, etc.).
+ * the shapes consumed by hooks (useTopicPositions, useUserProfile, etc.).
  *
  * The SubscriptionManager pipes WatchUserPositions payloads through each
  * derivation and writes the result under a canonical query key. Hooks read
  * from those keys with staleTime:Infinity instead of fetching themselves.
+ *
+ * applyOptimisticPosition / clearOptimisticPosition provide the write-side
+ * API used by action hooks (useDeposit, redeemTopic) to nudge the cache
+ * right after a tx is confirmed, before the indexer catches up.
  */
 
 import type { QueryClient } from '@tanstack/react-query'

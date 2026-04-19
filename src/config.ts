@@ -11,11 +11,6 @@ export const GRAPHQL_WS_URL =
   'wss://mainnet.intuition.sh/v1/graphql'
 export const EXPLORER_URL = 'https://explorer.intuition.systems'
 
-// Feature flag for the realtime subscription manager. Set VITE_REALTIME_ENABLED=false
-// to fall back to pull-only behaviour if the WS backend has issues.
-export const REALTIME_ENABLED =
-  (import.meta.env.VITE_REALTIME_ENABLED ?? 'true') !== 'false'
-
 // ── Sofia Proxy Contract ──
 export const SOFIA_PROXY_ADDRESS: Address = '0x26F81d723Ad1648194FAA4b7E235105Fd1212c6c'
 

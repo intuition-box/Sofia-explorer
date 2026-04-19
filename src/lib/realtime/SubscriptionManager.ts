@@ -2,17 +2,15 @@
  * SubscriptionManager — single source of truth for real-time data.
  *
  * Opens one WebSocket connection (via the graphql-ws client in
- * @0xsofia/dashboard-graphql) and subscribes to the wallet-scoped
- * queries we care about. Each delta is pushed into the React Query
- * cache via queryClient.setQueryData(), so components that consume
- * those query keys re-render without triggering a fetch.
+ * @0xsofia/dashboard-graphql) and subscribes to wallet-scoped queries.
+ * Each delta is pushed into the React Query cache via setQueryData(),
+ * so components consuming those keys re-render without fetching.
  *
- * If the WS stays offline for more than FALLBACK_DELAY_MS, we start
- * an HTTP polling loop that uses the same derivations pipeline so
- * the UI keeps receiving (stale-ish) updates until the WS recovers.
+ * If the WS stays offline past FALLBACK_DELAY_MS, an HTTP polling loop
+ * takes over using the same onPositionsUpdate pipeline. Connection
+ * health flows through wsStatus so the UI can surface a badge.
  *
- * No GraphQL strings live in this file — the DocumentNodes come from
- * @0xsofia/dashboard-graphql and are rendered with graphql#print().
+ * No GraphQL strings live here — DocumentNodes come from the package.
  */
 
 import { print, type DocumentNode } from 'graphql'
