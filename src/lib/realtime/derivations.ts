@@ -7,11 +7,14 @@
  * from those keys with staleTime:Infinity instead of fetching themselves.
  */
 
+import type { QueryClient } from '@tanstack/react-query'
 import type { WatchUserPositionsSubscription } from '@0xsofia/dashboard-graphql'
 import {
   TOPIC_ATOM_IDS,
   CATEGORY_ATOM_IDS,
   ATOM_ID_TO_PLATFORM,
+  ATOM_ID_TO_TOPIC,
+  ATOM_ID_TO_CATEGORY,
 } from '@/config/atomIds'
 
 export type Position = NonNullable<WatchUserPositionsSubscription['positions']>[number]
@@ -190,6 +193,72 @@ export function deriveUserProfile(positions: Position[]): UserProfileDerived {
     totalStaked,
     verifiedPlatforms: deriveVerifiedPlatforms(positions),
   }
+}
+
+// ── Optimistic updates ──────────────────────────────────────────────────────
+//
+// Applied client-side right after a tx is confirmed on-chain, so the UI
+// reflects the change immediately instead of waiting the 1-3s indexer lag
+// before the WS pushes the real state. When the WS eventually arrives, it
+// overwrites the same query keys with authoritative values.
+
+function bumpMap(
+  qc: QueryClient,
+  key: readonly unknown[],
+  slug: string,
+  delta: bigint,
+): void {
+  const current = (qc.getQueryData(key as unknown[]) as Record<string, bigint>) ?? {}
+  const next = { ...current }
+  const updated = (next[slug] ?? 0n) + delta
+  if (updated > 0n) next[slug] = updated
+  else delete next[slug]
+  qc.setQueryData(key as unknown[], next)
+}
+
+/**
+ * Increment the appropriate per-slug share map after a successful deposit
+ * (or decrement after a redeem). Delta is in whatever unit shares are
+ * denominated in — the exact value doesn't matter for UI gating since
+ * callers only check `> 0n`, and the WS will correct it within seconds.
+ */
+export function applyOptimisticPosition(
+  qc: QueryClient,
+  walletAddress: string,
+  termId: string,
+  delta: bigint,
+): void {
+  const wallet = walletAddress.toLowerCase()
+
+  const topicSlug = ATOM_ID_TO_TOPIC.get(termId)
+  if (topicSlug) {
+    bumpMap(qc, realtimeKeys.topicPositionsMap(wallet), topicSlug, delta)
+    return
+  }
+  const categorySlug = ATOM_ID_TO_CATEGORY.get(termId)
+  if (categorySlug) {
+    bumpMap(qc, realtimeKeys.categoryPositionsMap(wallet), categorySlug, delta)
+    return
+  }
+  const platformSlug = ATOM_ID_TO_PLATFORM.get(termId)
+  if (platformSlug) {
+    bumpMap(qc, ['platform-positions-map', wallet], platformSlug, delta)
+  }
+  // Triples: we can't fabricate the vault/term shape from a termId alone,
+  // so we fall through and let the WS push the real state.
+}
+
+/**
+ * Clear the optimistic position for a termId (used after redeem).
+ * bumpMap drops the key when the resulting value is <= 0n, so sending a
+ * large negative delta achieves removal regardless of the current amount.
+ */
+export function clearOptimisticPosition(
+  qc: QueryClient,
+  walletAddress: string,
+  termId: string,
+): void {
+  applyOptimisticPosition(qc, walletAddress, termId, -(1n << 255n))
 }
 
 export function deriveUserStats(positions: Position[]): UserStats {
