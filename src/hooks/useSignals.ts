@@ -29,9 +29,13 @@ export function useSignals(walletAddress: string | undefined): UseSignalsResult 
     queryKey: ['signals', walletAddress, stableKey],
     queryFn: () => fetchAllSignals(connectedPlatforms, walletAddress!),
     enabled: !!walletAddress && connectedPlatforms.length > 0,
+    // Signals come from the mastra workflow, not the Hasura WS — they
+    // change on the order of hours. Trust the persister between sessions
+    // and only refetch on explicit user action.
     staleTime: 60 * 60 * 1000,
-    // gcTime = 24h so the persister keeps the cache (see providers.tsx)
     gcTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   })
 
   return {

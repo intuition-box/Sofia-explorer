@@ -42,6 +42,19 @@ export interface UserProfileData {
 type PositionRaw = GetUserPositionsQuery['positions'][number]
 
 /**
+ * Fetch only the signalsCount aggregate. Used as a separate pull query by
+ * useUserProfile / useDiscoveryScore — the WS subscription doesn't stream
+ * server-side aggregates, so this stays HTTP.
+ */
+export async function fetchSignalsCount(walletAddress: string): Promise<number> {
+  const data = await useGetUserSignalsCountQuery.fetcher({
+    accountId: walletAddress,
+    subjectId: SUBJECT_IDS.I,
+  })()
+  return data.signalsCount.aggregate?.count ?? 0
+}
+
+/**
  * Fetch user's on-chain positions (vault shares).
  * Each position = user has deposited into an atom or triple vault.
  * Triple positions with "visits for *" predicates = certifications.

@@ -7,7 +7,10 @@ export function useTrustCircle(walletAddress: string | undefined) {
     queryKey: ['trustCircle', walletAddress],
     queryFn: () => fetchTrustCircle(walletAddress!),
     enabled: !!walletAddress,
-    staleTime: 60_000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   })
 
   return {
