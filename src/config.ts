@@ -3,6 +3,12 @@ import type { Address } from 'viem'
 // ── Network ──
 export const RPC_URL = 'https://rpc.intuition.systems'
 export const GRAPHQL_URL = import.meta.env.DEV ? '/v1/graphql' : 'https://mainnet.intuition.sh/v1/graphql'
+// WebSocket endpoint for Hasura subscriptions. The Vite dev proxy does not
+// bridge WS, so we connect directly to the upstream WSS in both dev and prod.
+// Override via VITE_GRAPHQL_WS_URL in .env if needed.
+export const GRAPHQL_WS_URL =
+  (import.meta.env.VITE_GRAPHQL_WS_URL as string) ||
+  'wss://mainnet.intuition.sh/v1/graphql'
 export const EXPLORER_URL = 'https://explorer.intuition.systems'
 
 // ── Sofia Proxy Contract ──

@@ -1,4 +1,5 @@
 import { API_URL_PROD } from './constants'
+import { configureWsClient } from './wsClient'
 
 export interface ClientConfig {
   headers: HeadersInit
@@ -9,8 +10,18 @@ let globalConfig: { apiUrl?: string } = {
   apiUrl: API_URL_PROD,
 }
 
-export function configureClient(config: { apiUrl: string }) {
-  globalConfig = { ...globalConfig, ...config }
+/**
+ * Configure both the HTTP fetcher and the optional WebSocket client in one call.
+ *
+ * @param config.apiUrl — HTTPS GraphQL endpoint (required)
+ * @param config.wsUrl — WSS GraphQL endpoint for subscriptions (optional).
+ *                       If omitted, subscriptions will use the default mainnet URL.
+ */
+export function configureClient(config: { apiUrl: string; wsUrl?: string }) {
+  globalConfig = { ...globalConfig, apiUrl: config.apiUrl }
+  if (config.wsUrl) {
+    configureWsClient({ wsUrl: config.wsUrl })
+  }
 }
 
 export function fetcher<TData, TVariables>(
