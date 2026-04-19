@@ -24,9 +24,6 @@ import {
   type WatchUserPositionsSubscriptionVariables,
 } from '@0xsofia/dashboard-graphql'
 import {
-  derivePositionsByTopic,
-  derivePositionsByCategory,
-  derivePositionsByPlatform,
   deriveVerifiedPlatforms,
   deriveUserProfile,
   deriveUserStats,
@@ -210,14 +207,21 @@ export class SubscriptionManager {
 
     const qc = this.queryClient
 
-    // If a derivation or setQueryData throws, log and move on rather than
-    // letting the error bubble through React's commit phase. The next WS
-    // message will retry the same writes.
+    // Hasura's anonymous role caps position reads at 100 per query, so a
+    // WS push only sees the user's top 100 positions sorted by shares. If
+    // we derive and overwrite the per-slug maps from that truncated list,
+    // any topic/category/platform whose position has low shares silently
+    // disappears from the UI — even after the RPC seed correctly fetched
+    // all 14 topic termIds directly.
+    //
+    // Fix: the WS no longer writes the per-slug maps. Those keys stay
+    // authoritative from their own RPC-backed queryFn (useTopicPositions,
+    // etc.), which reads the specific termIds regardless of portfolio size.
+    // The WS still drives keys that are safe to derive from the top-N
+    // payload (profile aggregate, user stats, verified platforms — a user
+    // with >100 verified platforms is vanishingly rare).
     try {
       qc.setQueryData(realtimeKeys.positions(wallet), positions)
-      qc.setQueryData(realtimeKeys.topicPositionsMap(wallet), derivePositionsByTopic(positions))
-      qc.setQueryData(realtimeKeys.categoryPositionsMap(wallet), derivePositionsByCategory(positions))
-      qc.setQueryData(['platform-positions-map', wallet], derivePositionsByPlatform(positions))
       qc.setQueryData(realtimeKeys.verifiedPlatforms(wallet), deriveVerifiedPlatforms(positions))
       qc.setQueryData(realtimeKeys.userProfileDerived(wallet), deriveUserProfile(positions))
       qc.setQueryData(realtimeKeys.userStats(wallet), deriveUserStats(positions))
