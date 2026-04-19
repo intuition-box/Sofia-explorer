@@ -19,16 +19,34 @@ import {
   getWsClient,
   disposeWsClient,
   WatchUserPositionsDocument,
+  WatchUserTrackedPositionsDocument,
   useGetUserPositionsQuery,
   type WatchUserPositionsSubscription,
   type WatchUserPositionsSubscriptionVariables,
+  type WatchUserTrackedPositionsSubscription,
+  type WatchUserTrackedPositionsSubscriptionVariables,
 } from '@0xsofia/dashboard-graphql'
 import {
+  TOPIC_ATOM_IDS,
+  CATEGORY_ATOM_IDS,
+  PLATFORM_ATOM_IDS,
+} from '@/config/atomIds'
+import {
+  derivePositionsByTopic,
+  derivePositionsByCategory,
+  derivePositionsByPlatform,
   deriveVerifiedPlatforms,
   deriveUserProfile,
   deriveUserStats,
   realtimeKeys,
 } from './derivations'
+
+/** Term ids we always want a live view on, regardless of portfolio size. */
+const TRACKED_TERM_IDS: string[] = [
+  ...Object.values(TOPIC_ATOM_IDS),
+  ...Object.values(CATEGORY_ATOM_IDS),
+  ...Object.values(PLATFORM_ATOM_IDS),
+]
 import {
   markConnecting,
   markConnected,
@@ -68,6 +86,7 @@ export class SubscriptionManager {
     this.walletAddress = normalized
     this.attachStatusListeners()
     this.subscribePositions()
+    this.subscribeTrackedPositions()
   }
 
   disconnect() {
@@ -197,6 +216,44 @@ export class SubscriptionManager {
     this.subscriptions.set('positions', unsub)
   }
 
+  /**
+   * Narrower subscription filtered by the ~312 atom term_ids we track
+   * (topics + categories + platforms). Hasura caps the generic positions
+   * query at 100 rows, which silently drops low-share positions like a
+   * 1.5 TRUST stake on a topic. By asking only for the term_ids that feed
+   * our per-slug maps, we stay well under the cap and get authoritative
+   * real-time updates for those views.
+   */
+  private subscribeTrackedPositions() {
+    if (!this.walletAddress) return
+
+    const variables: WatchUserTrackedPositionsSubscriptionVariables = {
+      accountId: this.walletAddress,
+      termIds: TRACKED_TERM_IDS,
+    }
+
+    const unsub = getWsClient().subscribe<WatchUserTrackedPositionsSubscription>(
+      {
+        query: toQueryString(WatchUserTrackedPositionsDocument),
+        variables,
+      },
+      {
+        next: ({ data }) => {
+          if (!data) return
+          this.onTrackedPositionsUpdate(data)
+        },
+        error: (err) => {
+          console.error('[WS tracked] error', err)
+        },
+        complete: () => {
+          console.log('[WS tracked] complete')
+        },
+      },
+    )
+
+    this.subscriptions.set('tracked-positions', unsub)
+  }
+
   // ── Cache writers ─────────────────────────────────────────────────────────
 
   private onPositionsUpdate(data: WatchUserPositionsSubscription) {
@@ -231,6 +288,40 @@ export class SubscriptionManager {
 
     if (import.meta.env.DEV) {
       console.log(`[WS positions] ${count} positions for ${wallet.slice(0, 8)}…`)
+    }
+  }
+
+  /**
+   * Tracked-positions subscription payload. Filtered server-side to the
+   * term_ids in TRACKED_TERM_IDS, so the full list fits under Hasura's
+   * anonymous-role cap. Derivations here are authoritative for the per-
+   * slug maps regardless of the user's total portfolio size.
+   */
+  private onTrackedPositionsUpdate(data: WatchUserTrackedPositionsSubscription) {
+    const positions = data.positions ?? []
+    const wallet = this.walletAddress
+    if (!wallet) return
+
+    const qc = this.queryClient
+    try {
+      qc.setQueryData(
+        realtimeKeys.topicPositionsMap(wallet),
+        derivePositionsByTopic(positions as unknown as Parameters<typeof derivePositionsByTopic>[0]),
+      )
+      qc.setQueryData(
+        realtimeKeys.categoryPositionsMap(wallet),
+        derivePositionsByCategory(positions as unknown as Parameters<typeof derivePositionsByCategory>[0]),
+      )
+      qc.setQueryData(
+        ['platform-positions-map', wallet],
+        derivePositionsByPlatform(positions as unknown as Parameters<typeof derivePositionsByPlatform>[0]),
+      )
+    } catch (err) {
+      console.error('[WS tracked] derivation/setQueryData failed', err)
+    }
+
+    if (import.meta.env.DEV) {
+      console.log(`[WS tracked] ${positions.length} tracked positions for ${wallet.slice(0, 8)}…`)
     }
   }
 }
