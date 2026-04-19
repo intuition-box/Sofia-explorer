@@ -49,7 +49,6 @@ export function useInterestsHydration() {
     staleTime: STALE,
     gcTime: GC,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
   })
 
   const categoriesQ = useQuery<string[]>({
@@ -63,7 +62,6 @@ export function useInterestsHydration() {
     staleTime: STALE,
     gcTime: GC,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
   })
 
   useEffect(() => {

@@ -67,11 +67,11 @@ export function usePlatformCatalog() {
     queryFn: () => fetchPlatformCatalog(categoryToTopic),
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
-    refetchOnMount: false,
     refetchOnWindowFocus: false,
     retry: 2,
     enabled: allCategories.length > 0,
     initialData: staticFallback,
+    initialDataUpdatedAt: 0,
   })
 
   const catalog = data || staticFallback

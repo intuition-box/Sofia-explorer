@@ -42,7 +42,6 @@ export function usePlatformMarket() {
     queryFn: () => fetchAllPlatformMarkets(walletAddress),
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
-    refetchOnMount: false,
     refetchOnWindowFocus: false,
     retry: 2,
   })
@@ -81,7 +80,6 @@ export function useSinglePlatformMarket(platformSlug: string) {
     queryFn: () => fetchPlatformVaultStats(termId ? [termId] : [], walletAddress),
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
-    refetchOnMount: false,
     refetchOnWindowFocus: false,
     retry: 2,
     enabled: !!termId,

@@ -22,7 +22,6 @@ export function useDiscoveryScore(walletAddress: string | undefined) {
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
   })
 
   return { stats: data ?? null, loading: isLoading }

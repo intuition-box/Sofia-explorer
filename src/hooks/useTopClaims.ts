@@ -101,7 +101,6 @@ export function useTopClaims(walletAddress: string | undefined) {
     // calls from the UI.
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
-    refetchOnMount: false,
     refetchOnWindowFocus: false,
   })
 

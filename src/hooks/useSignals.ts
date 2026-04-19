@@ -34,7 +34,6 @@ export function useSignals(walletAddress: string | undefined): UseSignalsResult 
     // and only refetch on explicit user action.
     staleTime: 60 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
-    refetchOnMount: false,
     refetchOnWindowFocus: false,
   })
 

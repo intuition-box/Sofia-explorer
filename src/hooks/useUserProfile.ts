@@ -44,7 +44,6 @@ export function useUserProfile(walletAddress: string | undefined): UseUserProfil
     queryFn: () => seedProfileDerived(walletAddress!),
     enabled: !!walletAddress,
     staleTime: Infinity,
-    refetchOnMount: false,
     refetchOnWindowFocus: false,
   })
 
