@@ -14,7 +14,7 @@
  * Phase 1: positions only. Events and trust subscriptions come in Phase 2.
  */
 
-import { print } from 'graphql'
+import { print, type DocumentNode } from 'graphql'
 import type { QueryClient } from '@tanstack/react-query'
 import {
   getWsClient,
@@ -23,6 +23,16 @@ import {
   type WatchUserPositionsSubscription,
   type WatchUserPositionsSubscriptionVariables,
 } from '@0xsofia/dashboard-graphql'
+
+/**
+ * graphql-ws expects a query string. Our codegen emits either a DocumentNode
+ * (when documentMode is 'documentNode') or a pre-printed string (when plugins
+ * inline the printed text). Normalize both cases.
+ */
+function toQueryString(doc: unknown): string {
+  if (typeof doc === 'string') return doc
+  return print(doc as DocumentNode)
+}
 
 type Unsubscribe = () => void
 
@@ -76,7 +86,7 @@ export class SubscriptionManager {
 
     const unsub = getWsClient().subscribe<WatchUserPositionsSubscription>(
       {
-        query: print(WatchUserPositionsDocument),
+        query: toQueryString(WatchUserPositionsDocument),
         variables,
       },
       {
