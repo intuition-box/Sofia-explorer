@@ -9,10 +9,13 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react'
 import { usePrivy, useWallets } from '@privy-io/react-auth'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTopicSelection } from './useDomainSelection'
 import { useTopicPositions } from './useTopicPositions'
 import { useCart } from './useCart'
+import { useInterestsHydration } from './useInterestsHydration'
 import { redeemAtom } from '@/services/redeemService'
+import { clearOptimisticPosition } from '@/lib/realtime/derivations'
 import { TOPIC_ATOM_IDS } from '@/config/atomIds'
 import { TOPIC_META } from '@/config/topicMeta'
 import { SOFIA_TOPICS } from '@/config/taxonomy'
@@ -53,9 +56,12 @@ export interface RedeemState {
 }
 
 export function useTopicSync() {
+  useInterestsHydration()
+
   const { authenticated } = usePrivy()
   const { wallets } = useWallets()
   const wallet = wallets[0]
+  const qc = useQueryClient()
 
   const { selectedTopics, selectedCategories, toggleTopic } = useTopicSelection()
   const { positions, hasPosition, isPending, isLoading: positionsLoading, refetch } = useTopicPositions(selectedTopics)
@@ -160,7 +166,9 @@ export function useTopicSync() {
         setRedeemState({ topicId, loading: false, error: result.error })
         return
       }
-      // Redeem succeeded → remove from local selection
+      // Redeem succeeded → remove from local selection + clear cache
+      // optimistically so the pill flips off instantly.
+      clearOptimisticPosition(qc, wallet.address, termId)
       toggleTopic(topicId)
       setRedeemState(null)
       refetch()
@@ -171,7 +179,7 @@ export function useTopicSync() {
         error: err?.message || 'Redeem failed',
       })
     }
-  }, [wallet, authenticated, toggleTopic, refetch])
+  }, [wallet, authenticated, toggleTopic, refetch, qc])
 
   // ── Remove a topic (deselect + redeem if needed) ──
   const removeTopic = useCallback((topicId: string) => {

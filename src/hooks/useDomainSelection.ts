@@ -47,6 +47,32 @@ function getSnapshotStable(): TopicSelectionState {
   return cachedState
 }
 
+export function getCurrentSelection(): TopicSelectionState {
+  return getSnapshot()
+}
+
+/**
+ * Union-merge of remote (on-chain) selection into local state. Never removes
+ * locally-selected items that aren't on-chain — pending topics in the cart
+ * must survive. Idempotent: early-returns when the merge equals current,
+ * so it can be called on every hydration tick without looping.
+ */
+export function mergeRemoteSelection(remote: {
+  topics: string[]
+  categories: string[]
+}) {
+  const current = getSnapshot()
+  const mergedTopics = Array.from(new Set([...current.selectedTopics, ...remote.topics]))
+  const mergedCategories = Array.from(new Set([...current.selectedCategories, ...remote.categories]))
+
+  const changed =
+    mergedTopics.length !== current.selectedTopics.length ||
+    mergedCategories.length !== current.selectedCategories.length
+  if (!changed) return
+
+  save({ selectedTopics: mergedTopics, selectedCategories: mergedCategories })
+}
+
 export function useTopicSelection() {
   const state = useSyncExternalStore(subscribe, getSnapshotStable)
 

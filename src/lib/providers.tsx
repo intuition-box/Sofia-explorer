@@ -4,12 +4,12 @@ import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persist
 import { PrivyProvider } from '@privy-io/react-auth'
 import { BrowserRouter } from 'react-router-dom'
 import { configureClient } from '@0xsofia/dashboard-graphql'
-import { PRIVY_APP_ID, GRAPHQL_URL } from '../config'
+import { PRIVY_APP_ID, GRAPHQL_URL, GRAPHQL_WS_URL } from '../config'
 import { CartProvider } from '../hooks/useCart'
 import { ViewAsProvider } from '../hooks/useViewAs'
 
-// Use proxied URL in dev to avoid CORS
-configureClient({ apiUrl: GRAPHQL_URL })
+// HTTP proxy (/v1/graphql) in dev for CORS, direct WSS for subscriptions.
+configureClient({ apiUrl: GRAPHQL_URL, wsUrl: GRAPHQL_WS_URL })
 
 const CACHE_MAX_AGE = 24 * 60 * 60 * 1000 // 24h
 

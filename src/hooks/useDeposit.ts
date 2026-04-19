@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { usePrivy, useWallets } from '@privy-io/react-auth'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   type DepositResult,
   type BatchDepositItem,
@@ -8,12 +9,14 @@ import {
   fetchBalance,
   calculateFee,
 } from '@/services/depositService'
+import { applyOptimisticPosition } from '@/lib/realtime/derivations'
 
 export type { DepositResult, BatchDepositItem }
 
 export function useDeposit() {
   const { authenticated } = usePrivy()
   const { wallets } = useWallets()
+  const qc = useQueryClient()
   const [processing, setProcessing] = useState(false)
   const [txResult, setTxResult] = useState<DepositResult | null>(null)
 
@@ -31,6 +34,12 @@ export function useDeposit() {
       const wallet = requireWallet()
       const result = await executeSingleDeposit(wallet, termId, amountTrust)
       setTxResult(result)
+      if (result.success) {
+        // Optimistic: flip the per-slug maps so "pending" UI clears
+        // immediately. WS will overwrite with the true indexed shares
+        // within a couple of seconds.
+        applyOptimisticPosition(qc, wallet.address, termId, 1n)
+      }
       return result
     } catch (err: any) {
       const result: DepositResult = { success: false, error: err?.shortMessage || err?.message || 'Transaction failed' }
@@ -39,7 +48,7 @@ export function useDeposit() {
     } finally {
       setProcessing(false)
     }
-  }, [requireWallet])
+  }, [requireWallet, qc])
 
   /** Batch deposit — multiple items in one TX */
   const depositBatch = useCallback(async (items: BatchDepositItem[]): Promise<DepositResult> => {
@@ -52,6 +61,11 @@ export function useDeposit() {
       const wallet = requireWallet()
       const result = await executeBatchDeposit(wallet, items)
       setTxResult(result)
+      if (result.success) {
+        for (const item of items) {
+          applyOptimisticPosition(qc, wallet.address, item.termId, 1n)
+        }
+      }
       return result
     } catch (err: any) {
       const result: DepositResult = { success: false, error: err?.shortMessage || err?.message || 'Transaction failed' }
@@ -60,7 +74,7 @@ export function useDeposit() {
     } finally {
       setProcessing(false)
     }
-  }, [requireWallet, deposit])
+  }, [requireWallet, deposit, qc])
 
   /** Get user balance on Intuition chain */
   const getBalance = useCallback(async (): Promise<string> => {
