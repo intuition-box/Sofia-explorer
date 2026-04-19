@@ -7,7 +7,10 @@ export function useTrustScore(walletAddress: string | undefined) {
     queryKey: ['trustScore', walletAddress],
     queryFn: () => fetchCompositeScore(walletAddress!),
     enabled: !!walletAddress,
-    staleTime: 300_000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
     retry: 1,
   })
 

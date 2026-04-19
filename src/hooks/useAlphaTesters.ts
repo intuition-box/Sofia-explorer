@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { EventFetcher } from '@/services/eventFetcher'
 import { REFRESH_INTERVAL } from '@/config'
 import { aggregateEvents } from '@/services/alphaTestersService'
@@ -9,34 +9,34 @@ const INITIAL_DATA: AlphaTestersData = {
   totals: { wallets: 0, tx: 0, intentions: 0, pioneers: 0, trustVolume: 0n },
 }
 
+// Module-level fetcher so repeated refetches reuse its internal pagination
+// state rather than restarting from block zero every time.
+let fetcherSingleton: EventFetcher | null = null
+function getFetcher(): EventFetcher {
+  if (!fetcherSingleton) fetcherSingleton = new EventFetcher()
+  return fetcherSingleton
+}
+
+async function loadAlphaTesters(): Promise<AlphaTestersData> {
+  const events = await getFetcher().fetch()
+  return aggregateEvents(events)
+}
+
 export function useAlphaTesters() {
-  const fetcherRef = useRef<EventFetcher | null>(null)
-  const [data, setData] = useState<AlphaTestersData>(INITIAL_DATA)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { data, isLoading, error } = useQuery<AlphaTestersData>({
+    queryKey: ['alphaTesters'],
+    queryFn: loadAlphaTesters,
+    initialData: INITIAL_DATA,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchInterval: REFRESH_INTERVAL,
+  })
 
-  const load = useCallback(async () => {
-    try {
-      if (!fetcherRef.current) {
-        fetcherRef.current = new EventFetcher()
-      }
-      const events = await fetcherRef.current.fetch()
-      setData(aggregateEvents(events))
-      setError(null)
-    } catch (err) {
-      console.error('[useAlphaTesters]', err)
-      setError((err as Error).message)
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    load()
-    const id = setInterval(load, REFRESH_INTERVAL)
-    return () => clearInterval(id)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  return { ...data, loading, error }
+  return {
+    ...data,
+    loading: isLoading && data === INITIAL_DATA,
+    error: error ? (error instanceof Error ? error.message : String(error)) : null,
+  }
 }

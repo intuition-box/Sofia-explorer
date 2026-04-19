@@ -35,11 +35,33 @@ const queryClient = new QueryClient({
 // Persist React Query cache to localStorage so scores (and other fetched data)
 // show up instantly on reload, before Privy finishes re-authenticating and the
 // background refetch completes.
+//
+// Several caches contain bigints (vault shares, market caps). JSON.stringify
+// throws on bigint values, which would silently break the persister on every
+// save and leave the cache in-memory only — the user then sees a "loading"
+// flash on each reload. The custom serialize/deserialize marshals bigints
+// through a tagged string so the persister roundtrips them cleanly.
+const BIGINT_TAG = '__bigint__'
+
+function replacer(_key: string, value: unknown): unknown {
+  if (typeof value === 'bigint') return `${BIGINT_TAG}${value.toString()}`
+  return value
+}
+
+function reviver(_key: string, value: unknown): unknown {
+  if (typeof value === 'string' && value.startsWith(BIGINT_TAG)) {
+    try { return BigInt(value.slice(BIGINT_TAG.length)) } catch { return value }
+  }
+  return value
+}
+
 const persister =
   typeof window !== 'undefined'
     ? createSyncStoragePersister({
         storage: window.localStorage,
         key: 'sofia-rq-cache',
+        serialize: (client) => JSON.stringify(client, replacer),
+        deserialize: (raw) => JSON.parse(raw, reviver),
       })
     : undefined
 

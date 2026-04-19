@@ -40,8 +40,10 @@ export function usePlatformMarket() {
   const { data, isLoading, error } = useQuery<PlatformVaultData[]>({
     queryKey: ["platformMarket", walletAddress],
     queryFn: () => fetchAllPlatformMarkets(walletAddress),
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
     retry: 2,
   })
 
@@ -77,8 +79,10 @@ export function useSinglePlatformMarket(platformSlug: string) {
   const { data, isLoading, error } = useQuery<PlatformVaultData[]>({
     queryKey: ["platformMarket", termId, walletAddress],
     queryFn: () => fetchPlatformVaultStats(termId ? [termId] : [], walletAddress),
-    staleTime: 60 * 1000,
-    gcTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
     retry: 2,
     enabled: !!termId,
   })

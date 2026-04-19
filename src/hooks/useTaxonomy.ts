@@ -41,8 +41,10 @@ export function useTaxonomy() {
   const { data, isLoading, error } = useQuery<TaxonomyData>({
     queryKey: ["taxonomy"],
     queryFn: fetchTaxonomy,
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    gcTime: 30 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
     retry: 2,
     initialData: staticFallback,
   })
