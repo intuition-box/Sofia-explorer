@@ -45,10 +45,13 @@ export function useClaimPositions(termId: string | undefined, limit = 100) {
     queryKey: ['claimPositions', termId, limit],
     queryFn: () => fetchPositions(termId!, limit),
     enabled: !!termId,
-    staleTime: 120_000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   })
 
-  return { positions: data ?? [], loading: isLoading }
+  return { positions: data ?? [], loading: isLoading && !data }
 }
 
 /** Prefetch positions + stats for a list of claims so dialogs open instantly */
@@ -67,7 +70,8 @@ export function usePrefetchClaimDialogs(
         qc.prefetchQuery({
           queryKey: ['claimPositions', c.termId, 100],
           queryFn: () => fetchPositions(c.termId, 100),
-          staleTime: 120_000,
+          staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
         })
         // Prefetch vault stats
         fetchVaultStats(c.termId, walletAddress || '').catch(() => {})
@@ -77,7 +81,8 @@ export function usePrefetchClaimDialogs(
         qc.prefetchQuery({
           queryKey: ['claimPositions', c.counterTermId, 100],
           queryFn: () => fetchPositions(c.counterTermId, 100),
-          staleTime: 120_000,
+          staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
         })
       }
     }
