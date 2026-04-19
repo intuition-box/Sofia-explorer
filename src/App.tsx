@@ -12,6 +12,7 @@ import { useSidebarState } from './hooks/useSidebarState'
 import { RealtimeSyncBoundary } from './hooks/useRealtimeSync'
 import { useInterestsHydration } from './hooks/useInterestsHydration'
 import WsStatusBadge from './components/WsStatusBadge'
+import RouteErrorBoundary from './components/RouteErrorBoundary'
 import LandingPage from './pages/LandingPage'
 import DashboardPage from './pages/DashboardPage'
 import LeaderboardPage from './pages/LeaderboardPage'
@@ -115,6 +116,7 @@ export default function App() {
       />
 
       <main className={`main-content${isProfilePage && sidebar.isDesktop ? ' main-content--profile' : ''}${!sidebar.isDesktop ? ' main-content--no-sidebar' : ''}`} style={{ zoom: sidebar.isDesktop ? 1.25 : 1 }}>
+        <RouteErrorBoundary key={location.pathname}>
         <Routes>
           {/* Public routes */}
           <Route path="/feed" element={<DashboardPage />} />
@@ -134,6 +136,7 @@ export default function App() {
           <Route path="/streaks" element={<ProtectedRoute><StreaksPage /></ProtectedRoute>} />
           <Route path="/vote" element={<ProtectedRoute><VotePage /></ProtectedRoute>} />
         </Routes>
+        </RouteErrorBoundary>
       </main>
     </div>
   )
