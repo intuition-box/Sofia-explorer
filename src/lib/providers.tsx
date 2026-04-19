@@ -25,8 +25,13 @@ const queryClient = new QueryClient({
       gcTime: CACHE_MAX_AGE,
       // Avoid refetching every time the user switches tabs — the cache is fresh enough
       refetchOnWindowFocus: false,
-      retry: 3,
-      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10_000),
+      // retry:1 keeps a single automatic retry for transient network blips
+      // but doesn't amplify rate-limit storms — when ~20 hooks mount at the
+      // same time and one gets 429'd, retry:3 turns 20 requests into 80
+      // within a few seconds, and Kong answers 429 without CORS headers,
+      // which the browser surfaces as "No Access-Control-Allow-Origin".
+      retry: 1,
+      retryDelay: (attempt) => Math.min(2000 * 2 ** attempt, 15_000),
       throwOnError: false,
     },
   },

@@ -122,6 +122,36 @@ export interface NicheScore {
   lastCalculated: number
 }
 
+export interface PlatformContribution {
+  platformId: string
+  platformName: string
+  /** Points this platform contributed to the topic (pre multi-source, pre cap) */
+  rawContribution: number
+  breakdown: ScoreBreakdown
+  /** Top metrics feeding the contribution (e.g. "commits_moy_quotidien: 12") */
+  topMetrics: Array<{ key: string; value: number; component: keyof ScoreBreakdown }>
+}
+
+export interface TopicScoreExplanation {
+  topicId: string
+  finalScore: number
+  maxScore: number
+  /** Sum of platform rawContributions before trust & multi-source adjustments */
+  platformSubtotal: number
+  platformContributions: PlatformContribution[]
+  /** compositeScore * 0.2 (capped by anti-fraud rules below) */
+  trustBonus: number
+  /** Number of platforms that actually produced signals */
+  platformCount: number
+  /** Multiplier applied based on platform count (0.5 / 1.2 / 1.5, or "trust-only cap 15") */
+  multiSourceMultiplier: number
+  multiSourceReason: string
+  /** Score before the final min(maxScore, ...) clamp */
+  preCapScore: number
+  /** True if the cap actually bit */
+  capped: boolean
+}
+
 export interface TopicScore {
   topicId: string
   score: number
@@ -129,6 +159,7 @@ export interface TopicScore {
   topNiches: NicheScore[]
   platformCount: number
   lastCalculated: number
+  explanation?: TopicScoreExplanation
 }
 
 export interface UserReputationProfile {
