@@ -3,7 +3,18 @@ import type { Address } from 'viem'
 // ── Network ──
 export const RPC_URL = 'https://rpc.intuition.systems'
 export const GRAPHQL_URL = import.meta.env.DEV ? '/v1/graphql' : 'https://mainnet.intuition.sh/v1/graphql'
+// WebSocket endpoint for Hasura subscriptions. The Vite dev proxy does not
+// bridge WS, so we connect directly to the upstream WSS in both dev and prod.
+// Override via VITE_GRAPHQL_WS_URL in .env if needed.
+export const GRAPHQL_WS_URL =
+  (import.meta.env.VITE_GRAPHQL_WS_URL as string) ||
+  'wss://mainnet.intuition.sh/v1/graphql'
 export const EXPLORER_URL = 'https://explorer.intuition.systems'
+
+// Feature flag for the realtime subscription manager. Set VITE_REALTIME_ENABLED=false
+// to fall back to pull-only behaviour if the WS backend has issues.
+export const REALTIME_ENABLED =
+  (import.meta.env.VITE_REALTIME_ENABLED ?? 'true') !== 'false'
 
 // ── Sofia Proxy Contract ──
 export const SOFIA_PROXY_ADDRESS: Address = '0x26F81d723Ad1648194FAA4b7E235105Fd1212c6c'
