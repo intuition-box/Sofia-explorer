@@ -210,13 +210,20 @@ export class SubscriptionManager {
 
     const qc = this.queryClient
 
-    qc.setQueryData(realtimeKeys.positions(wallet), positions)
-    qc.setQueryData(realtimeKeys.topicPositionsMap(wallet), derivePositionsByTopic(positions))
-    qc.setQueryData(realtimeKeys.categoryPositionsMap(wallet), derivePositionsByCategory(positions))
-    qc.setQueryData(['platform-positions-map', wallet], derivePositionsByPlatform(positions))
-    qc.setQueryData(realtimeKeys.verifiedPlatforms(wallet), deriveVerifiedPlatforms(positions))
-    qc.setQueryData(realtimeKeys.userProfileDerived(wallet), deriveUserProfile(positions))
-    qc.setQueryData(realtimeKeys.userStats(wallet), deriveUserStats(positions))
+    // If a derivation or setQueryData throws, log and move on rather than
+    // letting the error bubble through React's commit phase. The next WS
+    // message will retry the same writes.
+    try {
+      qc.setQueryData(realtimeKeys.positions(wallet), positions)
+      qc.setQueryData(realtimeKeys.topicPositionsMap(wallet), derivePositionsByTopic(positions))
+      qc.setQueryData(realtimeKeys.categoryPositionsMap(wallet), derivePositionsByCategory(positions))
+      qc.setQueryData(['platform-positions-map', wallet], derivePositionsByPlatform(positions))
+      qc.setQueryData(realtimeKeys.verifiedPlatforms(wallet), deriveVerifiedPlatforms(positions))
+      qc.setQueryData(realtimeKeys.userProfileDerived(wallet), deriveUserProfile(positions))
+      qc.setQueryData(realtimeKeys.userStats(wallet), deriveUserStats(positions))
+    } catch (err) {
+      console.error('[WS positions] derivation/setQueryData failed', err)
+    }
 
     if (import.meta.env.DEV) {
       console.log(`[WS positions] ${count} positions for ${wallet.slice(0, 8)}…`)
