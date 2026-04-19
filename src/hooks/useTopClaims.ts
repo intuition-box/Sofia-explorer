@@ -95,8 +95,15 @@ export function useTopClaims(walletAddress: string | undefined) {
     queryKey: ['topClaims', walletAddress],
     queryFn: () => resolveTopClaims(walletAddress!),
     enabled: !!walletAddress,
-    staleTime: 120_000,
+    // Trust the persister between sessions; the data moves on the
+    // order of minutes and our custom serializer handles the bigint
+    // totalMarketCap. Background refresh happens on explicit refresh
+    // calls from the UI.
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   })
 
-  return { claims: data ?? [], loading: isLoading }
+  return { claims: data ?? [], loading: isLoading && !data }
 }

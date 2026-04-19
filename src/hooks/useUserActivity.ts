@@ -1,4 +1,13 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+/**
+ * useUserActivity — user's recent on-chain activity feed.
+ *
+ * Backed by a persisted React Query entry so reloads paint instantly
+ * from localStorage while the background refresh (when triggered) pulls
+ * the latest events. fetchUserActivity already has retry+backoff via
+ * fetchWithRetry.
+ */
+
+import { useQuery } from '@tanstack/react-query'
 import { fetchUserActivity } from '../services/domainActivityService'
 import { fetchWithRetry } from '../utils/fetchRetry'
 import type { CircleItem } from '../services/circleService'
@@ -6,39 +15,25 @@ import type { CircleItem } from '../services/circleService'
 const BATCH_SIZE = 200
 
 export function useUserActivity(walletAddress: string | undefined) {
-  const [items, setItems] = useState<CircleItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [hasMore, setHasMore] = useState(true)
-  const offsetRef = useRef(0)
+  const address = walletAddress?.toLowerCase()
 
-  const load = useCallback(async () => {
-    if (!walletAddress) {
-      setItems([])
-      setLoading(false)
-      return
-    }
+  const { data, isLoading, error, refetch } = useQuery<CircleItem[]>({
+    queryKey: address ? ['user-activity', address] : ['user-activity', undefined],
+    queryFn: () => fetchWithRetry(() => fetchUserActivity(walletAddress!, BATCH_SIZE, 0)),
+    enabled: !!walletAddress,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  })
 
-    setLoading(true)
-    setError(null)
-    offsetRef.current = 0
+  const items = data ?? []
 
-    try {
-      const data = await fetchWithRetry(() => fetchUserActivity(walletAddress!, BATCH_SIZE, 0))
-      setItems(data)
-      offsetRef.current = BATCH_SIZE
-      setHasMore(data.length > 0)
-    } catch (err) {
-      console.error('[useUserActivity]', err)
-      setError(err instanceof Error ? err.message : 'Failed to load activity')
-    } finally {
-      setLoading(false)
-    }
-  }, [walletAddress])
-
-  useEffect(() => {
-    load()
-  }, [load])
-
-  return { items, loading, error, hasMore, refresh: load }
+  return {
+    items,
+    loading: isLoading && items.length === 0,
+    error: error ? (error instanceof Error ? error.message : String(error)) : null,
+    hasMore: items.length >= BATCH_SIZE,
+    refresh: () => { refetch() },
+  }
 }
