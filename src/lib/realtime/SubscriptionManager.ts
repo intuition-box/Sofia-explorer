@@ -7,11 +7,12 @@
  * cache via queryClient.setQueryData(), so components that consume
  * those query keys re-render without triggering a fetch.
  *
- * No GraphQL strings live in this file — we import the generated
- * DocumentNodes from the @0xsofia/dashboard-graphql package and
- * render them to strings with graphql#print().
+ * If the WS stays offline for more than FALLBACK_DELAY_MS, we start
+ * an HTTP polling loop that uses the same derivations pipeline so
+ * the UI keeps receiving (stale-ish) updates until the WS recovers.
  *
- * Phase 1: positions only. Events and trust subscriptions come in Phase 2.
+ * No GraphQL strings live in this file — the DocumentNodes come from
+ * @0xsofia/dashboard-graphql and are rendered with graphql#print().
  */
 
 import { print, type DocumentNode } from 'graphql'
@@ -20,6 +21,7 @@ import {
   getWsClient,
   disposeWsClient,
   WatchUserPositionsDocument,
+  useGetUserPositionsQuery,
   type WatchUserPositionsSubscription,
   type WatchUserPositionsSubscriptionVariables,
 } from '@0xsofia/dashboard-graphql'
@@ -32,16 +34,23 @@ import {
   deriveUserStats,
   realtimeKeys,
 } from './derivations'
+import {
+  markConnecting,
+  markConnected,
+  markOffline,
+  markError,
+  getWsStatus,
+} from './wsStatus'
 
-/**
- * graphql-ws expects a query string. Our codegen emits either a DocumentNode
- * (when documentMode is 'documentNode') or a pre-printed string (when plugins
- * inline the printed text). Normalize both cases.
- */
 function toQueryString(doc: unknown): string {
   if (typeof doc === 'string') return doc
   return print(doc as DocumentNode)
 }
+
+/** Grace period before we assume a disconnect is persistent. */
+const FALLBACK_DELAY_MS = 30_000
+/** Cadence of HTTP polling once the fallback is active. */
+const FALLBACK_INTERVAL_MS = 60_000
 
 type Unsubscribe = () => void
 
@@ -49,42 +58,120 @@ export class SubscriptionManager {
   private queryClient: QueryClient
   private walletAddress: string | null = null
   private subscriptions = new Map<string, Unsubscribe>()
+  private statusListenerUnsubs: Array<() => void> = []
+  private fallbackInterval: ReturnType<typeof setInterval> | null = null
+  private fallbackTimeout: ReturnType<typeof setTimeout> | null = null
 
   constructor(queryClient: QueryClient) {
     this.queryClient = queryClient
   }
 
-  /**
-   * Open subscriptions for the given wallet. If already connected to the
-   * same wallet, does nothing. If connected to a different wallet, tears
-   * down the previous session first.
-   */
   connect(walletAddress: string) {
     const normalized = walletAddress.toLowerCase()
     if (this.walletAddress === normalized) return
     this.disconnect()
     this.walletAddress = normalized
+    this.attachStatusListeners()
     this.subscribePositions()
   }
 
-  /** Close all subscriptions and reset. Does NOT dispose the shared WS client. */
   disconnect() {
     for (const unsub of this.subscriptions.values()) {
       try { unsub() } catch { /* ignore */ }
     }
     this.subscriptions.clear()
+    this.detachStatusListeners()
+    this.stopHttpFallback()
     this.walletAddress = null
   }
 
-  /** Nuclear option — dispose the shared WS client too. Use on full logout. */
+  /** Dispose the shared WS client. Use on full logout. */
   shutdown() {
     this.disconnect()
     disposeWsClient()
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Subscriptions
-  // ─────────────────────────────────────────────────────────
+  // ── Status listeners ──────────────────────────────────────────────────────
+
+  private attachStatusListeners() {
+    const client = getWsClient()
+    markConnecting()
+
+    this.statusListenerUnsubs.push(
+      client.on('connecting', () => markConnecting()),
+      client.on('connected', () => {
+        markConnected()
+        this.stopHttpFallback()
+      }),
+      client.on('closed', (ev) => {
+        const reason = typeof ev === 'object' && ev && 'reason' in ev
+          ? String((ev as { reason?: unknown }).reason ?? '')
+          : undefined
+        markOffline(reason)
+        this.scheduleHttpFallback()
+      }),
+      client.on('error', (err) => {
+        const reason = err instanceof Error ? err.message : String(err ?? 'unknown')
+        markError(reason)
+        this.scheduleHttpFallback()
+      }),
+    )
+  }
+
+  private detachStatusListeners() {
+    for (const unsub of this.statusListenerUnsubs) {
+      try { unsub() } catch { /* ignore */ }
+    }
+    this.statusListenerUnsubs = []
+  }
+
+  // ── HTTP fallback ─────────────────────────────────────────────────────────
+
+  private scheduleHttpFallback() {
+    if (this.fallbackTimeout !== null || this.fallbackInterval !== null) return
+    this.fallbackTimeout = setTimeout(() => {
+      this.fallbackTimeout = null
+      // If the WS came back during the grace period, don't start polling.
+      if (getWsStatus().status === 'connected') return
+      if (!this.walletAddress) return
+
+      if (import.meta.env.DEV) {
+        console.warn('[WS] offline for', FALLBACK_DELAY_MS, 'ms — starting HTTP fallback')
+      }
+
+      void this.httpFetch()
+      this.fallbackInterval = setInterval(() => {
+        void this.httpFetch()
+      }, FALLBACK_INTERVAL_MS)
+    }, FALLBACK_DELAY_MS)
+  }
+
+  private stopHttpFallback() {
+    if (this.fallbackTimeout !== null) {
+      clearTimeout(this.fallbackTimeout)
+      this.fallbackTimeout = null
+    }
+    if (this.fallbackInterval !== null) {
+      clearInterval(this.fallbackInterval)
+      this.fallbackInterval = null
+    }
+  }
+
+  private async httpFetch() {
+    const wallet = this.walletAddress
+    if (!wallet) return
+    try {
+      const data = await useGetUserPositionsQuery.fetcher({ accountId: wallet })()
+      // Same shape as the subscription payload (same fragment).
+      this.onPositionsUpdate({ positions: data.positions } as unknown as WatchUserPositionsSubscription)
+    } catch (err) {
+      if (import.meta.env.DEV) {
+        console.warn('[WS fallback] HTTP fetch failed', err)
+      }
+    }
+  }
+
+  // ── Subscriptions ─────────────────────────────────────────────────────────
 
   private subscribePositions() {
     if (!this.walletAddress) return
@@ -115,9 +202,7 @@ export class SubscriptionManager {
     this.subscriptions.set('positions', unsub)
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Cache writers (to be expanded in Phase 2)
-  // ─────────────────────────────────────────────────────────
+  // ── Cache writers ─────────────────────────────────────────────────────────
 
   private onPositionsUpdate(data: WatchUserPositionsSubscription) {
     const positions = data.positions ?? []
@@ -127,10 +212,7 @@ export class SubscriptionManager {
 
     const qc = this.queryClient
 
-    // Canonical raw positions.
     qc.setQueryData(realtimeKeys.positions(wallet), positions)
-
-    // Derived views — each one is what a specific hook will read.
     qc.setQueryData(realtimeKeys.topicPositionsMap(wallet), derivePositionsByTopic(positions))
     qc.setQueryData(realtimeKeys.categoryPositionsMap(wallet), derivePositionsByCategory(positions))
     qc.setQueryData(['platform-positions-map', wallet], derivePositionsByPlatform(positions))

@@ -11,6 +11,7 @@ import { useCart } from './hooks/useCart'
 import { useSidebarState } from './hooks/useSidebarState'
 import { RealtimeSyncBoundary } from './hooks/useRealtimeSync'
 import { useInterestsHydration } from './hooks/useInterestsHydration'
+import WsStatusBadge from './components/WsStatusBadge'
 import LandingPage from './pages/LandingPage'
 import DashboardPage from './pages/DashboardPage'
 import LeaderboardPage from './pages/LeaderboardPage'
@@ -87,6 +88,7 @@ export default function App() {
       <RealtimeSyncBoundary />
       {/* Hydrates topics/categories from on-chain positions — union-merges into localStorage. */}
       <InterestsHydrationBoundary />
+      <WsStatusBadge />
       <Header onCartClick={() => setCartOpen(o => !o)} onMenuClick={sidebar.toggleLeft} showMenu={!sidebar.isDesktop} compact={!sidebar.isDesktop} onProfileDrawerClick={() => setProfileDrawerOpen(o => !o)} showProfileDrawer={!sidebar.isDesktop && isProfilePage} />
       <Sidebar isOpen={sidebar.isDesktop || sidebar.leftOpen} onClose={sidebar.closeLeft} isOverlay={!sidebar.isDesktop} />
       <RightSidebar hidden={isProfilePage || cartOpen || !sidebar.isDesktop} />
