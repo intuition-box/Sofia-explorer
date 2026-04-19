@@ -6,13 +6,16 @@ export function useTrustLeaderboard() {
   const { data, isLoading, error } = useQuery<EigentrustEntry[]>({
     queryKey: ['trustLeaderboard'],
     queryFn: () => fetchEigentrustRanking(50),
-    staleTime: 600_000,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
     retry: 1,
   })
 
   return {
     rankings: data ?? [],
-    loading: isLoading,
+    loading: isLoading && !data,
     error: error ? String(error) : null,
   }
 }

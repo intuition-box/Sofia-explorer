@@ -1,50 +1,52 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { fetchCircleFeed, type CircleItem } from '../services/circleService'
 import { fetchWithRetry } from '../utils/fetchRetry'
 
 const BATCH_SIZE = 200
 
+/**
+ * Same pattern as useAllActivity — initial page is persisted in the
+ * React Query cache, additional pagination lives in local state.
+ */
 export function useCircleFeed(walletAddress: string | undefined) {
-  const [items, setItems] = useState<CircleItem[]>([])
-  const [loading, setLoading] = useState(false)
+  const address = walletAddress?.toLowerCase()
+
+  const { data: initial, isLoading, error, refetch } = useQuery<CircleItem[]>({
+    queryKey: address ? ['circle-feed', address] : ['circle-feed', undefined],
+    queryFn: () => fetchWithRetry(() => fetchCircleFeed(walletAddress!, BATCH_SIZE, 0)),
+    enabled: !!walletAddress,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  })
+
+  const [extra, setExtra] = useState<CircleItem[]>([])
   const [loadingMore, setLoadingMore] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [hasMore, setHasMore] = useState(true)
-  const offsetRef = useRef(0)
+  const offsetRef = useRef(BATCH_SIZE)
 
-  const load = useCallback(async () => {
-    if (!walletAddress) return
-
-    setLoading(true)
-    setError(null)
-    offsetRef.current = 0
-
-    try {
-      const data = await fetchWithRetry(() => fetchCircleFeed(walletAddress!, BATCH_SIZE, 0))
-      setItems(data)
-      offsetRef.current = BATCH_SIZE
-      setHasMore(data.length > 0)
-    } catch (err) {
-      console.error('[useCircleFeed]', err)
-      setError(err instanceof Error ? err.message : 'Failed to load circle feed')
-    } finally {
-      setLoading(false)
-    }
-  }, [walletAddress])
+  useEffect(() => {
+    setExtra([])
+    offsetRef.current = BATCH_SIZE
+    setHasMore((initial?.length ?? 0) >= BATCH_SIZE)
+  }, [initial])
 
   const loadMore = useCallback(async () => {
     if (!walletAddress || loadingMore || !hasMore) return
-
     setLoadingMore(true)
     try {
       const newItems = await fetchCircleFeed(walletAddress, BATCH_SIZE, offsetRef.current)
       if (newItems.length === 0) {
         setHasMore(false)
       } else {
-        setItems((prev) => {
-          const existingIds = new Set(prev.map((i) => i.id))
-          const unique = newItems.filter((i) => !existingIds.has(i.id))
-          return [...prev, ...unique]
+        setExtra((prev) => {
+          const seen = new Set<string>([
+            ...(initial ?? []).map((i) => i.id),
+            ...prev.map((i) => i.id),
+          ])
+          return [...prev, ...newItems.filter((i) => !seen.has(i.id))]
         })
         offsetRef.current += BATCH_SIZE
       }
@@ -53,11 +55,17 @@ export function useCircleFeed(walletAddress: string | undefined) {
     } finally {
       setLoadingMore(false)
     }
-  }, [walletAddress, loadingMore, hasMore])
+  }, [walletAddress, loadingMore, hasMore, initial])
 
-  useEffect(() => {
-    load()
-  }, [load])
+  const items = [...(initial ?? []), ...extra]
 
-  return { items, loading, loadingMore, error, hasMore, loadMore, refresh: load }
+  return {
+    items,
+    loading: isLoading && items.length === 0,
+    loadingMore,
+    error: error ? (error instanceof Error ? error.message : String(error)) : null,
+    hasMore,
+    loadMore,
+    refresh: () => { refetch() },
+  }
 }

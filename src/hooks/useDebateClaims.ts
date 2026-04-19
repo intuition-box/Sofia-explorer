@@ -1,29 +1,20 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { fetchDebateClaims, type DebateClaim } from '../services/debateService'
 
 export function useDebateClaims() {
-  const [claims, setClaims] = useState<DebateClaim[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { data, isLoading, error, refetch } = useQuery<DebateClaim[]>({
+    queryKey: ['debateClaims'],
+    queryFn: fetchDebateClaims,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 24 * 60 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  })
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const data = await fetchDebateClaims()
-      setClaims(data)
-    } catch (err) {
-      console.error('[useDebateClaims]', err)
-      setError(err instanceof Error ? err.message : 'Failed to load claims')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    load()
-  }, [load])
-
-  return { claims, loading, error, refresh: load }
+  return {
+    claims: data ?? [],
+    loading: isLoading && !data,
+    error: error ? (error instanceof Error ? error.message : String(error)) : null,
+    refresh: () => { refetch() },
+  }
 }
