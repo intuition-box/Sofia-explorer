@@ -18,7 +18,6 @@ export function useAllActivity() {
     queryFn: () => fetchWithRetry(() => fetchAllActivity(BATCH_SIZE, 0)),
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
-    refetchOnMount: false,
     refetchOnWindowFocus: false,
   })
 

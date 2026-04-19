@@ -43,10 +43,10 @@ export function useTaxonomy() {
     queryFn: fetchTaxonomy,
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
-    refetchOnMount: false,
     refetchOnWindowFocus: false,
     retry: 2,
     initialData: staticFallback,
+    initialDataUpdatedAt: 0,
   })
 
   const taxonomy = data || staticFallback

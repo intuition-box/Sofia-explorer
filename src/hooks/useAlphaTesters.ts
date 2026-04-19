@@ -27,9 +27,11 @@ export function useAlphaTesters() {
     queryKey: ['alphaTesters'],
     queryFn: loadAlphaTesters,
     initialData: INITIAL_DATA,
+    // initialDataUpdatedAt: 0 marks the placeholder as infinitely stale so
+    // RQ triggers a real fetch on mount even though initialData is set.
+    initialDataUpdatedAt: 0,
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
-    refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchInterval: REFRESH_INTERVAL,
   })

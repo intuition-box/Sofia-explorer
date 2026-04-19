@@ -9,7 +9,6 @@ export function useDomainTrending(topicId: string | undefined) {
     enabled: !!topicId,
     staleTime: 10 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
-    refetchOnMount: false,
     refetchOnWindowFocus: false,
   })
 
