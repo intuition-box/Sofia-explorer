@@ -219,7 +219,8 @@ subscription UserPositions($account: String!) {
 - TypeScript first
 
 ```bash
-bun add graphql-ws
+# Installe DANS le package graphql (pas dans le main app)
+cd packages/graphql && bun add graphql-ws
 ```
 
 ### 5.2 Cache : React Query (existant)
@@ -232,118 +233,295 @@ On garde React Query. On ne change rien a l'outil, juste le pattern :
 
 ### 5.3 Store optionnel : Zustand
 
-**Pas necessaire** dans un premier temps. React Query fait office de store via son cache. On peut ajouter Zustand plus tard si on a besoin de state derivé qui doit etre partage (ex: status de la connection WS).
+**Pas necessaire** dans un premier temps. React Query fait office de store via son cache. On peut ajouter Zustand plus tard si on a besoin de state derive qui doit etre partage (ex: status de la connection WS).
 
 ### 5.4 Pas d'IndexedDB
 
 Le volume de donnees par user est petit (<100KB), localStorage suffit via le persister React Query.
 
+### 5.5 Pipeline codegen — tout passe par `packages/graphql`
+
+**Contrainte imperative** : aucune query ou subscription inline dans le code applicatif. Tout va dans `packages/graphql/src/subscriptions/*.graphql` et passe par `bun run codegen` pour generer les DocumentNodes types.
+
+#### Structure cible du package
+
+```
+packages/graphql/
+├── src/
+│   ├── queries/          ← existant (10 fichiers)
+│   ├── fragments/        ← existant (1 fichier)
+│   ├── subscriptions/    ← NOUVEAU
+│   │   ├── positions.graphql
+│   │   ├── events.graphql
+│   │   └── trust.graphql
+│   ├── client.ts         ← etendu avec wsClient
+│   ├── wsClient.ts       ← NOUVEAU — singleton graphql-ws
+│   ├── generated/
+│   │   └── index.ts      ← genere par codegen (inclut les DocumentNodes des subs)
+│   └── index.ts          ← re-export des DocumentNodes + wsClient
+```
+
+#### Modification `codegen.ts`
+
+```typescript
+// packages/graphql/codegen.ts
+
+export default {
+  schema: { ... }, // unchanged
+  documents: [
+    'src/**/*.graphql',  // pattern deja inclusif — capture subscriptions
+  ],
+  generates: {
+    './src/generated/index.ts': {
+      plugins: [
+        'typescript',
+        'typescript-operations',
+        'typescript-react-query',     // genere useQuery + useInfiniteQuery
+        'typescript-document-nodes',  // genere les DocumentNodes (ce dont on a besoin pour subscriptions)
+      ],
+      config: {
+        // ... existant
+        exposeDocument: true,          // CRUCIAL — expose SubscriptionPositionsDocument etc.
+        // Note : typescript-react-query NE GENERE PAS useSubscription, on n'en a pas besoin.
+        // On consomme directement les DocumentNodes depuis le SubscriptionManager.
+      },
+    },
+  },
+}
+```
+
+**Pourquoi pas de `useSubscription` hook genere ?** Parce que le SubscriptionManager gere les subs globalement (par wallet, au niveau app), pas par composant. Les composants consomment le **cache** alimente par les subs, via leurs `useQuery` existants. Si un jour on a besoin d'un hook `useSubscription` local (ex: live feed), on ajoutera le plugin `@graphql-codegen/typescript-react-query` en mode subscription.
+
+#### Exemple de fichier subscription
+
+Fichier : `packages/graphql/src/subscriptions/positions.graphql`
+
+```graphql
+subscription WatchUserPositions($accountId: String!) {
+  positions(where: { account_id: { _ilike: $accountId } }) {
+    ...PositionWithVaultDetails
+  }
+}
+```
+
+Reutilise le fragment existant `PositionWithVaultDetails` du package. Une fois `bun run codegen` execute, genere :
+- `WatchUserPositionsDocument` (DocumentNode)
+- `WatchUserPositionsSubscription` (type de la reponse)
+- `WatchUserPositionsSubscriptionVariables` (type des variables)
+
+#### Consommation cote SubscriptionManager
+
+Le SubscriptionManager importe le DocumentNode genere, **jamais de string inline**.
+
+```typescript
+// src/lib/realtime/SubscriptionManager.ts (main app)
+import { print } from 'graphql'
+import { WatchUserPositionsDocument } from '@0xsofia/dashboard-graphql'
+
+this.client.subscribe(
+  {
+    query: print(WatchUserPositionsDocument), // string derive du DocumentNode, pas d'inline
+    variables: { accountId: this.walletAddress },
+  },
+  { next, error, complete }
+)
+```
+
+`print()` vient de `graphql` (deja dep du package). Alternative : passer directement le DocumentNode si `graphql-ws` le supporte (il le fait via la surcharge `TadaDocumentNode`).
+
 ---
 
 ## 6. Architecture detaillee
 
-### 6.1 SubscriptionManager (coeur du systeme)
+### 6.1 wsClient dans le package graphql
+
+Fichier : `packages/graphql/src/wsClient.ts`
+
+```typescript
+import { createClient, type Client } from 'graphql-ws'
+
+const API_WS_LOCAL = 'ws://localhost:8080/v1/graphql'
+const API_WS_DEV = 'wss://testnet.intuition.sh/v1/graphql'
+const API_WS_PROD = 'wss://mainnet.intuition.sh/v1/graphql'
+
+let wsClient: Client | null = null
+let globalWsUrl = API_WS_PROD
+
+export function configureWsClient(config: { wsUrl: string }) {
+  globalWsUrl = config.wsUrl
+  // Si un client existait deja, on le dispose pour que la prochaine utilisation
+  // reprenne avec la bonne URL.
+  if (wsClient) {
+    wsClient.dispose()
+    wsClient = null
+  }
+}
+
+export function getWsClient(): Client {
+  if (!wsClient) {
+    wsClient = createClient({
+      url: globalWsUrl,
+      retryAttempts: Infinity,
+      shouldRetry: () => true,
+      keepAlive: 10_000,
+      connectionParams: async () => ({
+        // placeholder pour JWT si Intuition active l'auth
+      }),
+    })
+  }
+  return wsClient
+}
+
+export function disposeWsClient() {
+  wsClient?.dispose()
+  wsClient = null
+}
+```
+
+Etendre `configureClient()` existant dans `client.ts` pour aussi appeler `configureWsClient()` :
+
+```typescript
+// packages/graphql/src/client.ts (ajout)
+import { configureWsClient } from './wsClient'
+
+export function configureClient(config: { apiUrl: string; wsUrl?: string }) {
+  globalConfig = { ...globalConfig, apiUrl: config.apiUrl }
+  if (config.wsUrl) {
+    configureWsClient({ wsUrl: config.wsUrl })
+  }
+}
+```
+
+Et exporter depuis l'index du package :
+
+```typescript
+// packages/graphql/src/index.ts
+export * from './generated'
+export { configureClient, fetcher, type ClientConfig } from './client'
+export { getWsClient, disposeWsClient } from './wsClient'
+```
+
+### 6.2 SubscriptionManager dans le main app
 
 Fichier : `src/lib/realtime/SubscriptionManager.ts`
 
 ```typescript
-import { createClient, type Client } from 'graphql-ws'
+import { print } from 'graphql'
 import type { QueryClient } from '@tanstack/react-query'
+import {
+  getWsClient,
+  WatchUserPositionsDocument,
+  WatchUserEventsDocument,
+  WatchUserTrustDocument,
+  type WatchUserPositionsSubscription,
+  type WatchUserEventsSubscription,
+  type WatchUserTrustSubscription,
+} from '@0xsofia/dashboard-graphql'
+import {
+  derivePositionsByTopic,
+  derivePositionsByPlatform,
+  deriveUserStats,
+  deriveVerifiedPlatforms,
+} from './derivations'
 
 export class SubscriptionManager {
-  private client: Client | null = null
   private subscriptions = new Map<string, () => void>()
   private queryClient: QueryClient
-  private wsUrl: string
   private walletAddress: string | null = null
 
-  constructor(queryClient: QueryClient, wsUrl: string) {
+  constructor(queryClient: QueryClient) {
     this.queryClient = queryClient
-    this.wsUrl = wsUrl
   }
 
   connect(walletAddress: string) {
-    if (this.walletAddress === walletAddress && this.client) return
+    if (this.walletAddress === walletAddress) return
     this.disconnect()
-    this.walletAddress = walletAddress
-
-    this.client = createClient({
-      url: this.wsUrl,
-      shouldRetry: () => true,
-      retryAttempts: Infinity,
-      keepAlive: 10_000,
-      // connectionParams pour auth si besoin
-      connectionParams: async () => ({
-        // headers si besoin
-      }),
-      on: {
-        connected: () => console.log('[WS] connected'),
-        closed: (e) => console.log('[WS] closed', e),
-        error: (e) => console.error('[WS] error', e),
-      },
-    })
-
+    this.walletAddress = walletAddress.toLowerCase()
     this.subscribeAll()
   }
 
   private subscribeAll() {
-    this.subscribePositions()
-    this.subscribeEvents()
-    this.subscribeTrust()
-    // ... autres subs
+    this.subscribe('positions', WatchUserPositionsDocument, (data) =>
+      this.onPositionsUpdate(data as WatchUserPositionsSubscription)
+    )
+    this.subscribe('events', WatchUserEventsDocument, (data) =>
+      this.onEventsUpdate(data as WatchUserEventsSubscription)
+    )
+    this.subscribe('trust', WatchUserTrustDocument, (data) =>
+      this.onTrustUpdate(data as WatchUserTrustSubscription)
+    )
   }
 
-  private subscribePositions() {
-    if (!this.client || !this.walletAddress) return
+  private subscribe<T>(
+    key: string,
+    document: unknown, // DocumentNode genere
+    handler: (data: T) => void,
+  ) {
+    if (!this.walletAddress) return
+    const client = getWsClient()
 
-    const unsub = this.client.subscribe(
+    const unsub = client.subscribe(
       {
-        query: `subscription Positions($addr: String!) {
-          positions(where: { account_id: { _ilike: $addr } }) {
-            term_id
-            shares
-            vault { term { triple { term_id object_id predicate_id } } }
-          }
-        }`,
-        variables: { addr: this.walletAddress },
+        query: print(document as any), // print() vient de 'graphql', pas d'inline string
+        variables: { accountId: this.walletAddress },
       },
       {
-        next: (data) => this.onPositionsUpdate(data.data),
-        error: (err) => console.error('[WS positions]', err),
-        complete: () => console.log('[WS positions] complete'),
+        next: ({ data }) => data && handler(data as T),
+        error: (err) => console.error(`[WS ${key}]`, err),
+        complete: () => console.log(`[WS ${key}] complete`),
       }
     )
 
-    this.subscriptions.set('positions', unsub)
+    this.subscriptions.set(key, unsub)
   }
 
-  private onPositionsUpdate(data: any) {
-    // Hasura renvoie le state complet a chaque delta.
-    // On met a jour toutes les query keys derivees :
+  private onPositionsUpdate(data: WatchUserPositionsSubscription) {
+    const positions = data.positions ?? []
+    // Stocke le state brut sous la query key "canonical"
     this.queryClient.setQueryData(
       ['positions', this.walletAddress],
-      data.positions
+      positions
     )
-    // Derive vers les caches existants :
+    // Derive vers les query keys consommees par les hooks existants
     this.queryClient.setQueryData(
       ['topic-positions', this.walletAddress],
-      derivePositionsByTopic(data.positions)
+      derivePositionsByTopic(positions)
     )
-    // etc.
+    this.queryClient.setQueryData(
+      ['platform-positions', this.walletAddress],
+      derivePositionsByPlatform(positions)
+    )
+    this.queryClient.setQueryData(
+      ['user-stats', this.walletAddress],
+      deriveUserStats(positions)
+    )
+    this.queryClient.setQueryData(
+      ['verified-platforms', this.walletAddress],
+      deriveVerifiedPlatforms(positions)
+    )
+  }
+
+  private onEventsUpdate(data: WatchUserEventsSubscription) {
+    // derivations.onEvents() calcule user-activity, top-claims, etc.
+  }
+
+  private onTrustUpdate(data: WatchUserTrustSubscription) {
+    // derivations.onTrust() calcule trust-circle, trusted-by.
   }
 
   disconnect() {
     for (const unsub of this.subscriptions.values()) unsub()
     this.subscriptions.clear()
-    this.client?.dispose()
-    this.client = null
     this.walletAddress = null
   }
 }
-
-// Singleton instancie dans providers.tsx
-export let subscriptionManager: SubscriptionManager | null = null
 ```
+
+**Points importants** :
+- Aucun GraphQL string inline dans le SubscriptionManager
+- Les `WatchUserPositionsDocument` sont **generes** par codegen depuis `packages/graphql/src/subscriptions/positions.graphql`
+- Si on ajoute une nouvelle subscription : creer le `.graphql` dans le package, lancer `bun run codegen && bun run build`, importer le DocumentNode dans `SubscriptionManager`
+- Les types `WatchUserPositionsSubscription` sont eux aussi generes — TypeScript valide les derivations
 
 ### 6.2 Hook d'activation
 
@@ -469,17 +647,53 @@ Choix recommande : **A** pour les actions frequentes (deposit, vote), **B** pour
 
 ## 7. Phases d'implementation
 
-### Phase 1 — Infrastructure (2-3 jours)
+### Phase 1 — Infrastructure + pipeline codegen (3-4 jours)
 
-1. Installer `graphql-ws`
-2. Creer `src/lib/realtime/SubscriptionManager.ts` (squelette, 1 subscription test)
-3. Creer `src/hooks/useRealtimeSync.ts`
-4. Monter dans `App.tsx` via `<RealtimeSyncBoundary />`
-5. Logger tous les events WS dans la console (debug)
-6. **Test** : verifier que la connection WS marche sur `mainnet.intuition.sh`
-7. **Fallback** : si le WS marche pas, documenter et passer en mode polling
+**A. Cote package `packages/graphql`**
 
-**Deliverable** : WS connecte, une subscription test qui log les positions du user.
+1. `cd packages/graphql && bun add graphql-ws`
+2. Creer `packages/graphql/src/wsClient.ts` (getWsClient + configureWsClient + disposeWsClient)
+3. Etendre `packages/graphql/src/client.ts` : `configureClient({ apiUrl, wsUrl? })` delegue a `configureWsClient`
+4. Exporter `getWsClient`, `disposeWsClient` depuis `packages/graphql/src/index.ts`
+5. Creer le dossier `packages/graphql/src/subscriptions/`
+6. Ecrire UNE subscription test : `packages/graphql/src/subscriptions/positions.graphql`
+   ```graphql
+   subscription WatchUserPositions($accountId: String!) {
+     positions(where: { account_id: { _ilike: $accountId } }) {
+       ...PositionWithVaultDetails
+     }
+   }
+   ```
+7. Ajouter `exposeDocument: true` dans codegen.ts (verifier que c'est deja le cas)
+8. `bun run codegen` — verifier que `WatchUserPositionsDocument` apparait dans generated/index.ts
+9. `bun run build` — verifier que dist/ exporte bien le DocumentNode
+
+**B. Cote main app `sofia-explorer`**
+
+10. Ajouter `VITE_GRAPHQL_WS_URL` dans `.env` local (`wss://mainnet.intuition.sh/v1/graphql`)
+11. Modifier `src/config.ts` : exporter `GRAPHQL_WS_URL`
+12. Modifier `src/lib/providers.tsx` : passer `wsUrl` a `configureClient()`
+13. Creer `src/lib/realtime/SubscriptionManager.ts` (squelette) — 1 seule subscription `positions`
+14. Creer `src/lib/realtime/derivations.ts` (stubs vides pour l'instant)
+15. Creer `src/hooks/useRealtimeSync.ts` qui mount/unmount le SubscriptionManager selon le wallet
+16. Creer `<RealtimeSyncBoundary />` invisible dans `App.tsx` sous l'auth Privy
+17. Logger tous les events WS dans la console (`[WS positions] received N positions`)
+
+**C. Validation**
+
+18. Lancer `bun run dev` sur mastra (pas affecte) + main app
+19. Se connecter avec un wallet ayant des positions
+20. DevTools → Network → WS filter → verifier :
+    - Handshake WS `101 Switching Protocols`
+    - Message `connection_init` envoye
+    - Message `connection_ack` recu
+    - Message `subscribe` envoye
+    - Message `next` avec les positions
+21. DevTools → Console → verifier les logs `[WS positions]`
+
+**Deliverable** : WS connecte via le package, subscription `positions` active, log des positions en console a chaque delta.
+
+**Rollback** : si WS ne fonctionne pas malgre l'infra confirmee, passer en mode `USE_REALTIME=false` via env var et ne pas mount le SubscriptionManager.
 
 ### Phase 2 — Cache foundation (3-4 jours)
 
@@ -627,13 +841,21 @@ Si impossibles a activer → **plan B** : deployer un proxy WS dedie (sur mastra
 
 ---
 
-## 11. Questions ouvertes
+## 11. Decisions prises (ex-questions ouvertes)
 
-1. **Auth** : est-ce que Hasura demande un token pour les subscriptions ? Si oui, quelle strategie ? (Admin secret cote client = non. JWT via Privy = oui peut-etre.)
-2. **Multi-onglets** : si le user a 3 onglets ouverts, on ouvre 3 WS ou on partage via BroadcastChannel ? Simplest : un par onglet, negligeable.
-3. **Scoping des subs** : on subscribe globalement par wallet, ou par topic ? Globalement, plus simple, volume ok.
-4. **Mastra signals** : les metrics de plateformes viennent de Mastra, pas Hasura. Est-ce qu'on les met en WS aussi ou on garde le polling actuel ? Pour V1, on garde le polling (1h staleTime deja).
-5. **Cross-user data** : si on affiche le profil de quelqu'un d'autre (view-as), est-ce qu'on ouvre une subscription pour lui aussi ? Non. Le view-as reste pull.
+| Question | Decision | Raisonnement |
+|---|---|---|
+| **Auth subscriptions** | V1 sans auth | L'endpoint GraphQL existant ne demande pas d'auth pour les queries (pas de headers dans le fetcher). Le test wscat confirme qu'on se connecte en WS sans credentials. Si Intuition active un JWT plus tard, on l'ajoutera via `connectionParams` dans `wsClient.ts`. |
+| **Multi-onglets** | Un WS par onglet | BroadcastChannel ajoute complexite pour gain marginal (~5 KB memoire par WS). Hasura supporte 10k+ connexions simultanees. |
+| **Scoping des subscriptions** | Par wallet, jamais par topic | Une subscription `positions(account_id = wallet)` ramene tout. Les vues derivees (par topic, par plateforme) sont calculees client-side via les fonctions `derive*()`. |
+| **Mastra signals** | Restent en pull (V1) | signalFetcherWorkflow est un snapshot a la demande, pas un stream. Polling 1h suffit. Si real-time necessaire plus tard, mastra pourra push via SSE ou sa propre WS — separate refactor. |
+| **Cross-user (view-as)** | Reste en pull | Viewer un autre profil n'ouvre pas de WS. Seul le wallet authentifie du user courant declenche des subscriptions. |
+
+### Decisions complementaires
+
+- **Aucune query/subscription inline** dans le code applicatif. Tout passe par `packages/graphql/src/*.graphql` et le pipeline codegen. Le `SubscriptionManager` importe les `DocumentNode` generes et les passe a `graphql-ws` via `print()`.
+- **Pas de nouveau hook** `useSubscription` genere. Les composants continuent d'utiliser leurs `useQuery` existants, alimentes par `queryClient.setQueryData()` depuis le `SubscriptionManager`.
+- **Reuse des fragments existants** : les subscriptions reutilisent `PositionWithVaultDetails` et autres fragments deja definis dans `packages/graphql/src/fragments/`.
 
 ---
 
