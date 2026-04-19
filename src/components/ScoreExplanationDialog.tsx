@@ -43,10 +43,9 @@ export default function ScoreExplanationDialog({
   }
 
   const {
-    finalScore, maxScore,
+    finalScore,
     platformSubtotal, platformContributions,
     trustBonus, multiSourceMultiplier, multiSourceReason,
-    preCapScore, capped,
   } = explanation
 
   const totalContrib = platformContributions.reduce((s, c) => s + c.rawContribution, 0) || 1
@@ -120,19 +119,11 @@ export default function ScoreExplanationDialog({
             </span>
           </section>
 
-          {/* Cap */}
-          {capped && (
-            <section className="flex justify-between text-amber-500">
-              <span>Capped at topic maximum</span>
-              <span className="tabular-nums">{preCapScore} → {maxScore}</span>
-            </section>
-          )}
-
           {/* Final */}
           <section className="flex justify-between pt-3 border-t border-border font-semibold">
             <span>Final score</span>
             <span className="tabular-nums text-lg" style={{ color: topicColor }}>
-              {finalScore} / {maxScore}
+              {finalScore}
             </span>
           </section>
 

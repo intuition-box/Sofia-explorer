@@ -308,10 +308,10 @@ export function computeReputationProfile(
       multiSourceReason = `${platformsWithSignals} platforms — multi-source bonus (×1.5).`
     }
 
-    const preCapScore = Math.round(totalScore)
-    const maxScore = model?.maxScore ?? 100
-    const finalScore = Math.min(maxScore, preCapScore)
-    const capped = preCapScore > maxScore
+    // No cap — the score grows with activity so power users stay
+    // differentiated. Multi-source multiplier and platform weights still
+    // shape the curve; the ceiling is just whatever the user earns.
+    const finalScore = Math.round(totalScore)
 
     const confidence = platformsWithSignals > 0
       ? Math.min(1, platformsWithSignals * SCORING_PRINCIPLES.CROSS_PLATFORM_MIN_CONFIDENCE)
@@ -320,15 +320,15 @@ export function computeReputationProfile(
     const explanation: TopicScoreExplanation = {
       topicId: topic.id,
       finalScore,
-      maxScore,
+      maxScore: finalScore,
       platformSubtotal: Math.round(platformSubtotal),
       platformContributions: contributions,
       trustBonus,
       platformCount: platformsWithSignals,
       multiSourceMultiplier,
       multiSourceReason,
-      preCapScore,
-      capped,
+      preCapScore: finalScore,
+      capped: false,
     }
 
     return {
