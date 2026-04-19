@@ -20,8 +20,60 @@ interface ScoreExplanationDialogProps {
   explanation: TopicScoreExplanation | undefined
 }
 
+/**
+ * Raw metric keys come from the signal fetchers in a mix of French and
+ * English. Translate the known ones; fall back to a cleaned-up key for
+ * anything not in the map.
+ */
+const METRIC_LABELS: Record<string, string> = {
+  // GitHub
+  streak_jours: 'daily streak',
+  commits_moy_quotidien: 'avg daily commits',
+  repos_actifs: 'active repos',
+  stars_recus: 'stars received',
+  langages_distincts: 'distinct languages',
+  repos_total: 'total repos',
+  // YouTube / video
+  videos_postees: 'videos posted',
+  vues_totales: 'total views',
+  avg_views_per_video: 'avg views/video',
+  avg_likes_per_video: 'avg likes/video',
+  avg_comments_per_video: 'avg comments/video',
+  // Spotify / music
+  diversite_genres: 'genre diversity',
+  playlists_creees: 'playlists created',
+  top_artists_count: 'top artists',
+  top_tracks_count: 'top tracks',
+  avg_track_popularity: 'avg track popularity',
+  // Discord
+  serveurs_specialises: 'specialized servers',
+  roles_obtenus: 'earned roles',
+  moderator_guilds: 'moderated servers',
+  owned_guilds: 'owned servers',
+  // Twitch
+  heures_stream_mois: 'stream hours / month',
+  // Reddit
+  subreddits_actifs: 'active subreddits',
+  comment_karma: 'comment karma',
+  link_karma: 'link karma',
+  total_karma: 'total karma',
+  // Strava / sports
+  activites_mois: 'activities / month',
+  km_mois: 'km / month',
+  total_km: 'total km',
+  ytd_runs: 'runs (YTD)',
+  ytd_rides: 'rides (YTD)',
+  friend_count: 'friends',
+  // Shared — account age
+  anciennete_mois: 'account age (months)',
+}
+
+function labelFor(key: string): string {
+  return METRIC_LABELS[key] ?? key.replace(/_/g, ' ')
+}
+
 function formatMetric(key: string, value: number): string {
-  const label = key.replace(/_/g, ' ')
+  const label = labelFor(key)
   const rounded = value >= 100 ? Math.round(value) : Math.round(value * 100) / 100
   return `${label}: ${rounded}`
 }
